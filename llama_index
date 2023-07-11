@@ -1,0 +1,3981 @@
+The following text is a Git repository with code. The structure of the text are sections that begin with ----, followed by a single line containing the file path and file name, followed by a variable amount of lines containing the file contents. The text representing the Git repository ends when the symbols --END-- are encounted. Any further text beyond --END-- are meant to be interpreted as instructions using the aforementioned Git repository as context.
+----
+async_utils.py
+"""Async utils."""
+import asyncio
+from typing import Any, Coroutine, List
+
+
+def run_async_tasks(tasks: List[Coroutine]) -> List[Any]:
+    """Run a list of async tasks."""
+
+    async def _gather() -> List[Any]:
+        return await asyncio.gather(*tasks)
+
+    outputs: List[Any] = asyncio.run(_gather())
+    return outputs
+
+----
+constants.py
+"""Set of constants."""
+
+MAX_CHUNK_SIZE = 3900
+MAX_CHUNK_OVERLAP = 200
+NUM_OUTPUTS = 256
+
+DEFAULT_CHUNK_SIZE = 1024
+DEFAULT_CHUNK_OVERLAP = 200
+DEFAULT_SIMILARITY_TOP_K = 2
+
+
+TYPE_KEY = "__type__"
+DATA_KEY = "__data__"
+VECTOR_STORE_KEY = "vector_store"
+INDEX_STORE_KEY = "index_store"
+DOC_STORE_KEY = "doc_store"
+
+----
+img_utils.py
+"""Utils for manipulating images."""
+import base64
+from io import BytesIO
+from typing import cast
+
+from PIL import Image
+
+
+def img_2_b64(image: Image, format: str = "JPEG") -> str:
+    """Convert a PIL.Image to a base64 encoded image str."""
+    buff = BytesIO()
+    image.save(buff, format=format)
+    img_str = cast(str, base64.b64encode(buff.getvalue()))
+    return img_str
+
+
+def b64_2_img(data: str) -> Image:
+    """Convert base64 encoded image str to a PIL.Image."""
+    buff = BytesIO(base64.b64decode(data))
+    return Image.open(buff)
+
+----
+py.typed
+
+----
+schema.py
+"""Base schema for data structures."""
+from abc import abstractmethod
+from dataclasses import dataclass
+from hashlib import sha256
+from typing import Any, Dict, List, Optional
+
+from dataclasses_json import DataClassJsonMixin
+
+from llama_index.utils import get_new_id
+
+
+def _validate_is_flat_dict(metadata_dict: dict) -> None:
+    """
+    Validate that metadata dict is flat,
+    and key is str, and value is one of (str, int, float).
+    """
+    for key, val in metadata_dict.items():
+        if not isinstance(key, str):
+            raise ValueError("Metadata key must be str!")
+        if not isinstance(val, (str, int, float)):
+            raise ValueError("Value must be one of (str, int, float)")
+
+
+@dataclass
+class BaseDocument(DataClassJsonMixin):
+    """Base document.
+
+    Generic abstract interfaces that captures both index structs
+    as well as documents.
+
+    """
+
+    # TODO: consolidate fields from Document/IndexStruct into base class
+    text: Optional[str] = None
+    doc_id: Optional[str] = None
+    embedding: Optional[List[float]] = None
+    doc_hash: Optional[str] = None
+
+    """"
+    metadata fields
+    - injected as part of the text shown to LLMs as context
+    - used by vector DBs for metadata filtering
+
+    This must be a flat dictionary, 
+    and only uses str keys, and (str, int, float) values.
+    """
+    extra_info: Optional[Dict[str, Any]] = None
+
+    def __post_init__(self) -> None:
+        """Post init."""
+        # assign doc_id if not set
+        if self.doc_id is None:
+            self.doc_id = get_new_id(set())
+        if self.doc_hash is None:
+            self.doc_hash = self._generate_doc_hash()
+
+        if self.extra_info is not None:
+            _validate_is_flat_dict(self.extra_info)
+
+    def _generate_doc_hash(self) -> str:
+        """Generate a hash to represent the document."""
+        doc_identity = str(self.text) + str(self.extra_info)
+        return sha256(doc_identity.encode("utf-8", "surrogatepass")).hexdigest()
+
+    @classmethod
+    @abstractmethod
+    def get_type(cls) -> str:
+        """Get Document type."""
+
+    @classmethod
+    def get_types(cls) -> List[str]:
+        """Get Document type."""
+        # TODO: remove this method
+        # a hack to preserve backwards compatibility for vector indices
+        return [cls.get_type()]
+
+    def get_text(self) -> str:
+        """Get text."""
+        if self.text is None:
+            raise ValueError("text field not set.")
+        return self.text
+
+    def get_doc_id(self) -> str:
+        """Get doc_id."""
+        if self.doc_id is None:
+            raise ValueError("doc_id not set.")
+        return self.doc_id
+
+    def get_doc_hash(self) -> str:
+        """Get doc_hash."""
+        if self.doc_hash is None:
+            raise ValueError("doc_hash is not set.")
+        return self.doc_hash
+
+    @property
+    def is_doc_id_none(self) -> bool:
+        """Check if doc_id is None."""
+        return self.doc_id is None
+
+    @property
+    def is_text_none(self) -> bool:
+        """Check if text is None."""
+        return self.text is None
+
+    def get_embedding(self) -> List[float]:
+        """Get embedding.
+
+        Errors if embedding is None.
+
+        """
+        if self.embedding is None:
+            raise ValueError("embedding not set.")
+        return self.embedding
+
+    @property
+    def extra_info_str(self) -> Optional[str]:
+        """Extra info string."""
+        if self.extra_info is None:
+            return None
+
+        return "\n".join([f"{k}: {str(v)}" for k, v in self.extra_info.items()])
+
+----
+types.py
+from typing import Generator, Union
+
+
+RESPONSE_TEXT_TYPE = Union[str, Generator]
+
+----
+utils.py
+"""General utils functions."""
+
+import random
+import sys
+import time
+import traceback
+import uuid
+from contextlib import contextmanager
+from dataclasses import dataclass
+from itertools import islice
+from typing import (
+    Any,
+    Callable,
+    Generator,
+    List,
+    Optional,
+    Set,
+    Type,
+    cast,
+    Union,
+    Iterable,
+)
+
+
+class GlobalsHelper:
+    """Helper to retrieve globals.
+
+    Helpful for global caching of certain variables that can be expensive to load.
+    (e.g. tokenization)
+
+    """
+
+    _tokenizer: Optional[Callable[[str], List]] = None
+    _stopwords: Optional[List[str]] = None
+
+    @property
+    def tokenizer(self) -> Callable[[str], List]:
+        """Get tokenizer."""
+        if self._tokenizer is None:
+            # if python version >= 3.9, then use tiktoken
+            # else use GPT2TokenizerFast
+            if sys.version_info >= (3, 9):
+                tiktoken_import_err = (
+                    "`tiktoken` package not found, please run `pip install tiktoken`"
+                )
+                try:
+                    import tiktoken
+                except ImportError:
+                    raise ImportError(tiktoken_import_err)
+                enc = tiktoken.get_encoding("gpt2")
+                self._tokenizer = cast(Callable[[str], List], enc.encode)
+            else:
+                try:
+                    import transformers
+                except ImportError:
+                    raise ImportError(
+                        "`transformers` package not found, "
+                        "please run `pip install transformers`"
+                    )
+
+                tokenizer = transformers.GPT2TokenizerFast.from_pretrained("gpt2")
+
+                def tokenizer_fn(text: str) -> List:
+                    return tokenizer(text)["input_ids"]
+
+                self._tokenizer = tokenizer_fn
+        return self._tokenizer
+
+    @property
+    def stopwords(self) -> List[str]:
+        """Get stopwords."""
+        if self._stopwords is None:
+            try:
+                import nltk
+                from nltk.corpus import stopwords
+            except ImportError:
+                raise ImportError(
+                    "`nltk` package not found, please run `pip install nltk`"
+                )
+            try:
+                nltk.data.find("corpora/stopwords")
+            except LookupError:
+                nltk.download("stopwords")
+            self._stopwords = stopwords.words("english")
+        return self._stopwords
+
+
+globals_helper = GlobalsHelper()
+
+
+def get_new_id(d: Set) -> str:
+    """Get a new ID."""
+    while True:
+        new_id = str(uuid.uuid4())
+        if new_id not in d:
+            break
+    return new_id
+
+
+def get_new_int_id(d: Set) -> int:
+    """Get a new integer ID."""
+    while True:
+        new_id = random.randint(0, sys.maxsize)
+        if new_id not in d:
+            break
+    return new_id
+
+
+@contextmanager
+def temp_set_attrs(obj: Any, **kwargs: Any) -> Generator:
+    """Temporary setter.
+
+    Utility class for setting a temporary value for an attribute on a class.
+    Taken from: https://tinyurl.com/2p89xymh
+
+    """
+    prev_values = {k: getattr(obj, k) for k in kwargs}
+    for k, v in kwargs.items():
+        setattr(obj, k, v)
+    try:
+        yield
+    finally:
+        for k, v in prev_values.items():
+            setattr(obj, k, v)
+
+
+@dataclass
+class ErrorToRetry:
+    """Exception types that should be retried.
+
+    Args:
+        exception_cls (Type[Exception]): Class of exception.
+        check_fn (Optional[Callable[[Any]], bool]]):
+            A function that takes an exception instance as input and returns
+            whether to retry.
+
+    """
+
+    exception_cls: Type[Exception]
+    check_fn: Optional[Callable[[Any], bool]] = None
+
+
+def retry_on_exceptions_with_backoff(
+    lambda_fn: Callable,
+    errors_to_retry: List[ErrorToRetry],
+    max_tries: int = 10,
+    min_backoff_secs: float = 0.5,
+    max_backoff_secs: float = 60.0,
+) -> Any:
+    """Execute lambda function with retries and exponential backoff.
+
+    Args:
+        lambda_fn (Callable): Function to be called and output we want.
+        errors_to_retry (List[ErrorToRetry]): List of errors to retry.
+            At least one needs to be provided.
+        max_tries (int): Maximum number of tries, including the first. Defaults to 10.
+        min_backoff_secs (float): Minimum amount of backoff time between attempts.
+            Defaults to 0.5.
+        max_backoff_secs (float): Maximum amount of backoff time between attempts.
+            Defaults to 60.
+
+    """
+    if not errors_to_retry:
+        raise ValueError("At least one error to retry needs to be provided")
+
+    error_checks = {
+        error_to_retry.exception_cls: error_to_retry.check_fn
+        for error_to_retry in errors_to_retry
+    }
+    exception_class_tuples = tuple(error_checks.keys())
+
+    backoff_secs = min_backoff_secs
+    tries = 0
+
+    while True:
+        try:
+            return lambda_fn()
+        except exception_class_tuples as e:
+            traceback.print_exc()
+            tries += 1
+            if tries >= max_tries:
+                raise
+            check_fn = error_checks.get(e.__class__)
+            if check_fn and not check_fn(e):
+                raise
+            time.sleep(backoff_secs)
+            backoff_secs = min(backoff_secs * 2, max_backoff_secs)
+
+
+def truncate_text(text: str, max_length: int) -> str:
+    """Truncate text to a maximum length."""
+    return text[: max_length - 3] + "..."
+
+
+def iter_batch(iterable: Union[Iterable, Generator], size: int) -> Iterable:
+    """Iterate over an iterable in batches.
+
+    >>> list(iter_batch([1,2,3,4,5], 3))
+    [[1, 2, 3], [4, 5]]
+    """
+    source_iter = iter(iterable)
+    while source_iter:
+        b = list(islice(source_iter, size))
+        if len(b) == 0:
+            break
+        yield b
+
+----
+VERSION
+0.6.9
+
+----
+__init__.py
+"""Init file of LlamaIndex."""
+from pathlib import Path
+
+with open(Path(__file__).absolute().parents[0] / "VERSION") as _f:
+    __version__ = _f.read().strip()
+
+
+import logging
+from logging import NullHandler
+
+from llama_index.data_structs.struct_type import IndexStructType
+
+# embeddings
+from llama_index.embeddings.langchain import LangchainEmbedding
+from llama_index.embeddings.openai import OpenAIEmbedding
+
+# structured
+from llama_index.indices.common.struct_store.base import SQLDocumentContextBuilder
+from llama_index.indices.composability.graph import ComposableGraph
+from llama_index.indices.empty import GPTEmptyIndex
+
+# indices
+from llama_index.indices.keyword_table import (
+    GPTKeywordTableIndex,
+    GPTRAKEKeywordTableIndex,
+    GPTSimpleKeywordTableIndex,
+)
+from llama_index.indices.list import GPTListIndex
+
+# loading
+from llama_index.indices.loading import (
+    load_graph_from_storage,
+    load_index_from_storage,
+    load_indices_from_storage,
+)
+
+# prompt helper
+from llama_index.indices.prompt_helper import PromptHelper
+
+# Response Synthesizer
+from llama_index.indices.query.response_synthesis import ResponseSynthesizer
+
+# QueryBundle
+from llama_index.indices.query.schema import QueryBundle
+
+# for composability
+from llama_index.indices.service_context import ServiceContext
+from llama_index.indices.struct_store.sql import GPTSQLStructStoreIndex
+from llama_index.indices.tree import GPTTreeIndex
+from llama_index.indices.vector_store import GPTVectorStoreIndex
+
+# langchain helper
+from llama_index.langchain_helpers.chain_wrapper import LLMPredictor
+from llama_index.langchain_helpers.memory_wrapper import GPTIndexMemory
+from llama_index.langchain_helpers.sql_wrapper import SQLDatabase
+
+# prompts
+from llama_index.prompts.base import Prompt
+from llama_index.prompts.prompts import (
+    KeywordExtractPrompt,
+    QueryKeywordExtractPrompt,
+    QuestionAnswerPrompt,
+    RefinePrompt,
+    SummaryPrompt,
+    TreeInsertPrompt,
+    TreeSelectMultiplePrompt,
+    TreeSelectPrompt,
+)
+
+# readers
+from llama_index.readers import (
+    BeautifulSoupWebReader,
+    ChromaReader,
+    DeepLakeReader,
+    DiscordReader,
+    Document,
+    FaissReader,
+    GithubRepositoryReader,
+    GoogleDocsReader,
+    JSONReader,
+    MboxReader,
+    MilvusReader,
+    NotionPageReader,
+    ObsidianReader,
+    PineconeReader,
+    QdrantReader,
+    RssReader,
+    SimpleDirectoryReader,
+    SimpleMongoReader,
+    SimpleWebPageReader,
+    SlackReader,
+    StringIterableReader,
+    TrafilaturaWebReader,
+    TwitterTweetReader,
+    WeaviateReader,
+    WikipediaReader,
+)
+from llama_index.readers.download import download_loader
+
+# response
+from llama_index.response.schema import Response
+
+# storage
+from llama_index.storage.storage_context import StorageContext
+
+# token predictor
+from llama_index.token_counter.mock_chain_wrapper import MockLLMPredictor
+from llama_index.token_counter.mock_embed_model import MockEmbedding
+
+# best practices for library logging:
+# https://docs.python.org/3/howto/logging.html#configuring-logging-for-a-library
+logging.getLogger(__name__).addHandler(NullHandler())
+
+
+__all__ = [
+    "StorageContext",
+    "ServiceContext",
+    "ComposableGraph",
+    "GPTKeywordTableIndex",
+    "GPTSimpleKeywordTableIndex",
+    "GPTRAKEKeywordTableIndex",
+    "GPTListIndex",
+    "GPTEmptyIndex",
+    "GPTTreeIndex",
+    "GPTVectorStoreIndex",
+    "GPTSQLStructStoreIndex",
+    "Prompt",
+    "LangchainEmbedding",
+    "OpenAIEmbedding",
+    "SummaryPrompt",
+    "TreeInsertPrompt",
+    "TreeSelectPrompt",
+    "TreeSelectMultiplePrompt",
+    "RefinePrompt",
+    "QuestionAnswerPrompt",
+    "KeywordExtractPrompt",
+    "QueryKeywordExtractPrompt",
+    "Response",
+    "WikipediaReader",
+    "ObsidianReader",
+    "Document",
+    "SimpleDirectoryReader",
+    "JSONReader",
+    "SimpleMongoReader",
+    "NotionPageReader",
+    "GoogleDocsReader",
+    "MboxReader",
+    "SlackReader",
+    "StringIterableReader",
+    "WeaviateReader",
+    "FaissReader",
+    "ChromaReader",
+    "DeepLakeReader",
+    "PineconeReader",
+    "QdrantReader",
+    "MilvusReader",
+    "DiscordReader",
+    "SimpleWebPageReader",
+    "RssReader",
+    "BeautifulSoupWebReader",
+    "TrafilaturaWebReader",
+    "LLMPredictor",
+    "MockLLMPredictor",
+    "MockEmbedding",
+    "SQLDatabase",
+    "GPTIndexMemory",
+    "SQLDocumentContextBuilder",
+    "SQLContextBuilder",
+    "PromptHelper",
+    "IndexStructType",
+    "TwitterTweetReader",
+    "download_loader",
+    "GithubRepositoryReader",
+    "load_graph_from_storage",
+    "load_index_from_storage",
+    "load_indices_from_storage",
+    "QueryBundle",
+    "ResponseSynthesizer",
+]
+
+# NOTE: keep for backwards compatibility
+SQLContextBuilder = SQLDocumentContextBuilder
+
+----
+callbacks\aim.py
+import logging
+from typing import Any, Dict, List, Optional
+
+try:
+    from aim import Run, Text
+except ModuleNotFoundError:
+    Run, Text = None, None
+
+from llama_index.callbacks.base import BaseCallbackHandler
+from llama_index.callbacks.schema import CBEventType
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+
+
+class AimCallback(BaseCallbackHandler):
+    """
+    AimCallback callback class.
+
+    Args:
+        repo (:obj:`str`, optional):
+            Aim repository path or Repo object to which Run object is bound.
+            If skipped, default Repo is used.
+        experiment_name (:obj:`str`, optional):
+            Sets Run's `experiment` property. 'default' if not specified.
+            Can be used later to query runs/sequences.
+        system_tracking_interval (:obj:`int`, optional):
+            Sets the tracking interval in seconds for system usage
+            metrics (CPU, Memory, etc.). Set to `None` to disable
+            system metrics tracking.
+        log_system_params (:obj:`bool`, optional):
+            Enable/Disable logging of system params such as installed packages,
+            git info, environment variables, etc.
+        capture_terminal_logs (:obj:`bool`, optional):
+            Enable/Disable terminal stdout logging.
+        event_starts_to_ignore (Optional[List[CBEventType]]):
+            list of event types to ignore when tracking event starts.
+        event_ends_to_ignore (Optional[List[CBEventType]]):
+            list of event types to ignore when tracking event ends.
+    """
+
+    def __init__(
+        self,
+        repo: Optional[str] = None,
+        experiment_name: Optional[str] = None,
+        system_tracking_interval: Optional[int] = 1,
+        log_system_params: Optional[bool] = True,
+        capture_terminal_logs: Optional[bool] = True,
+        event_starts_to_ignore: Optional[List[CBEventType]] = None,
+        event_ends_to_ignore: Optional[List[CBEventType]] = None,
+        run_params: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        if Run is None:
+            raise ModuleNotFoundError(
+                "Please install aim to use the AimCallback: 'pip install aim'"
+            )
+
+        event_starts_to_ignore = (
+            event_starts_to_ignore if event_starts_to_ignore else []
+        )
+        event_ends_to_ignore = event_ends_to_ignore if event_ends_to_ignore else []
+        super().__init__(
+            event_starts_to_ignore=event_starts_to_ignore,
+            event_ends_to_ignore=event_ends_to_ignore,
+        )
+
+        self.repo = repo
+        self.experiment_name = experiment_name
+        self.system_tracking_interval = system_tracking_interval
+        self.log_system_params = log_system_params
+        self.capture_terminal_logs = capture_terminal_logs
+        self._run: Optional[Any] = None
+        self._run_hash = None
+
+        self._llm_response_step = 0
+
+        self.setup(run_params)
+
+    def on_event_start(
+        self,
+        event_type: CBEventType,
+        payload: Optional[Dict[str, Any]] = None,
+        event_id: str = "",
+        **kwargs: Any,
+    ) -> str:
+        """
+        Args:
+            event_type (CBEventType): event type to store.
+            payload (Optional[Dict[str, Any]]): payload to store.
+            event_id (str): event id to store.
+        """
+        return ""
+
+    def on_event_end(
+        self,
+        event_type: CBEventType,
+        payload: Optional[Dict[str, Any]] = None,
+        event_id: str = "",
+        **kwargs: Any,
+    ) -> None:
+        """
+        Args:
+            event_type (CBEventType): event type to store.
+            payload (Optional[Dict[str, Any]]): payload to store.
+            event_id (str): event id to store.
+        """
+        if not self._run:
+            raise ValueError("AimCallback failed to init properly.")
+
+        if event_type is CBEventType.LLM and payload:
+            self._run.track(
+                Text(payload["formatted_prompt"]),
+                name="prompt",
+                step=self._llm_response_step,
+                context={"event_id": event_id},
+            )
+
+            self._run.track(
+                Text(payload["response"]),
+                name="response",
+                step=self._llm_response_step,
+                context={"event_id": event_id},
+            )
+
+            self._llm_response_step += 1
+        elif event_type is CBEventType.CHUNKING and payload:
+            for chunk_id, chunk in enumerate(payload["chunks"]):
+                self._run.track(
+                    Text(chunk),
+                    name="chunk",
+                    step=self._llm_response_step,
+                    context={"chunk_id": chunk_id, "event_id": event_id},
+                )
+
+    @property
+    def experiment(self) -> Run:
+        if not self._run:
+            self.setup()
+        return self._run
+
+    def setup(self, args: Optional[Dict[str, Any]] = None) -> None:
+        if not self._run:
+            if self._run_hash:
+                self._run = Run(
+                    self._run_hash,
+                    repo=self.repo,
+                    system_tracking_interval=self.system_tracking_interval,
+                    log_system_params=self.log_system_params,
+                    capture_terminal_logs=self.capture_terminal_logs,
+                )
+            else:
+                self._run = Run(
+                    repo=self.repo,
+                    experiment=self.experiment_name,
+                    system_tracking_interval=self.system_tracking_interval,
+                    log_system_params=self.log_system_params,
+                    capture_terminal_logs=self.capture_terminal_logs,
+                )
+                self._run_hash = self._run.hash
+
+        # Log config parameters
+        if args:
+            try:
+                for key in args:
+                    self._run.set(key, args[key], strict=False)
+            except Exception as e:
+                logger.warning(f"Aim could not log config parameters -> {e}")
+
+    def __del__(self) -> None:
+        if self._run and self._run.active:
+            self._run.close()
+
+----
+callbacks\base.py
+import uuid
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional
+
+from llama_index.callbacks.schema import CBEventType
+
+
+class BaseCallbackHandler(ABC):
+    """Base callback handler that can be used to track event starts and ends."""
+
+    def __init__(
+        self,
+        event_starts_to_ignore: List[CBEventType],
+        event_ends_to_ignore: List[CBEventType],
+    ) -> None:
+        """Initialize the base callback handler."""
+        self.event_starts_to_ignore = tuple(event_starts_to_ignore)
+        self.event_ends_to_ignore = tuple(event_ends_to_ignore)
+
+    @abstractmethod
+    def on_event_start(
+        self,
+        event_type: CBEventType,
+        payload: Optional[Dict[str, Any]] = None,
+        event_id: str = "",
+        **kwargs: Any
+    ) -> str:
+        """Run when an event starts and return id of event."""
+
+    @abstractmethod
+    def on_event_end(
+        self,
+        event_type: CBEventType,
+        payload: Optional[Dict[str, Any]] = None,
+        event_id: str = "",
+        **kwargs: Any
+    ) -> None:
+        """Run when an event ends."""
+
+
+class CallbackManager(BaseCallbackHandler, ABC):
+    """Callback manager that handles callbacks for events within LlamaIndex.
+
+    Args:
+        handlers (List[BaseCallbackHandler]): list of handlers to use.
+
+    """
+
+    def __init__(self, handlers: List[BaseCallbackHandler]):
+        """Initialize the manager with a list of handlers."""
+        self.handlers = handlers
+
+    def on_event_start(
+        self,
+        event_type: CBEventType,
+        payload: Optional[Dict[str, Any]] = None,
+        event_id: str = "",
+        **kwargs: Any
+    ) -> str:
+        """Run handlers when an event starts and return id of event."""
+        event_id = event_id or str(uuid.uuid4())
+        for handler in self.handlers:
+            if event_type not in handler.event_starts_to_ignore:
+                handler.on_event_start(event_type, payload, event_id=event_id, **kwargs)
+        return event_id
+
+    def on_event_end(
+        self,
+        event_type: CBEventType,
+        payload: Optional[Dict[str, Any]] = None,
+        event_id: str = "",
+        **kwargs: Any
+    ) -> None:
+        """Run handlers when an event ends."""
+        event_id = event_id or str(uuid.uuid4())
+        for handler in self.handlers:
+            if event_type not in handler.event_ends_to_ignore:
+                handler.on_event_end(event_type, payload, event_id=event_id, **kwargs)
+
+    def add_handler(self, handler: BaseCallbackHandler) -> None:
+        """Add a handler to the callback manager."""
+        self.handlers.append(handler)
+
+    def remove_handler(self, handler: BaseCallbackHandler) -> None:
+        """Remove a handler from the callback manager."""
+        self.handlers.remove(handler)
+
+    def set_handlers(self, handlers: List[BaseCallbackHandler]) -> None:
+        """Set handlers as the only handlers on the callback manager."""
+        self.handlers = handlers
+
+----
+callbacks\llama_debug.py
+from collections import defaultdict
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+
+from llama_index.callbacks.base import BaseCallbackHandler
+from llama_index.callbacks.schema import (
+    CBEvent,
+    CBEventType,
+    EventStats,
+    TIMESTAMP_FORMAT,
+)
+
+
+class LlamaDebugHandler(BaseCallbackHandler):
+    """Callback handler that keeps track of debug info.
+
+    NOTE: this is a beta feature. The usage within our codebase, and the interface
+    may change.
+
+    This handler simply keeps track of event starts/ends, separated by event types.
+    You can use this callback handler to keep track of and debug events.
+
+    Args:
+        event_starts_to_ignore (Optional[List[CBEventType]]): list of event types to
+            ignore when tracking event starts.
+        event_ends_to_ignore (Optional[List[CBEventType]]): list of event types to
+            ignore when tracking event ends.
+
+    """
+
+    def __init__(
+        self,
+        event_starts_to_ignore: Optional[List[CBEventType]] = None,
+        event_ends_to_ignore: Optional[List[CBEventType]] = None,
+    ) -> None:
+        """Initialize the llama debug handler."""
+        self._events: Dict[CBEventType, List[CBEvent]] = defaultdict(list)
+        self._sequential_events: List[CBEvent] = []
+        event_starts_to_ignore = (
+            event_starts_to_ignore if event_starts_to_ignore else []
+        )
+        event_ends_to_ignore = event_ends_to_ignore if event_ends_to_ignore else []
+        super().__init__(
+            event_starts_to_ignore=event_starts_to_ignore,
+            event_ends_to_ignore=event_ends_to_ignore,
+        )
+
+    def on_event_start(
+        self,
+        event_type: CBEventType,
+        payload: Optional[Dict[str, Any]] = None,
+        event_id: str = "",
+        **kwargs: Any
+    ) -> str:
+        """Store event start data by event type.
+
+        Args:
+            event_type (CBEventType): event type to store.
+            payload (Optional[Dict[str, Any]]): payload to store.
+            event_id (str): event id to store.
+
+        """
+        event = CBEvent(event_type, payload=payload, id_=event_id)
+        self._events[event.event_type].append(event)
+        self._sequential_events.append(event)
+        return event.id_
+
+    def on_event_end(
+        self,
+        event_type: CBEventType,
+        payload: Optional[Dict[str, Any]] = None,
+        event_id: str = "",
+        **kwargs: Any
+    ) -> None:
+        """Store event end data by event type.
+
+        Args:
+            event_type (CBEventType): event type to store.
+            payload (Optional[Dict[str, Any]]): payload to store.
+            event_id (str): event id to store.
+
+        """
+        event = CBEvent(event_type, payload=payload, id_=event_id)
+        self._events[event.event_type].append(event)
+        self._sequential_events.append(event)
+
+    def get_events(self, event_type: Optional[CBEventType] = None) -> List[CBEvent]:
+        """Get all events for a specific event type."""
+        if event_type is not None:
+            return self._events[event_type]
+
+        return self._sequential_events
+
+    def _get_event_pairs(self, events: List[CBEvent]) -> List[List[CBEvent]]:
+        """Helper function to pair events according to their ID."""
+        event_pairs: Dict[str, List[CBEvent]] = defaultdict(list)
+        for event in events:
+            event_pairs[event.id_].append(event)
+
+        sorted_events = sorted(
+            event_pairs.values(),
+            key=lambda x: datetime.strptime(x[0].time, TIMESTAMP_FORMAT),
+        )
+        return sorted_events
+
+    def _get_time_stats_from_event_pairs(
+        self, event_pairs: List[List[CBEvent]]
+    ) -> EventStats:
+        """Calculate time-based stats for a set of event pairs"""
+        total_secs = 0.0
+        for event_pair in event_pairs:
+            start_time = datetime.strptime(event_pair[0].time, TIMESTAMP_FORMAT)
+            end_time = datetime.strptime(event_pair[-1].time, TIMESTAMP_FORMAT)
+            total_secs += (end_time - start_time).total_seconds()
+
+        stats = EventStats(
+            total_secs=total_secs,
+            average_secs=total_secs / len(event_pairs),
+            total_count=len(event_pairs),
+        )
+        return stats
+
+    def get_event_pairs(
+        self, event_type: Optional[CBEventType] = None
+    ) -> List[List[CBEvent]]:
+        """Pair events by ID, either all events or a sepcific type."""
+        if event_type is not None:
+            return self._get_event_pairs(self._events[event_type])
+
+        return self._get_event_pairs(self._sequential_events)
+
+    def get_llm_inputs_outputs(self) -> List[List[CBEvent]]:
+        """Get the exact LLM inputs and outputs."""
+        return self._get_event_pairs(self.events[CBEventType.LLM])
+
+    def get_event_time_info(
+        self, event_type: Optional[CBEventType] = None
+    ) -> EventStats:
+        event_pairs = self.get_event_pairs(event_type)
+        return self._get_time_stats_from_event_pairs(event_pairs)
+
+    def flush_event_logs(self) -> None:
+        """Clear all events from memory."""
+        self._events = defaultdict(list)
+        self._sequential_events = []
+
+    @property
+    def events(self) -> Dict[CBEventType, List[CBEvent]]:
+        return self._events
+
+    @property
+    def sequential_events(self) -> List[CBEvent]:
+        return self._sequential_events
+
+----
+callbacks\schema.py
+"""Base schema for callback managers."""
+import uuid
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, Optional
+
+TIMESTAMP_FORMAT = "%m/%d/%Y, %H:%M:%S"
+
+
+class CBEventType(str, Enum):
+    """Callback manager event types.
+
+    Attributes:
+        CHUNKING: Logs for the before and after of text splitting.
+        NODE_PARSING: Logs for the documents and the nodes that they are parsed into.
+        EMBEDDING: Logs for the number of texts embedded.
+        LLM: Logs for the template and response of LLM calls.
+        QUERY: Keeps track of the start and end of each query.
+        RETRIEVE: Logs for the nodes retrieved for a query.
+        SYNTHESIZE: Logs for the result for synthesize calls.
+        TREE: Logs for the summary and level of summaries generated.
+    """
+
+    CHUNKING = "chunking"
+    NODE_PARSING = "node_parsing"
+    EMBEDDING = "embedding"
+    LLM = "llm"
+    QUERY = "query"
+    RETRIEVE = "retrieve"
+    SYNTHESIZE = "synthesize"
+    TREE = "tree"
+
+
+@dataclass
+class CBEvent:
+    """Generic class to store event information."""
+
+    event_type: CBEventType
+    payload: Optional[Dict[str, Any]] = None
+    time: str = ""
+    id_: str = ""
+
+    def __post_init__(self) -> None:
+        """Init time and id if needed."""
+        if not self.time:
+            self.time = datetime.now().strftime(TIMESTAMP_FORMAT)
+        if not self.id_:
+            self.id = str(uuid.uuid4())
+
+
+@dataclass
+class EventStats:
+    """Time-based Statistics for events."""
+
+    total_secs: float
+    average_secs: float
+    total_count: int
+
+----
+callbacks\__init__.py
+from .base import CallbackManager
+from .llama_debug import LlamaDebugHandler
+from .aim import AimCallback
+from .schema import CBEvent, CBEventType
+
+__all__ = [
+    "CallbackManager",
+    "CBEvent",
+    "CBEventType",
+    "LlamaDebugHandler",
+    "AimCallback",
+]
+
+----
+composability\base.py
+"""Composable graph."""
+
+# TODO: remove this file, only keep for backwards compatibility
+from llama_index.indices.composability.graph import ComposableGraph  # noqa: F401
+
+----
+composability\joint_qa_summary.py
+"""Joint QA Summary graph."""
+
+
+from typing import Sequence, Optional
+
+from llama_index.indices.service_context import ServiceContext
+from llama_index.indices.list.base import GPTListIndex
+from llama_index.indices.vector_store import GPTVectorStoreIndex
+from llama_index.readers.schema.base import Document
+from llama_index.selectors.llm_selectors import LLMSingleSelector
+from llama_index.storage.storage_context import StorageContext
+
+from llama_index.query_engine.router_query_engine import RouterQueryEngine
+from llama_index.tools.query_engine import QueryEngineTool
+
+DEFAULT_SUMMARY_TEXT = "Use this index for summarization queries"
+DEFAULT_QA_TEXT = (
+    "Use this index for queries that require retrieval of specific "
+    "context from documents."
+)
+
+
+class QASummaryQueryEngineBuilder:
+    """Joint QA Summary graph builder.
+
+    Can build a graph that provides a unified query interface
+    for both QA and summarization tasks.
+
+    NOTE: this is a beta feature. The API may change in the future.
+
+    Args:
+        docstore (BaseDocumentStore): A BaseDocumentStore to use for storing nodes.
+        service_context (ServiceContext): A ServiceContext to use for
+            building indices.
+        summary_text (str): Text to use for the summary index.
+        qa_text (str): Text to use for the QA index.
+        node_parser (NodeParser): A NodeParser to use for parsing.
+
+    """
+
+    def __init__(
+        self,
+        storage_context: Optional[StorageContext] = None,
+        service_context: Optional[ServiceContext] = None,
+        summary_text: str = DEFAULT_SUMMARY_TEXT,
+        qa_text: str = DEFAULT_QA_TEXT,
+    ) -> None:
+        """Init params."""
+        self._storage_context = storage_context or StorageContext.from_defaults()
+        self._service_context = service_context or ServiceContext.from_defaults()
+        self._summary_text = summary_text
+        self._qa_text = qa_text
+
+    def build_from_documents(
+        self,
+        documents: Sequence[Document],
+    ) -> RouterQueryEngine:
+        """Build query engine."""
+
+        # parse nodes
+        nodes = self._service_context.node_parser.get_nodes_from_documents(documents)
+
+        # ingest nodes
+        self._storage_context.docstore.add_documents(nodes, allow_update=True)
+
+        # build indices
+        vector_index = GPTVectorStoreIndex(
+            nodes,
+            service_context=self._service_context,
+            storage_context=self._storage_context,
+        )
+        list_index = GPTListIndex(
+            nodes,
+            service_context=self._service_context,
+            storage_context=self._storage_context,
+        )
+
+        vector_query_engine = vector_index.as_query_engine(
+            service_context=self._service_context
+        )
+        list_query_engine = list_index.as_query_engine(
+            service_context=self._service_context,
+            response_mode="tree_summarize",
+        )
+
+        # build query engine
+        query_engine = RouterQueryEngine(
+            selector=LLMSingleSelector.from_defaults(self._service_context),
+            query_engine_tools=[
+                QueryEngineTool.from_defaults(
+                    vector_query_engine, description=self._qa_text
+                ),
+                QueryEngineTool.from_defaults(
+                    list_query_engine, description=self._summary_text
+                ),
+            ],
+        )
+        return query_engine
+
+----
+composability\__init__.py
+"""Init composability."""
+
+
+from llama_index.composability.base import ComposableGraph
+from llama_index.composability.joint_qa_summary import QASummaryQueryEngineBuilder
+
+__all__ = ["ComposableGraph", "QASummaryQueryEngineBuilder"]
+
+----
+data_structs\data_structs.py
+"""Data structures.
+
+Nodes are decoupled from the indices.
+
+"""
+
+import uuid
+from abc import abstractmethod
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Sequence, Set, Tuple
+
+from dataclasses_json import DataClassJsonMixin
+
+from llama_index.data_structs.node import Node
+from llama_index.data_structs.struct_type import IndexStructType
+
+
+@dataclass
+class IndexStruct(DataClassJsonMixin):
+    """A base data struct for a LlamaIndex."""
+
+    index_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    summary: Optional[str] = None
+
+    def get_summary(self) -> str:
+        """Get text summary."""
+        if self.summary is None:
+            raise ValueError("summary field of the index_struct not set.")
+        return self.summary
+
+    @classmethod
+    @abstractmethod
+    def get_type(cls) -> IndexStructType:
+        """Get index struct type."""
+
+
+@dataclass
+class IndexGraph(IndexStruct):
+    """A graph representing the tree-structured index."""
+
+    # mapping from index in tree to Node doc id.
+    all_nodes: Dict[int, str] = field(default_factory=dict)
+    root_nodes: Dict[int, str] = field(default_factory=dict)
+    node_id_to_children_ids: Dict[str, List[str]] = field(default_factory=dict)
+
+    @property
+    def node_id_to_index(self) -> Dict[str, int]:
+        """Map from node id to index."""
+        return {node_id: index for index, node_id in self.all_nodes.items()}
+
+    @property
+    def size(self) -> int:
+        """Get the size of the graph."""
+        return len(self.all_nodes)
+
+    def get_index(self, node: Node) -> int:
+        """Get index of node."""
+        return self.node_id_to_index[node.get_doc_id()]
+
+    def insert(
+        self,
+        node: Node,
+        index: Optional[int] = None,
+        children_nodes: Optional[Sequence[Node]] = None,
+    ) -> None:
+        """Insert node."""
+        index = index or self.size
+        node_id = node.get_doc_id()
+
+        self.all_nodes[index] = node_id
+
+        if children_nodes is None:
+            children_nodes = []
+        children_ids = [n.get_doc_id() for n in children_nodes]
+        self.node_id_to_children_ids[node_id] = children_ids
+
+    def get_children(self, parent_node: Optional[Node]) -> Dict[int, str]:
+        """Get children nodes."""
+        if parent_node is None:
+            return self.root_nodes
+        else:
+            parent_id = parent_node.get_doc_id()
+            children_ids = self.node_id_to_children_ids[parent_id]
+            return {
+                self.node_id_to_index[child_id]: child_id for child_id in children_ids
+            }
+
+    def insert_under_parent(
+        self, node: Node, parent_node: Optional[Node], new_index: Optional[int] = None
+    ) -> None:
+        """Insert under parent node."""
+        new_index = new_index or self.size
+        if parent_node is None:
+            self.root_nodes[new_index] = node.get_doc_id()
+            self.node_id_to_children_ids[node.get_doc_id()] = []
+        else:
+            if parent_node.doc_id not in self.node_id_to_children_ids:
+                self.node_id_to_children_ids[parent_node.get_doc_id()] = []
+            self.node_id_to_children_ids[parent_node.get_doc_id()].append(
+                node.get_doc_id()
+            )
+
+        self.all_nodes[new_index] = node.get_doc_id()
+
+    @classmethod
+    def get_type(cls) -> IndexStructType:
+        """Get type."""
+        return IndexStructType.TREE
+
+
+@dataclass
+class KeywordTable(IndexStruct):
+    """A table of keywords mapping keywords to text chunks."""
+
+    table: Dict[str, Set[str]] = field(default_factory=dict)
+
+    def add_node(self, keywords: List[str], node: Node) -> None:
+        """Add text to table."""
+        for keyword in keywords:
+            if keyword not in self.table:
+                self.table[keyword] = set()
+            self.table[keyword].add(node.get_doc_id())
+
+    @property
+    def node_ids(self) -> Set[str]:
+        """Get all node ids."""
+        return set.union(*self.table.values())
+
+    @property
+    def keywords(self) -> Set[str]:
+        """Get all keywords in the table."""
+        return set(self.table.keys())
+
+    @property
+    def size(self) -> int:
+        """Get the size of the table."""
+        return len(self.table)
+
+    @classmethod
+    def get_type(cls) -> IndexStructType:
+        """Get type."""
+        return IndexStructType.KEYWORD_TABLE
+
+
+@dataclass
+class IndexList(IndexStruct):
+    """A list of documents."""
+
+    nodes: List[str] = field(default_factory=list)
+
+    def add_node(self, node: Node) -> None:
+        """Add text to table, return current position in list."""
+        # don't worry about child indices for now, nodes are all in order
+        self.nodes.append(node.get_doc_id())
+
+    @classmethod
+    def get_type(cls) -> IndexStructType:
+        """Get type."""
+        return IndexStructType.LIST
+
+
+@dataclass
+class IndexDict(IndexStruct):
+    """A simple dictionary of documents."""
+
+    # mapping from vector store id to node id
+    nodes_dict: Dict[str, str] = field(default_factory=dict)
+    # mapping from doc_id to vector store id
+    doc_id_dict: Dict[str, List[str]] = field(default_factory=dict)
+
+    # TODO: temporary hack to store embeddings for simple vector index
+    # this should be empty for all other indices
+    embeddings_dict: Dict[str, List[float]] = field(default_factory=dict)
+
+    def add_node(
+        self,
+        node: Node,
+        text_id: Optional[str] = None,
+    ) -> str:
+        """Add text to table, return current position in list."""
+        # # don't worry about child indices for now, nodes are all in order
+        # self.nodes_dict[int_id] = node
+        vector_id = text_id if text_id is not None else node.get_doc_id()
+        self.nodes_dict[vector_id] = node.get_doc_id()
+        if node.ref_doc_id is not None:
+            if node.ref_doc_id not in self.doc_id_dict:
+                self.doc_id_dict[node.ref_doc_id] = []
+            self.doc_id_dict[node.ref_doc_id].append(vector_id)
+
+        return vector_id
+
+    def delete(self, doc_id: str) -> None:
+        """Delete a Node."""
+        if doc_id not in self.doc_id_dict:
+            return
+        for vector_id in self.doc_id_dict[doc_id]:
+            del self.nodes_dict[vector_id]
+        del self.doc_id_dict[doc_id]
+
+    @classmethod
+    def get_type(cls) -> IndexStructType:
+        """Get type."""
+        return IndexStructType.VECTOR_STORE
+
+
+@dataclass
+class KG(IndexStruct):
+    """A table of keywords mapping keywords to text chunks."""
+
+    # Unidirectional
+
+    table: Dict[str, Set[str]] = field(default_factory=dict)
+    # text_chunks: Dict[str, Node] = field(default_factory=dict)
+    rel_map: Dict[str, List[Tuple[str, str]]] = field(default_factory=dict)
+    embedding_dict: Dict[str, List[float]] = field(default_factory=dict)
+
+    @property
+    def node_ids(self) -> Set[str]:
+        """Get all node ids."""
+        return set.union(*self.table.values())
+
+    def add_to_embedding_dict(self, triplet_str: str, embedding: List[float]) -> None:
+        """Add embedding to dict."""
+        self.embedding_dict[triplet_str] = embedding
+
+    def upsert_triplet(self, triplet: Tuple[str, str, str]) -> None:
+        """Upsert a knowledge triplet to the graph."""
+        subj, relationship, obj = triplet
+        if subj not in self.rel_map:
+            self.rel_map[subj] = []
+        self.rel_map[subj].append((obj, relationship))
+
+    def add_node(self, keywords: List[str], node: Node) -> None:
+        """Add text to table."""
+        node_id = node.get_doc_id()
+        for keyword in keywords:
+            if keyword not in self.table:
+                self.table[keyword] = set()
+            self.table[keyword].add(node_id)
+        # self.text_chunks[node_id] = node
+
+    def get_rel_map_texts(self, keyword: str) -> List[str]:
+        """Get the corresponding knowledge for a given keyword."""
+        # NOTE: return a single node for now
+        if keyword not in self.rel_map:
+            return []
+        texts = []
+        for obj, rel in self.rel_map[keyword]:
+            texts.append(str((keyword, rel, obj)))
+        return texts
+
+    def get_rel_map_tuples(self, keyword: str) -> List[Tuple[str, str]]:
+        """Get the corresponding knowledge for a given keyword."""
+        # NOTE: return a single node for now
+        if keyword not in self.rel_map:
+            return []
+        return self.rel_map[keyword]
+
+    def get_node_ids(self, keyword: str, depth: int = 1) -> List[str]:
+        """Get the corresponding knowledge for a given keyword."""
+        if depth > 1:
+            raise ValueError("Depth > 1 not supported yet.")
+        if keyword not in self.table:
+            return []
+        keywords = [keyword]
+        # some keywords may correspond to a leaf node, may not be in rel_map
+        if keyword in self.rel_map:
+            keywords.extend([child for child, _ in self.rel_map[keyword]])
+
+        node_ids: List[str] = []
+        for keyword in keywords:
+            for node_id in self.table.get(keyword, set()):
+                node_ids.append(node_id)
+            # TODO: Traverse (with depth > 1)
+        return node_ids
+
+    @classmethod
+    def get_type(cls) -> IndexStructType:
+        """Get type."""
+        return IndexStructType.KG
+
+
+@dataclass
+class EmptyIndex(IndexDict):
+    """Empty index."""
+
+    @classmethod
+    def get_type(cls) -> IndexStructType:
+        """Get type."""
+        return IndexStructType.EMPTY
+
+----
+data_structs\document_summary.py
+"""Data struct for document summary index."""
+
+from llama_index.data_structs.node import Node
+from llama_index.data_structs.data_structs import IndexStruct
+from dataclasses import dataclass, field
+from typing import List, Dict
+from llama_index.data_structs.struct_type import IndexStructType
+
+
+@dataclass
+class IndexDocumentSummary(IndexStruct):
+    """A simple struct containing a mapping from summary node_id to doc node_ids.
+
+    Also mapping vice versa.
+
+    """
+
+    summary_id_to_node_ids: Dict[str, List[str]] = field(default_factory=dict)
+    node_id_to_summary_id: Dict[str, str] = field(default_factory=dict)
+
+    # track mapping from doc id to node summary id
+    doc_id_to_summary_id: Dict[str, str] = field(default_factory=dict)
+
+    def add_summary_and_nodes(
+        self,
+        summary_node: Node,
+        nodes: List[Node],
+    ) -> str:
+        """Add node and summary."""
+        summary_id = summary_node.get_doc_id()
+        ref_doc_id = summary_node.ref_doc_id
+        if ref_doc_id is None:
+            raise ValueError(
+                "ref_doc_id of node cannot be None when building a document "
+                "summary index"
+            )
+        self.doc_id_to_summary_id[ref_doc_id] = summary_id
+
+        for node in nodes:
+            node_id = node.get_doc_id()
+            if summary_id not in self.summary_id_to_node_ids:
+                self.summary_id_to_node_ids[summary_id] = []
+            self.summary_id_to_node_ids[summary_id].append(node_id)
+
+            self.node_id_to_summary_id[node_id] = summary_id
+
+        return summary_id
+
+    @property
+    def summary_ids(self) -> List[str]:
+        """Get summary ids."""
+        return list(self.summary_id_to_node_ids.keys())
+
+    def delete(self, doc_id: str) -> None:
+        """Delete a Node."""
+        if doc_id not in self.doc_id_to_summary_id:
+            return
+        summary_id = self.doc_id_to_summary_id[doc_id]
+        del self.doc_id_to_summary_id[doc_id]
+        node_ids = self.summary_id_to_node_ids[summary_id]
+        for node_id in node_ids:
+            del self.node_id_to_summary_id[node_id]
+        del self.summary_id_to_node_ids[summary_id]
+
+    @classmethod
+    def get_type(cls) -> IndexStructType:
+        """Get type."""
+        return IndexStructType.DOCUMENT_SUMMARY
+
+----
+data_structs\node.py
+"""`Node` data structure.
+
+`Node` is a generic data container that contains
+a piece of data (e.g. chunk of text, an image, a table, etc).
+
+In comparison to a raw `Document`, it contains additional metadata
+about its relationship to other `Node` objects (and `Document` objects).
+
+It is often used as an atomic unit of data in various indices.
+"""
+import logging
+import warnings
+from dataclasses import dataclass, field
+from enum import Enum, auto
+from typing import Any, Dict, List, Optional
+
+from dataclasses_json import DataClassJsonMixin
+
+from llama_index.schema import BaseDocument
+
+_logger = logging.getLogger(__name__)
+
+
+class DocumentRelationship(str, Enum):
+    """Document relationships used in `Node` class.
+
+    Attributes:
+        SOURCE: The node is the source document.
+        PREVIOUS: The node is the previous node in the document.
+        NEXT: The node is the next node in the document.
+        PARENT: The node is the parent node in the document.
+        CHILD: The node is a child node in the document.
+
+    """
+
+    SOURCE = auto()
+    PREVIOUS = auto()
+    NEXT = auto()
+    PARENT = auto()
+    CHILD = auto()
+
+
+class NodeType(str, Enum):
+    TEXT = auto()
+    IMAGE = auto()
+    INDEX = auto()
+
+
+@dataclass
+class Node(BaseDocument):
+    """A generic node of data.
+
+    Arguments:
+        text (str): The text of the node.
+        doc_id (Optional[str]): The document id of the node.
+        embeddings (Optional[List[float]]): The embeddings of the node.
+        relationships (Dict[DocumentRelationship, Any]): The relationships of the node.
+
+    """
+
+    def __post_init__(self) -> None:
+        """Post init."""
+        super().__post_init__()
+        # NOTE: for Node objects, the text field is required
+        if self.text is None:
+            raise ValueError("text field not set.")
+
+    # extra node info
+    node_info: Optional[Dict[str, Any]] = None
+
+    # document relationships
+    relationships: Dict[DocumentRelationship, Any] = field(default_factory=dict)
+
+    def get_node_info(self) -> Dict[str, Any]:
+        """Get node info."""
+        if self.node_info is None:
+            raise ValueError("Node info not set.")
+        return self.node_info
+
+    @property
+    def ref_doc_id(self) -> Optional[str]:
+        """Source document id.
+
+        Extracted from the relationships field.
+
+        """
+        return self.relationships.get(DocumentRelationship.SOURCE, None)
+
+    @property
+    def prev_node_id(self) -> str:
+        """Prev node id."""
+        if DocumentRelationship.PREVIOUS not in self.relationships:
+            raise ValueError("Node does not have previous node")
+        if not isinstance(self.relationships[DocumentRelationship.PREVIOUS], str):
+            raise ValueError("Previous node must be a string")
+        return self.relationships[DocumentRelationship.PREVIOUS]
+
+    @property
+    def next_node_id(self) -> str:
+        """Next node id."""
+        if DocumentRelationship.NEXT not in self.relationships:
+            raise ValueError("Node does not have next node")
+        if not isinstance(self.relationships[DocumentRelationship.NEXT], str):
+            raise ValueError("Next node must be a string")
+        return self.relationships[DocumentRelationship.NEXT]
+
+    @property
+    def parent_node_id(self) -> str:
+        """Parent node id."""
+        if DocumentRelationship.PARENT not in self.relationships:
+            raise ValueError("Node does not have parent node")
+        if not isinstance(self.relationships[DocumentRelationship.PARENT], str):
+            raise ValueError("Parent node must be a string")
+        return self.relationships[DocumentRelationship.PARENT]
+
+    @property
+    def child_node_ids(self) -> List[str]:
+        """Child node ids."""
+        if DocumentRelationship.CHILD not in self.relationships:
+            raise ValueError("Node does not have child nodes")
+        if not isinstance(self.relationships[DocumentRelationship.CHILD], list):
+            raise ValueError("Child nodes must be a list")
+        return self.relationships[DocumentRelationship.CHILD]
+
+    def get_text(self) -> str:
+        """Get text."""
+        text = super().get_text()
+        extra_info_exists = self.extra_info is not None and len(self.extra_info) > 0
+        result_text = (
+            text if not extra_info_exists else f"{self.extra_info_str}\n\n{text}"
+        )
+        return result_text
+
+    @classmethod
+    def get_type(cls) -> str:
+        """Get type."""
+        return NodeType.TEXT
+
+
+@dataclass
+class ImageNode(Node):
+    """Node with image."""
+
+    # TODO: store reference instead of actual image
+    # base64 encoded image str
+    image: Optional[str] = None
+
+    @classmethod
+    def get_type(cls) -> str:
+        return NodeType.IMAGE
+
+
+@dataclass
+class IndexNode(Node):
+    """Node with reference to an index."""
+
+    index_id: Optional[str] = None
+
+    @classmethod
+    def get_type(cls) -> str:
+        return NodeType.INDEX
+
+
+@dataclass
+class NodeWithScore(DataClassJsonMixin):
+    node: Node
+    score: Optional[float] = None
+
+    @property
+    def doc_id(self) -> Optional[str]:
+        warnings.warn(".doc_id is deprecated, use .node.ref_doc_id instead")
+        return self.node.ref_doc_id
+
+    @property
+    def source_text(self) -> str:
+        warnings.warn(".source_text is deprecated, use .node.get_text() instead")
+        return self.node.get_text()
+
+    @property
+    def extra_info(self) -> Optional[Dict[str, Any]]:
+        warnings.warn(".extra_info is deprecated, use .node.extra_info instead")
+        return self.node.extra_info
+
+    @property
+    def node_info(self) -> Optional[Dict[str, Any]]:
+        warnings.warn(".node_info is deprecated, use .node.node_info instead")
+        return self.node.node_info
+
+    @property
+    def similarity(self) -> Optional[float]:
+        warnings.warn(".similarity is deprecated, use .score instead instead")
+        return self.score
+
+    @property
+    def image(self) -> Optional[str]:
+        warnings.warn(
+            ".image is deprecated, check if Node is an ImageNode \
+            and use .node.image instead"
+        )
+        if isinstance(self.node, ImageNode):
+            return self.node.image
+        else:
+            return None
+
+----
+data_structs\registry.py
+"""Index registry."""
+
+from typing import Dict, Type
+
+from llama_index.data_structs.data_structs import (
+    KG,
+    EmptyIndex,
+    IndexDict,
+    IndexGraph,
+    IndexList,
+    KeywordTable,
+    IndexStruct,
+)
+from llama_index.data_structs.struct_type import IndexStructType
+from llama_index.data_structs.table import PandasStructTable, SQLStructTable
+from llama_index.data_structs.document_summary import IndexDocumentSummary
+
+
+INDEX_STRUCT_TYPE_TO_INDEX_STRUCT_CLASS: Dict[IndexStructType, Type[IndexStruct]] = {
+    IndexStructType.TREE: IndexGraph,
+    IndexStructType.LIST: IndexList,
+    IndexStructType.KEYWORD_TABLE: KeywordTable,
+    IndexStructType.VECTOR_STORE: IndexDict,
+    IndexStructType.SQL: SQLStructTable,
+    IndexStructType.PANDAS: PandasStructTable,
+    IndexStructType.KG: KG,
+    IndexStructType.EMPTY: EmptyIndex,
+    IndexStructType.DOCUMENT_SUMMARY: IndexDocumentSummary,
+}
+
+----
+data_structs\struct_type.py
+"""IndexStructType class."""
+
+from enum import Enum
+
+
+class IndexStructType(str, Enum):
+    """Index struct type. Identifier for a "type" of index.
+
+    Attributes:
+        TREE ("tree"): Tree index. See :ref:`Ref-Indices-Tree` for tree indices.
+        LIST ("list"): List index. See :ref:`Ref-Indices-List` for list indices.
+        KEYWORD_TABLE ("keyword_table"): Keyword table index. See
+            :ref:`Ref-Indices-Table`
+            for keyword table indices.
+        DICT ("dict"): Faiss Vector Store Index. See
+            :ref:`Ref-Indices-VectorStore`
+            for more information on the faiss vector store index.
+        SIMPLE_DICT ("simple_dict"): Simple Vector Store Index. See
+            :ref:`Ref-Indices-VectorStore`
+            for more information on the simple vector store index.
+        WEAVIATE ("weaviate"): Weaviate Vector Store Index.
+            See :ref:`Ref-Indices-VectorStore`
+            for more information on the Weaviate vector store index.
+        PINECONE ("pinecone"): Pinecone Vector Store Index.
+            See :ref:`Ref-Indices-VectorStore`
+            for more information on the Pinecone vector store index.
+        DEEPLAKE ("deeplake"): DeepLake Vector Store Index.
+            See :ref:`Ref-Indices-VectorStore`
+            for more information on the Pinecone vector store index.
+        QDRANT ("qdrant"): Qdrant Vector Store Index.
+            See :ref:`Ref-Indices-VectorStore`
+            for more information on the Qdrant vector store index.
+        LANCEDB ("lancedb"): LanceDB Vector Store Index
+            See :ref:`Ref-Indices-VectorStore`
+            for more information on the LanceDB vector store index.
+        MILVUS ("milvus"): Milvus Vector Store Index.
+            See :ref:`Ref-Indices-VectorStore`
+            for more information on the Milvus vector store index.
+        CHROMA ("chroma"): Chroma Vector Store Index.
+            See :ref:`Ref-Indices-VectorStore`
+            for more information on the Chroma vector store index.
+        OPENSEARCH ("opensearch"): Opensearch Vector Store Index.
+            See :ref:`Ref-Indices-VectorStore`
+            for more information on the Opensearch vector store index.
+        MYSCALE ("myscale"): MyScale Vector Store Index.
+            See :ref:`Ref-Indices-VectorStore`
+            for more information on the MyScale vector store index.
+        CHATGPT_RETRIEVAL_PLUGIN ("chatgpt_retrieval_plugin"): ChatGPT
+            retrieval plugin index.
+        SQL ("SQL"): SQL Structured Store Index.
+            See :ref:`Ref-Indices-StructStore`
+            for more information on the SQL vector store index.
+        KG ("kg"): Knowledge Graph index.
+            See :ref:`Ref-Indices-Knowledge-Graph` for KG indices.
+        DOCUMENT_SUMMARY ("document_summary"): Document Summary Index.
+            See :ref:`Ref-Indices-Document-Summary` for Summary Indices.
+
+    """
+
+    # TODO: refactor so these are properties on the base class
+
+    NODE = "node"
+    TREE = "tree"
+    LIST = "list"
+    KEYWORD_TABLE = "keyword_table"
+
+    # faiss
+    DICT = "dict"
+    # simple
+    SIMPLE_DICT = "simple_dict"
+    WEAVIATE = "weaviate"
+    PINECONE = "pinecone"
+    QDRANT = "qdrant"
+    LANCEDB = "lancedb"
+    MILVUS = "milvus"
+    CHROMA = "chroma"
+    MYSCALE = "myscale"
+    VECTOR_STORE = "vector_store"
+    OPENSEARCH = "opensearch"
+    CHATGPT_RETRIEVAL_PLUGIN = "chatgpt_retrieval_plugin"
+    DEEPLAKE = "deeplake"
+    # for SQL index
+    SQL = "sql"
+    # for KG index
+    KG = "kg"
+
+    # EMPTY
+    EMPTY = "empty"
+    COMPOSITE = "composite"
+
+    PANDAS = "pandas"
+
+    DOCUMENT_SUMMARY = "document_summary"
+
+----
+data_structs\table.py
+"""Struct store schema."""
+
+from dataclasses import dataclass, field
+from typing import Any, Dict
+
+from dataclasses_json import DataClassJsonMixin
+
+from llama_index.data_structs.data_structs import IndexStruct
+from llama_index.data_structs.struct_type import IndexStructType
+
+
+@dataclass
+class StructDatapoint(DataClassJsonMixin):
+    """Struct outputs."""
+
+    # map from field name to StructValue
+    fields: Dict[str, Any]
+
+
+@dataclass
+class BaseStructTable(IndexStruct):
+    """Struct outputs."""
+
+
+@dataclass
+class SQLStructTable(BaseStructTable):
+    """SQL struct outputs."""
+
+    context_dict: Dict[str, str] = field(default_factory=dict)
+
+    @classmethod
+    def get_type(cls) -> IndexStructType:
+        """Get type."""
+        # TODO: consolidate with IndexStructType
+        return IndexStructType.SQL
+
+
+@dataclass
+class PandasStructTable(BaseStructTable):
+    """Pandas struct outputs."""
+
+    @classmethod
+    def get_type(cls) -> IndexStructType:
+        """Get type."""
+        return IndexStructType.PANDAS
+
+----
+data_structs\__init__.py
+"""Init file."""
+
+from llama_index.data_structs.data_structs import (
+    IndexDict,
+    IndexGraph,
+    IndexList,
+    KeywordTable,
+)
+from llama_index.data_structs.node import Node, NodeWithScore
+from llama_index.data_structs.table import StructDatapoint
+
+__all__ = [
+    "Node",
+    "NodeWithScore",
+    "IndexGraph",
+    "KeywordTable",
+    "IndexList",
+    "IndexDict",
+    "StructDatapoint",
+]
+
+----
+embeddings\base.py
+"""Base embeddings file."""
+
+import asyncio
+from abc import abstractmethod
+from enum import Enum
+from typing import Callable, Coroutine, List, Optional, Tuple
+
+import numpy as np
+
+from llama_index.callbacks.base import CallbackManager
+from llama_index.callbacks.schema import CBEventType
+from llama_index.utils import globals_helper
+
+# TODO: change to numpy array
+EMB_TYPE = List
+
+DEFAULT_EMBED_BATCH_SIZE = 10
+
+
+class SimilarityMode(str, Enum):
+    """Modes for similarity/distance."""
+
+    DEFAULT = "cosine"
+    DOT_PRODUCT = "dot_product"
+    EUCLIDEAN = "euclidean"
+
+
+def mean_agg(embeddings: List[List[float]]) -> List[float]:
+    """Mean aggregation for embeddings."""
+    return list(np.array(embeddings).mean(axis=0))
+
+
+def similarity(
+    embedding1: EMB_TYPE,
+    embedding2: EMB_TYPE,
+    mode: SimilarityMode = SimilarityMode.DEFAULT,
+) -> float:
+    """Get embedding similarity."""
+    if mode == SimilarityMode.EUCLIDEAN:
+        return float(np.linalg.norm(np.array(embedding1) - np.array(embedding2)))
+    elif mode == SimilarityMode.DOT_PRODUCT:
+        product = np.dot(embedding1, embedding2)
+        return product
+    else:
+        product = np.dot(embedding1, embedding2)
+        norm = np.linalg.norm(embedding1) * np.linalg.norm(embedding2)
+        return product / norm
+
+
+class BaseEmbedding:
+    """Base class for embeddings."""
+
+    def __init__(
+        self,
+        embed_batch_size: int = DEFAULT_EMBED_BATCH_SIZE,
+        tokenizer: Optional[Callable] = None,
+        callback_manager: Optional[CallbackManager] = None,
+    ) -> None:
+        """Init params."""
+        self._total_tokens_used = 0
+        self._last_token_usage: Optional[int] = None
+        self._tokenizer = tokenizer or globals_helper.tokenizer
+        self.callback_manager = callback_manager or CallbackManager([])
+        # list of tuples of id, text
+        self._text_queue: List[Tuple[str, str]] = []
+        if embed_batch_size <= 0:
+            raise ValueError("embed_batch_size must be > 0")
+        self._embed_batch_size = embed_batch_size
+
+    @abstractmethod
+    def _get_query_embedding(self, query: str) -> List[float]:
+        """Get query embedding."""
+
+    def get_query_embedding(self, query: str) -> List[float]:
+        """Get query embedding."""
+        event_id = self.callback_manager.on_event_start(CBEventType.EMBEDDING)
+        query_embedding = self._get_query_embedding(query)
+        query_tokens_count = len(self._tokenizer(query))
+        self._total_tokens_used += query_tokens_count
+        self.callback_manager.on_event_end(
+            CBEventType.EMBEDDING, payload={"num_nodes": 1}, event_id=event_id
+        )
+        return query_embedding
+
+    def get_agg_embedding_from_queries(
+        self,
+        queries: List[str],
+        agg_fn: Optional[Callable[..., List[float]]] = None,
+    ) -> List[float]:
+        """Get aggregated embedding from multiple queries."""
+        query_embeddings = [self.get_query_embedding(query) for query in queries]
+        agg_fn = agg_fn or mean_agg
+        return agg_fn(query_embeddings)
+
+    @abstractmethod
+    def _get_text_embedding(self, text: str) -> List[float]:
+        """Get text embedding."""
+
+    async def _aget_text_embedding(self, text: str) -> List[float]:
+        """Asynchronously get text embedding.
+
+        By default, this falls back to _get_text_embedding.
+        Meant to be overriden if there is a true async implementation.
+
+        """
+        return self._get_text_embedding(text)
+
+    def _get_text_embeddings(self, texts: List[str]) -> List[List[float]]:
+        """Get text embeddings.
+
+        By default, this is a wrapper around _get_text_embedding.
+        Meant to be overriden for batch queries.
+
+        """
+        result = [self._get_text_embedding(text) for text in texts]
+        return result
+
+    async def _aget_text_embeddings(self, texts: List[str]) -> List[List[float]]:
+        """Asynchronously get text embeddings.
+
+        By default, this is a wrapper around _aget_text_embedding.
+        Meant to be overriden for batch queries.
+
+        """
+        result = await asyncio.gather(
+            *[self._aget_text_embedding(text) for text in texts]
+        )
+        return result
+
+    def get_text_embedding(self, text: str) -> List[float]:
+        """Get text embedding."""
+        event_id = self.callback_manager.on_event_start(CBEventType.EMBEDDING)
+        text_embedding = self._get_text_embedding(text)
+        text_tokens_count = len(self._tokenizer(text))
+        self._total_tokens_used += text_tokens_count
+        self.callback_manager.on_event_end(
+            CBEventType.EMBEDDING, payload={"num_nodes": 1}, event_id=event_id
+        )
+        return text_embedding
+
+    def queue_text_for_embedding(self, text_id: str, text: str) -> None:
+        """Queue text for embedding.
+
+        Used for batching texts during embedding calls.
+
+        """
+        self._text_queue.append((text_id, text))
+
+    def get_queued_text_embeddings(self) -> Tuple[List[str], List[List[float]]]:
+        """Get queued text embeddings.
+
+        Call embedding API to get embeddings for all queued texts.
+
+        """
+        text_queue = self._text_queue
+        cur_batch: List[Tuple[str, str]] = []
+        result_ids: List[str] = []
+        result_embeddings: List[List[float]] = []
+        for idx, (text_id, text) in enumerate(text_queue):
+            cur_batch.append((text_id, text))
+            text_tokens_count = len(self._tokenizer(text))
+            self._total_tokens_used += text_tokens_count
+            if idx == len(text_queue) - 1 or len(cur_batch) == self._embed_batch_size:
+                # flush
+                cur_batch_ids = [text_id for text_id, _ in cur_batch]
+                cur_batch_texts = [text for _, text in cur_batch]
+                embeddings = self._get_text_embeddings(cur_batch_texts)
+                result_ids.extend(cur_batch_ids)
+                result_embeddings.extend(embeddings)
+
+                cur_batch = []
+
+        # reset queue
+        self._text_queue = []
+        return result_ids, result_embeddings
+
+    async def aget_queued_text_embeddings(
+        self, text_queue: List[Tuple[str, str]]
+    ) -> Tuple[List[str], List[List[float]]]:
+        """Asynchronously get a list of text embeddings.
+
+        Call async embedding API to get embeddings for all queued texts in parallel.
+        Argument `text_queue` must be passed in to avoid updating it async.
+
+        """
+        cur_batch: List[Tuple[str, str]] = []
+        result_ids: List[str] = []
+        result_embeddings: List[List[float]] = []
+        embeddings_coroutines: List[Coroutine] = []
+        for idx, (text_id, text) in enumerate(text_queue):
+            cur_batch.append((text_id, text))
+            text_tokens_count = len(self._tokenizer(text))
+            self._total_tokens_used += text_tokens_count
+            if idx == len(text_queue) - 1 or len(cur_batch) == self._embed_batch_size:
+                # flush
+                cur_batch_ids = [text_id for text_id, _ in cur_batch]
+                cur_batch_texts = [text for _, text in cur_batch]
+                embeddings_coroutines.append(
+                    self._aget_text_embeddings(cur_batch_texts)
+                )
+                result_ids.extend(cur_batch_ids)
+
+        # flatten the results of asyncio.gather, which is a list of embeddings lists
+        result_embeddings = [
+            embedding
+            for embeddings in await asyncio.gather(*embeddings_coroutines)
+            for embedding in embeddings
+        ]
+
+        return result_ids, result_embeddings
+
+    def similarity(
+        self,
+        embedding1: EMB_TYPE,
+        embedding2: EMB_TYPE,
+        mode: SimilarityMode = SimilarityMode.DEFAULT,
+    ) -> float:
+        """Get embedding similarity."""
+        return similarity(embedding1=embedding1, embedding2=embedding2, mode=mode)
+
+    @property
+    def total_tokens_used(self) -> int:
+        """Get the total tokens used so far."""
+        return self._total_tokens_used
+
+    @property
+    def last_token_usage(self) -> int:
+        """Get the last token usage."""
+        if self._last_token_usage is None:
+            return 0
+        return self._last_token_usage
+
+    @last_token_usage.setter
+    def last_token_usage(self, value: int) -> None:
+        """Set the last token usage."""
+        self._last_token_usage = value
+
+----
+embeddings\google.py
+"""Google Universal Sentence Encoder Embedding Wrapper Module."""
+
+from typing import List, Optional
+
+
+from llama_index.embeddings.base import BaseEmbedding
+
+# Google Universal Sentence Encode v5
+DEFAULT_HANDLE = "https://tfhub.dev/google/universal-sentence-encoder-large/5"
+
+
+class GoogleUnivSentEncoderEmbedding(BaseEmbedding):
+    def __init__(self, handle: Optional[str] = None) -> None:
+        """Init params."""
+        handle = handle or DEFAULT_HANDLE
+        try:
+            import tensorflow_hub as hub
+
+            self._google_use = hub.load(handle)
+        except ImportError:
+            raise ImportError(
+                "Please install tensorflow_hub: `pip install tensorflow_hub`"
+            )
+
+        super().__init__()
+
+    def _get_query_embedding(self, query: str) -> List[float]:
+        """Get query embedding."""
+        return self._get_embedding(query)
+
+    def _get_text_embedding(self, text: str) -> List[float]:
+        """Get text embedding."""
+        return self._get_embedding(text)
+
+    def _get_embedding(self, text: str) -> List[float]:
+        vectors = self._google_use([text]).numpy().tolist()
+        return vectors[0]
+
+----
+embeddings\langchain.py
+"""Langchain Embedding Wrapper Module."""
+
+
+from typing import Any, List
+
+from langchain.embeddings.base import Embeddings as LCEmbeddings
+
+from llama_index.embeddings.base import BaseEmbedding
+
+
+class LangchainEmbedding(BaseEmbedding):
+    """External embeddings (taken from Langchain).
+
+    Args:
+        langchain_embedding (langchain.embeddings.Embeddings): Langchain
+            embeddings class.
+    """
+
+    def __init__(self, langchain_embedding: LCEmbeddings, **kwargs: Any) -> None:
+        """Init params."""
+        super().__init__(**kwargs)
+        self._langchain_embedding = langchain_embedding
+
+    def _get_query_embedding(self, query: str) -> List[float]:
+        """Get query embedding."""
+        return self._langchain_embedding.embed_query(query)
+
+    def _get_text_embedding(self, text: str) -> List[float]:
+        """Get text embedding."""
+        return self._langchain_embedding.embed_documents([text])[0]
+
+    def _get_text_embeddings(self, texts: List[str]) -> List[List[float]]:
+        """Get text embeddings."""
+        return self._langchain_embedding.embed_documents(texts)
+
+----
+embeddings\openai.py
+"""OpenAI embeddings file."""
+
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple, Callable
+
+import openai
+from tenacity import retry, stop_after_attempt, wait_random_exponential
+
+from llama_index.embeddings.base import BaseEmbedding, DEFAULT_EMBED_BATCH_SIZE
+from llama_index.callbacks.base import CallbackManager
+
+
+class OpenAIEmbeddingMode(str, Enum):
+    """OpenAI embedding mode."""
+
+    SIMILARITY_MODE = "similarity"
+    TEXT_SEARCH_MODE = "text_search"
+
+
+class OpenAIEmbeddingModelType(str, Enum):
+    """OpenAI embedding model type."""
+
+    DAVINCI = "davinci"
+    CURIE = "curie"
+    BABBAGE = "babbage"
+    ADA = "ada"
+    TEXT_EMBED_ADA_002 = "text-embedding-ada-002"
+
+
+class OpenAIEmbeddingModeModel(str, Enum):
+    """OpenAI embedding mode model."""
+
+    # davinci
+    TEXT_SIMILARITY_DAVINCI = "text-similarity-davinci-001"
+    TEXT_SEARCH_DAVINCI_QUERY = "text-search-davinci-query-001"
+    TEXT_SEARCH_DAVINCI_DOC = "text-search-davinci-doc-001"
+
+    # curie
+    TEXT_SIMILARITY_CURIE = "text-similarity-curie-001"
+    TEXT_SEARCH_CURIE_QUERY = "text-search-curie-query-001"
+    TEXT_SEARCH_CURIE_DOC = "text-search-curie-doc-001"
+
+    # babbage
+    TEXT_SIMILARITY_BABBAGE = "text-similarity-babbage-001"
+    TEXT_SEARCH_BABBAGE_QUERY = "text-search-babbage-query-001"
+    TEXT_SEARCH_BABBAGE_DOC = "text-search-babbage-doc-001"
+
+    # ada
+    TEXT_SIMILARITY_ADA = "text-similarity-ada-001"
+    TEXT_SEARCH_ADA_QUERY = "text-search-ada-query-001"
+    TEXT_SEARCH_ADA_DOC = "text-search-ada-doc-001"
+
+    # text-embedding-ada-002
+    TEXT_EMBED_ADA_002 = "text-embedding-ada-002"
+
+
+# convenient shorthand
+OAEM = OpenAIEmbeddingMode
+OAEMT = OpenAIEmbeddingModelType
+OAEMM = OpenAIEmbeddingModeModel
+
+EMBED_MAX_TOKEN_LIMIT = 2048
+
+
+_QUERY_MODE_MODEL_DICT = {
+    (OAEM.SIMILARITY_MODE, "davinci"): OAEMM.TEXT_SIMILARITY_DAVINCI,
+    (OAEM.SIMILARITY_MODE, "curie"): OAEMM.TEXT_SIMILARITY_CURIE,
+    (OAEM.SIMILARITY_MODE, "babbage"): OAEMM.TEXT_SIMILARITY_BABBAGE,
+    (OAEM.SIMILARITY_MODE, "ada"): OAEMM.TEXT_SIMILARITY_ADA,
+    (OAEM.SIMILARITY_MODE, "text-embedding-ada-002"): OAEMM.TEXT_EMBED_ADA_002,
+    (OAEM.TEXT_SEARCH_MODE, "davinci"): OAEMM.TEXT_SEARCH_DAVINCI_QUERY,
+    (OAEM.TEXT_SEARCH_MODE, "curie"): OAEMM.TEXT_SEARCH_CURIE_QUERY,
+    (OAEM.TEXT_SEARCH_MODE, "babbage"): OAEMM.TEXT_SEARCH_BABBAGE_QUERY,
+    (OAEM.TEXT_SEARCH_MODE, "ada"): OAEMM.TEXT_SEARCH_ADA_QUERY,
+    (OAEM.TEXT_SEARCH_MODE, "text-embedding-ada-002"): OAEMM.TEXT_EMBED_ADA_002,
+}
+
+_TEXT_MODE_MODEL_DICT = {
+    (OAEM.SIMILARITY_MODE, "davinci"): OAEMM.TEXT_SIMILARITY_DAVINCI,
+    (OAEM.SIMILARITY_MODE, "curie"): OAEMM.TEXT_SIMILARITY_CURIE,
+    (OAEM.SIMILARITY_MODE, "babbage"): OAEMM.TEXT_SIMILARITY_BABBAGE,
+    (OAEM.SIMILARITY_MODE, "ada"): OAEMM.TEXT_SIMILARITY_ADA,
+    (OAEM.SIMILARITY_MODE, "text-embedding-ada-002"): OAEMM.TEXT_EMBED_ADA_002,
+    (OAEM.TEXT_SEARCH_MODE, "davinci"): OAEMM.TEXT_SEARCH_DAVINCI_DOC,
+    (OAEM.TEXT_SEARCH_MODE, "curie"): OAEMM.TEXT_SEARCH_CURIE_DOC,
+    (OAEM.TEXT_SEARCH_MODE, "babbage"): OAEMM.TEXT_SEARCH_BABBAGE_DOC,
+    (OAEM.TEXT_SEARCH_MODE, "ada"): OAEMM.TEXT_SEARCH_ADA_DOC,
+    (OAEM.TEXT_SEARCH_MODE, "text-embedding-ada-002"): OAEMM.TEXT_EMBED_ADA_002,
+}
+
+
+@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
+def get_embedding(
+    text: str, engine: Optional[str] = None, **kwargs: Any
+) -> List[float]:
+    """Get embedding.
+
+    NOTE: Copied from OpenAI's embedding utils:
+    https://github.com/openai/openai-python/blob/main/openai/embeddings_utils.py
+
+    Copied here to avoid importing unnecessary dependencies
+    like matplotlib, plotly, scipy, sklearn.
+
+    """
+    text = text.replace("\n", " ")
+    return openai.Embedding.create(input=[text], model=engine, **kwargs)["data"][0][
+        "embedding"
+    ]
+
+
+@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
+async def aget_embedding(
+    text: str, engine: Optional[str] = None, **kwargs: Any
+) -> List[float]:
+    """Asynchronously get embedding.
+
+    NOTE: Copied from OpenAI's embedding utils:
+    https://github.com/openai/openai-python/blob/main/openai/embeddings_utils.py
+
+    Copied here to avoid importing unnecessary dependencies
+    like matplotlib, plotly, scipy, sklearn.
+
+    """
+    # replace newlines, which can negatively affect performance.
+    text = text.replace("\n", " ")
+
+    return (await openai.Embedding.acreate(input=[text], model=engine, **kwargs))[
+        "data"
+    ][0]["embedding"]
+
+
+@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
+def get_embeddings(
+    list_of_text: List[str], engine: Optional[str] = None, **kwargs: Any
+) -> List[List[float]]:
+    """Get embeddings.
+
+    NOTE: Copied from OpenAI's embedding utils:
+    https://github.com/openai/openai-python/blob/main/openai/embeddings_utils.py
+
+    Copied here to avoid importing unnecessary dependencies
+    like matplotlib, plotly, scipy, sklearn.
+
+    """
+    assert len(list_of_text) <= 2048, "The batch size should not be larger than 2048."
+
+    # replace newlines, which can negatively affect performance.
+    list_of_text = [text.replace("\n", " ") for text in list_of_text]
+
+    data = openai.Embedding.create(input=list_of_text, model=engine, **kwargs).data
+    return [d["embedding"] for d in data]
+
+
+@retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(6))
+async def aget_embeddings(
+    list_of_text: List[str], engine: Optional[str] = None, **kwargs: Any
+) -> List[List[float]]:
+    """Asynchronously get embeddings.
+
+    NOTE: Copied from OpenAI's embedding utils:
+    https://github.com/openai/openai-python/blob/main/openai/embeddings_utils.py
+
+    Copied here to avoid importing unnecessary dependencies
+    like matplotlib, plotly, scipy, sklearn.
+
+    """
+    assert len(list_of_text) <= 2048, "The batch size should not be larger than 2048."
+
+    # replace newlines, which can negatively affect performance.
+    list_of_text = [text.replace("\n", " ") for text in list_of_text]
+
+    data = (
+        await openai.Embedding.acreate(input=list_of_text, model=engine, **kwargs)
+    ).data
+    return [d["embedding"] for d in data]
+
+
+def get_engine(
+    mode: str,
+    model: str,
+    mode_model_dict: Dict[Tuple[OpenAIEmbeddingMode, str], OpenAIEmbeddingModeModel],
+) -> OpenAIEmbeddingModeModel:
+    """Get engine."""
+    key = (OpenAIEmbeddingMode(mode), OpenAIEmbeddingModelType(model))
+    if key not in mode_model_dict:
+        raise ValueError(f"Invalid mode, model combination: {key}")
+    return mode_model_dict[key]
+
+
+class OpenAIEmbedding(BaseEmbedding):
+    """OpenAI class for embeddings.
+
+    Args:
+        mode (str): Mode for embedding.
+            Defaults to OpenAIEmbeddingMode.TEXT_SEARCH_MODE.
+            Options are:
+
+            - OpenAIEmbeddingMode.SIMILARITY_MODE
+            - OpenAIEmbeddingMode.TEXT_SEARCH_MODE
+
+        model (str): Model for embedding.
+            Defaults to OpenAIEmbeddingModelType.TEXT_EMBED_ADA_002.
+            Options are:
+
+            - OpenAIEmbeddingModelType.DAVINCI
+            - OpenAIEmbeddingModelType.CURIE
+            - OpenAIEmbeddingModelType.BABBAGE
+            - OpenAIEmbeddingModelType.ADA
+            - OpenAIEmbeddingModelType.TEXT_EMBED_ADA_002
+
+        deployment_name (Optional[str]): Optional deployment of model. Defaults to None.
+            If this value is not None, mode and model will be ignored.
+            Only available for using AzureOpenAI.
+    """
+
+    def __init__(
+        self,
+        mode: str = OpenAIEmbeddingMode.TEXT_SEARCH_MODE,
+        model: str = OpenAIEmbeddingModelType.TEXT_EMBED_ADA_002,
+        deployment_name: Optional[str] = None,
+        embed_batch_size: int = DEFAULT_EMBED_BATCH_SIZE,
+        tokenizer: Optional[Callable] = None,
+        callback_manager: Optional[CallbackManager] = None,
+        **kwargs: Any,
+    ) -> None:
+        """Init params."""
+        super().__init__(embed_batch_size, tokenizer, callback_manager)
+        self.deployment_name = deployment_name
+        self.query_engine = get_engine(mode, model, _QUERY_MODE_MODEL_DICT)
+        self.text_engine = get_engine(mode, model, _TEXT_MODE_MODEL_DICT)
+        self.openai_kwargs = kwargs
+
+    def _get_query_embedding(self, query: str) -> List[float]:
+        """Get query embedding."""
+        return get_embedding(
+            query,
+            engine=self.query_engine,
+            deployment_id=self.deployment_name,
+            **self.openai_kwargs,
+        )
+
+    def _get_text_embedding(self, text: str) -> List[float]:
+        """Get text embedding."""
+        return get_embedding(
+            text,
+            engine=self.text_engine,
+            deployment_id=self.deployment_name,
+            **self.openai_kwargs,
+        )
+
+    async def _aget_text_embedding(self, text: str) -> List[float]:
+        """Asynchronously get text embedding."""
+        return await aget_embedding(
+            text,
+            engine=self.text_engine,
+            deployment_id=self.deployment_name,
+            **self.openai_kwargs,
+        )
+
+    def _get_text_embeddings(self, texts: List[str]) -> List[List[float]]:
+        """Get text embeddings.
+
+        By default, this is a wrapper around _get_text_embedding.
+        Can be overriden for batch queries.
+
+        """
+        return get_embeddings(
+            texts,
+            engine=self.text_engine,
+            deployment_id=self.deployment_name,
+            **self.openai_kwargs,
+        )
+
+    async def _aget_text_embeddings(self, texts: List[str]) -> List[List[float]]:
+        """Asynchronously get text embeddings."""
+        return await aget_embeddings(
+            texts,
+            engine=self.text_engine,
+            deployment_id=self.deployment_name,
+            **self.openai_kwargs,
+        )
+
+----
+embeddings\utils.py
+"""Embedding utils for LlamaIndex."""
+
+from typing import List
+
+
+def save_embedding(embedding: List[float], file_path: str) -> None:
+    """Save embedding to file."""
+    with open(file_path, "w") as f:
+        f.write(",".join([str(x) for x in embedding]))
+
+
+def load_embedding(file_path: str) -> List[float]:
+    """Load embedding from file. Will only return first embedding in file."""
+    with open(file_path, "r") as f:
+        for line in f:
+            embedding = [float(x) for x in line.strip().split(",")]
+            break
+        return embedding
+
+----
+embeddings\__init__.py
+"""Init file."""
+
+----
+evaluation\base.py
+"""Evaluating the responses from an index."""
+from __future__ import annotations
+
+from typing import List, Optional
+
+from llama_index import (
+    Document,
+    GPTListIndex,
+    QuestionAnswerPrompt,
+    RefinePrompt,
+    Response,
+    ServiceContext,
+)
+
+DEFAULT_EVAL_PROMPT = (
+    "Please tell if a given piece of information "
+    "is supported by the context.\n"
+    "You need to answer with either YES or NO.\n"
+    "Answer YES if any of the context supports the information, even "
+    "if most of the context is unrelated. "
+    "Some examples are provided below. \n\n"
+    "Information: Apple pie is generally double-crusted.\n"
+    "Context: An apple pie is a fruit pie in which the principal filling "
+    "ingredient is apples. \n"
+    "Apple pie is often served with whipped cream, ice cream "
+    "('apple pie Ã  la mode'), custard or cheddar cheese.\n"
+    "It is generally double-crusted, with pastry both above "
+    "and below the filling; the upper crust may be solid or "
+    "latticed (woven of crosswise strips).\n"
+    "Answer: YES\n"
+    "Information: Apple pies tastes bad.\n"
+    "Context: An apple pie is a fruit pie in which the principal filling "
+    "ingredient is apples. \n"
+    "Apple pie is often served with whipped cream, ice cream "
+    "('apple pie Ã  la mode'), custard or cheddar cheese.\n"
+    "It is generally double-crusted, with pastry both above "
+    "and below the filling; the upper crust may be solid or "
+    "latticed (woven of crosswise strips).\n"
+    "Answer: NO\n"
+    "Information: {query_str}\n"
+    "Context: {context_str}\n"
+    "Answer: "
+)
+
+DEFAULT_REFINE_PROMPT = (
+    "We want to understand if the following information is present "
+    "in the context information: {query_str}\n"
+    "We have provided an existing YES/NO answer: {existing_answer}\n"
+    "We have the opportunity to refine the existing answer "
+    "(only if needed) with some more context below.\n"
+    "------------\n"
+    "{context_msg}\n"
+    "------------\n"
+    "If the existing answer was already YES, still answer YES. "
+    "If the information is present in the new context, answer YES. "
+    "Otherwise answer NO.\n"
+)
+
+QUERY_RESPONSE_EVAL_PROMPT = (
+    "Your task is to evaluate if the response for the query \
+    is in line with the context information provided.\n"
+    "You have two options to answer. Either YES/ NO.\n"
+    "Answer - YES, if the response for the query \
+    is in line with context information otherwise NO.\n"
+    "Query and Response: \n {query_str}\n"
+    "Context: \n {context_str}\n"
+    "Answer: "
+)
+
+QUERY_RESPONSE_REFINE_PROMPT = (
+    "We want to understand if the following query and response is"
+    "in line with the context information: \n {query_str}\n"
+    "We have provided an existing YES/NO answer: \n {existing_answer}\n"
+    "We have the opportunity to refine the existing answer "
+    "(only if needed) with some more context below.\n"
+    "------------\n"
+    "{context_msg}\n"
+    "------------\n"
+    "If the existing answer was already YES, still answer YES. "
+    "If the information is present in the new context, answer YES. "
+    "Otherwise answer NO.\n"
+)
+
+
+class ResponseEvaluator:
+    """Evaluate based on response from indices.
+
+    NOTE: this is a beta feature, subject to change!
+
+    Args:
+        service_context (Optional[ServiceContext]): ServiceContext object
+
+    """
+
+    def __init__(
+        self,
+        service_context: Optional[ServiceContext] = None,
+        raise_error: bool = False,
+    ) -> None:
+        """Init params."""
+        self.service_context = service_context or ServiceContext.from_defaults()
+        self.raise_error = raise_error
+
+    def get_context(self, response: Response) -> List[Document]:
+        """Get context information from given Response object using source nodes.
+
+        Args:
+            response (Response): Response object from an index based on the query.
+
+        Returns:
+            List of Documents of source nodes information as context information.
+        """
+
+        context = []
+
+        for context_info in response.source_nodes:
+            context.append(Document(context_info.source_text))
+
+        return context
+
+    def evaluate(self, response: Response) -> str:
+        """Evaluate the response from an index.
+
+        Args:
+            query: Query for which response is generated from index.
+            response: Response object from an index based on the query.
+        Returns:
+            Yes -> If answer, context information are matching \
+                    or If Query, answer and context information are matching.
+            No -> If answer, context information are not matching \
+                    or If Query, answer and context information are not matching.
+        """
+        answer = str(response)
+
+        context = self.get_context(response)
+        index = GPTListIndex.from_documents(
+            context, service_context=self.service_context
+        )
+        response_txt = ""
+
+        EVAL_PROMPT_TMPL = QuestionAnswerPrompt(DEFAULT_EVAL_PROMPT)
+        REFINE_PROMPT_TMPL = RefinePrompt(DEFAULT_REFINE_PROMPT)
+
+        query_engine = index.as_query_engine(
+            text_qa_template=EVAL_PROMPT_TMPL,
+            refine_template=REFINE_PROMPT_TMPL,
+        )
+        response_obj = query_engine.query(answer)
+
+        raw_response_txt = str(response_obj)
+
+        if "yes" in raw_response_txt.lower():
+            response_txt = "YES"
+        else:
+            response_txt = "NO"
+            if self.raise_error:
+                raise ValueError("The response is invalid")
+
+        return response_txt
+
+    def evaluate_source_nodes(self, response: Response) -> List[str]:
+        """Function to evaluate if each source node contains the answer \
+            by comparing the response, and context information (source node).
+
+        Args:
+            response: Response object from an index based on the query.
+        Returns:
+            List of Yes/ No which can be used to know which source node contains \
+                answer.
+            Yes -> If response and context information are matching.
+            No -> If response and context information are not matching.
+        """
+        answer = str(response)
+
+        context_list = self.get_context(response)
+
+        response_texts = []
+
+        for context in context_list:
+            index = GPTListIndex.from_documents(
+                [context], service_context=self.service_context
+            )
+            response_txt = ""
+
+            EVAL_PROMPT_TMPL = QuestionAnswerPrompt(DEFAULT_EVAL_PROMPT)
+            REFINE_PROMPT_TMPL = RefinePrompt(DEFAULT_REFINE_PROMPT)
+
+            query_engine = index.as_query_engine(
+                text_qa_template=EVAL_PROMPT_TMPL,
+                refine_template=REFINE_PROMPT_TMPL,
+            )
+            response_obj = query_engine.query(answer)
+            raw_response_txt = str(response_obj)
+
+            if "yes" in raw_response_txt.lower():
+                response_txt = "YES"
+            else:
+                response_txt = "NO"
+                if self.raise_error:
+                    raise ValueError("The response is invalid")
+
+            response_texts.append(response_txt)
+
+        return response_texts
+
+
+class QueryResponseEvaluator:
+    """Evaluate based on query and response from indices.
+
+    NOTE: this is a beta feature, subject to change!
+
+    Args:
+        service_context (Optional[ServiceContext]): ServiceContext object
+
+    """
+
+    def __init__(
+        self,
+        service_context: Optional[ServiceContext] = None,
+        raise_error: bool = False,
+    ) -> None:
+        """Init params."""
+        self.service_context = service_context or ServiceContext.from_defaults()
+        self.raise_error = raise_error
+
+    def get_context(self, response: Response) -> List[Document]:
+        """Get context information from given Response object using source nodes.
+
+        Args:
+            response (Response): Response object from an index based on the query.
+
+        Returns:
+            List of Documents of source nodes information as context information.
+        """
+
+        context = []
+
+        for context_info in response.source_nodes:
+            context.append(Document(context_info.source_text))
+
+        return context
+
+    def evaluate(self, query: str, response: Response) -> str:
+        """Evaluate the response from an index.
+
+        Args:
+            query: Query for which response is generated from index.
+            response: Response object from an index based on the query.
+        Returns:
+            Yes -> If answer, context information are matching \
+                    or If Query, answer and context information are matching.
+            No -> If answer, context information are not matching \
+                    or If Query, answer and context information are not matching.
+        """
+        answer = str(response)
+
+        context = self.get_context(response)
+        index = GPTListIndex.from_documents(
+            context, service_context=self.service_context
+        )
+        response_txt = ""
+
+        QUERY_RESPONSE_EVAL_PROMPT_TMPL = QuestionAnswerPrompt(
+            QUERY_RESPONSE_EVAL_PROMPT
+        )
+        QUERY_RESPONSE_REFINE_PROMPT_TMPL = RefinePrompt(QUERY_RESPONSE_REFINE_PROMPT)
+
+        query_response = f"Question: {query}\nResponse: {answer}"
+
+        query_engine = index.as_query_engine(
+            text_qa_template=QUERY_RESPONSE_EVAL_PROMPT_TMPL,
+            refine_template=QUERY_RESPONSE_REFINE_PROMPT_TMPL,
+        )
+        response_obj = query_engine.query(query_response)
+
+        raw_response_txt = str(response_obj)
+
+        if "yes" in raw_response_txt.lower():
+            response_txt = "YES"
+        else:
+            response_txt = "NO"
+            if self.raise_error:
+                raise ValueError("The response is invalid")
+
+        return response_txt
+
+    def evaluate_source_nodes(self, query: str, response: Response) -> List[str]:
+        """Function to evaluate if each source node contains the answer \
+            to a given query by comparing the query, response, \
+                and context information.
+
+        Args:
+            query: Query for which response is generated from index.
+            response: Response object from an index based on the query.
+        Returns:
+            List of Yes/ No which can be used to know which source node contains \
+                answer.
+            Yes -> If answer, context information are matching \
+                    or If Query, answer and context information are matching \
+                        for a source node.
+            No -> If answer, context information are not matching \
+                    or If Query, answer and context information are not matching \
+                        for a source node.
+        """
+        answer = str(response)
+
+        context_list = self.get_context(response)
+
+        response_texts = []
+
+        for context in context_list:
+            index = GPTListIndex.from_documents(
+                [context], service_context=self.service_context
+            )
+            response_txt = ""
+
+            QUERY_RESPONSE_EVAL_PROMPT_TMPL = QuestionAnswerPrompt(
+                QUERY_RESPONSE_EVAL_PROMPT
+            )
+            QUERY_RESPONSE_REFINE_PROMPT_TMPL = RefinePrompt(
+                QUERY_RESPONSE_REFINE_PROMPT
+            )
+
+            query_response = f"Question: {query}\nResponse: {answer}"
+
+            query_engine = index.as_query_engine(
+                text_qa_template=QUERY_RESPONSE_EVAL_PROMPT_TMPL,
+                refine_template=QUERY_RESPONSE_REFINE_PROMPT_TMPL,
+            )
+            response_obj = query_engine.query(query_response)
+            raw_response_txt = str(response_obj)
+
+            if "yes" in raw_response_txt.lower():
+                response_txt = "YES"
+            else:
+                response_txt = "NO"
+                if self.raise_error:
+                    raise ValueError("The response is invalid")
+
+            response_texts.append(response_txt)
+
+        return response_texts
+
+----
+evaluation\dataset_generation.py
+"""Dataset generation from documents"""
+from __future__ import annotations
+
+from typing import List, Optional
+import re
+
+from llama_index import (
+    Document,
+    GPTListIndex,
+    QuestionAnswerPrompt,
+    ServiceContext,
+    LLMPredictor,
+)
+from llama_index.indices.postprocessor.node import KeywordNodePostprocessor
+from llama_index.data_structs.node import Node, NodeWithScore
+
+from langchain.chat_models import ChatOpenAI
+
+DEFAULT_QUESTION_GENERATION_PROMPT = """Context information is below.\n"
+"\n---------------------\n{context_str}\n---------------------\n"
+"Given the context information and not prior knowledge.\n"
+"generate only questions based on the below query.\n"
+"{query_str}\n"
+"""
+
+
+def _get_default_service_context() -> ServiceContext:
+    """Get default service context."""
+    llm_predictor = LLMPredictor(
+        llm=ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
+    )
+    service_context = ServiceContext.from_defaults(
+        llm_predictor=llm_predictor, chunk_size_limit=3000
+    )
+    return service_context
+
+
+class DatasetGenerator:
+    """Generate dataset (question/ question-answer pairs) \
+    based on the given documents.
+
+    NOTE: this is a beta feature, subject to change!
+
+    Args:
+        nodes (List[Node]): List of nodes. (Optional)
+        service_context (ServiceContext): Service Context.
+        num_questions_per_chunk: number of question to be \
+        generated per chunk. Each document is chunked of size 512 words.
+        text_question_template: Question generation template.
+    """
+
+    def __init__(
+        self,
+        nodes: List[Node],
+        service_context: Optional[ServiceContext] = None,
+        num_questions_per_chunk: int = 10,
+        text_question_template: Optional[QuestionAnswerPrompt] = None,
+        question_gen_query: Optional[str] = None,
+        required_keywords: Optional[List[str]] = None,
+        exclude_keywords: Optional[List[str]] = None,
+    ) -> None:
+        """Init params."""
+        if service_context is None:
+            service_context = _get_default_service_context()
+        self.service_context = service_context
+        self.text_question_template = text_question_template or QuestionAnswerPrompt(
+            DEFAULT_QUESTION_GENERATION_PROMPT
+        )
+        self.question_gen_query = (
+            question_gen_query
+            or f"You are a Teacher/ Professor. Your task is to setup \
+                        {num_questions_per_chunk} questions for an upcoming \
+                        quiz/examination. The questions should be diverse in nature \
+                            across the document. Restrict the questions to the \
+                                context information provided."
+        )
+        self.nodes = nodes
+
+    @classmethod
+    def from_documents(
+        cls,
+        documents: List[Document],
+        service_context: Optional[ServiceContext] = None,
+        num_questions_per_chunk: int = 10,
+        text_question_template: Optional[QuestionAnswerPrompt] = None,
+        question_gen_query: Optional[str] = None,
+        required_keywords: Optional[List[str]] = None,
+        exclude_keywords: Optional[List[str]] = None,
+    ) -> "DatasetGenerator":
+        """Generate dataset from documents."""
+        if service_context is None:
+            service_context = _get_default_service_context()
+        nodes = service_context.node_parser.get_nodes_from_documents(documents)
+
+        # use node postprocessor to filter nodes
+        required_keywords = required_keywords or []
+        exclude_keywords = exclude_keywords or []
+        node_postprocessor = KeywordNodePostprocessor(
+            service_context=service_context,
+            required_keywords=required_keywords,
+            exclude_keywords=exclude_keywords,
+        )
+        node_with_scores = [NodeWithScore(node) for node in nodes]
+        node_with_scores = node_postprocessor.postprocess_nodes(node_with_scores)
+        nodes = [node_with_score.node for node_with_score in node_with_scores]
+
+        return cls(
+            nodes=nodes,
+            service_context=service_context,
+            num_questions_per_chunk=num_questions_per_chunk,
+            text_question_template=text_question_template,
+            question_gen_query=question_gen_query,
+        )
+
+    def _node_question_generator(self, nodes: List[Node]) -> List[str]:
+        """Node question generator."""
+        questions = []
+
+        for node in nodes:
+            index = GPTListIndex.from_documents([Document(node.get_text())])
+
+            query_engine = index.as_query_engine(
+                service_context=self.service_context,
+                text_qa_template=self.text_question_template,
+                use_async=True,
+            )
+            response = query_engine.query(
+                self.question_gen_query,
+            )
+
+            result = str(response).strip().split("\n")
+            cleaned_questions = [
+                re.sub(r"^\d+[\).\s]", "", question).strip() for question in result
+            ]
+            questions.extend(cleaned_questions)
+
+        questions = [question for question in questions if question != ""]
+
+        return questions
+
+    def generate_questions_from_nodes(self) -> List[str]:
+        """Generates questions for each document."""
+        return self._node_question_generator(self.nodes)
+
+----
+evaluation\__init__.py
+"""Evaluation modules."""
+
+from llama_index.evaluation.base import ResponseEvaluator, QueryResponseEvaluator
+from llama_index.evaluation.dataset_generation import DatasetGenerator
+
+__all__ = ["ResponseEvaluator", "QueryResponseEvaluator", "DatasetGenerator"]
+
+----
+indices\base.py
+"""Base index classes."""
+import logging
+from abc import ABC, abstractmethod
+from typing import Any, Generic, List, Optional, Sequence, Type, TypeVar
+
+from llama_index.data_structs.data_structs import IndexStruct
+from llama_index.data_structs.node import Node
+from llama_index.indices.base_retriever import BaseRetriever
+from llama_index.indices.query.base import BaseQueryEngine
+from llama_index.indices.service_context import ServiceContext
+from llama_index.readers.schema.base import Document
+from llama_index.storage.docstore.types import BaseDocumentStore
+from llama_index.storage.storage_context import StorageContext
+from llama_index.token_counter.token_counter import llm_token_counter
+
+IS = TypeVar("IS", bound=IndexStruct)
+IndexType = TypeVar("IndexType", bound="BaseGPTIndex")
+
+logger = logging.getLogger(__name__)
+
+
+class BaseGPTIndex(Generic[IS], ABC):
+    """Base LlamaIndex.
+
+    Args:
+        nodes (List[Node]): List of nodes to index
+        service_context (ServiceContext): Service context container (contains
+            components like LLMPredictor, PromptHelper, etc.).
+
+    """
+
+    index_struct_cls: Type[IS]
+
+    def __init__(
+        self,
+        nodes: Optional[Sequence[Node]] = None,
+        index_struct: Optional[IS] = None,
+        storage_context: Optional[StorageContext] = None,
+        service_context: Optional[ServiceContext] = None,
+        **kwargs: Any,
+    ) -> None:
+        """Initialize with parameters."""
+        if index_struct is None and nodes is None:
+            raise ValueError("One of documents or index_struct must be provided.")
+        if index_struct is not None and nodes is not None:
+            raise ValueError("Only one of documents or index_struct can be provided.")
+        # This is to explicitly make sure that the old UX is not used
+        if nodes is not None and len(nodes) >= 1 and not isinstance(nodes[0], Node):
+            if isinstance(nodes[0], Document):
+                raise ValueError(
+                    "The constructor now takes in a list of Node objects. "
+                    "Since you are passing in a list of Document objects, "
+                    "please use `from_documents` instead."
+                )
+            else:
+                raise ValueError("nodes must be a list of Node objects.")
+
+        self._service_context = service_context or ServiceContext.from_defaults()
+        self._storage_context = storage_context or StorageContext.from_defaults()
+        self._docstore = self._storage_context.docstore
+        self._vector_store = self._storage_context.vector_store
+
+        if index_struct is None:
+            assert nodes is not None
+            index_struct = self.build_index_from_nodes(nodes)
+        self._index_struct = index_struct
+        self._storage_context.index_store.add_index_struct(self._index_struct)
+
+    @classmethod
+    def from_documents(
+        cls: Type[IndexType],
+        documents: Sequence[Document],
+        storage_context: Optional[StorageContext] = None,
+        service_context: Optional[ServiceContext] = None,
+        **kwargs: Any,
+    ) -> IndexType:
+        """Create index from documents.
+
+        Args:
+            documents (Optional[Sequence[BaseDocument]]): List of documents to
+                build the index from.
+
+        """
+        storage_context = storage_context or StorageContext.from_defaults()
+        service_context = service_context or ServiceContext.from_defaults()
+        docstore = storage_context.docstore
+
+        for doc in documents:
+            docstore.set_document_hash(doc.get_doc_id(), doc.get_doc_hash())
+
+        nodes = service_context.node_parser.get_nodes_from_documents(documents)
+
+        return cls(
+            nodes=nodes,
+            storage_context=storage_context,
+            service_context=service_context,
+            **kwargs,
+        )
+
+    @property
+    def index_struct(self) -> IS:
+        """Get the index struct."""
+        return self._index_struct
+
+    @property
+    def index_id(self) -> str:
+        """Get the index struct."""
+        return self._index_struct.index_id
+
+    def set_index_id(self, index_id: str) -> None:
+        """Set the index id.
+
+        NOTE: if you decide to set the index_id on the index_struct manually,
+        you will need to explicitly call `add_index_struct` on the `index_store`
+        to update the index store.
+
+        .. code-block:: python
+            index.index_struct.index_id = index_id
+            index.storage_context.index_store.add_index_struct(index.index_struct)
+
+        Args:
+            index_id (str): Index id to set.
+
+        """
+        # delete the old index struct
+        old_id = self._index_struct.index_id
+        self._storage_context.index_store.delete_index_struct(old_id)
+        # add the new index struct
+        self._index_struct.index_id = index_id
+        self._storage_context.index_store.add_index_struct(self._index_struct)
+
+    @property
+    def docstore(self) -> BaseDocumentStore:
+        """Get the docstore corresponding to the index."""
+        return self._docstore
+
+    @property
+    def service_context(self) -> ServiceContext:
+        return self._service_context
+
+    @property
+    def storage_context(self) -> StorageContext:
+        return self._storage_context
+
+    @property
+    def summary(self) -> str:
+        return str(self._index_struct.summary)
+
+    @summary.setter
+    def summary(self, new_summary: str) -> None:
+        self._index_struct.summary = new_summary
+        self._storage_context.index_store.add_index_struct(self._index_struct)
+
+    @abstractmethod
+    def _build_index_from_nodes(self, nodes: Sequence[Node]) -> IS:
+        """Build the index from nodes."""
+
+    @llm_token_counter("build_index_from_nodes")
+    def build_index_from_nodes(self, nodes: Sequence[Node]) -> IS:
+        """Build the index from nodes."""
+        self._docstore.add_documents(nodes, allow_update=True)
+        return self._build_index_from_nodes(nodes)
+
+    @abstractmethod
+    def _insert(self, nodes: Sequence[Node], **insert_kwargs: Any) -> None:
+        """Index-specific logic for inserting nodes to the index struct."""
+
+    @llm_token_counter("insert")
+    def insert_nodes(self, nodes: Sequence[Node], **insert_kwargs: Any) -> None:
+        """Insert nodes."""
+        self.docstore.add_documents(nodes, allow_update=True)
+        self._insert(nodes, **insert_kwargs)
+        self._storage_context.index_store.add_index_struct(self._index_struct)
+
+    def insert(self, document: Document, **insert_kwargs: Any) -> None:
+        """Insert a document."""
+        nodes = self.service_context.node_parser.get_nodes_from_documents([document])
+        self.insert_nodes(nodes, **insert_kwargs)
+        self.docstore.set_document_hash(document.get_doc_id(), document.get_doc_hash())
+
+    @abstractmethod
+    def _delete(self, doc_id: str, **delete_kwargs: Any) -> None:
+        """Delete a document."""
+
+    def delete(self, doc_id: str, **delete_kwargs: Any) -> None:
+        """Delete a document from the index.
+
+        All nodes in the index related to the index will be deleted.
+
+        Args:
+            doc_id (str): document id
+
+        """
+        logger.debug(f"> Deleting document: {doc_id}")
+        self._delete(doc_id, **delete_kwargs)
+        self._storage_context.index_store.add_index_struct(self._index_struct)
+
+    def update(self, document: Document, **update_kwargs: Any) -> None:
+        """Update a document.
+
+        This is equivalent to deleting the document and then inserting it again.
+
+        Args:
+            document (Union[BaseDocument, BaseGPTIndex]): document to update
+            insert_kwargs (Dict): kwargs to pass to insert
+            delete_kwargs (Dict): kwargs to pass to delete
+
+        """
+        self.delete(document.get_doc_id(), **update_kwargs.pop("delete_kwargs", {}))
+        self.insert(document, **update_kwargs.pop("insert_kwargs", {}))
+
+    def refresh(
+        self, documents: Sequence[Document], **update_kwargs: Any
+    ) -> List[bool]:
+        """Refresh an index with documents that have changed.
+
+        This allows users to save LLM and Embedding model calls, while only
+        updating documents that have any changes in text or extra_info. It
+        will also insert any documents that previously were not stored.
+        """
+        refreshed_documents = [False] * len(documents)
+        for i, document in enumerate(documents):
+            existing_doc_hash = self._docstore.get_document_hash(document.get_doc_id())
+            if existing_doc_hash != document.get_doc_hash():
+                self.update(document, **update_kwargs)
+                refreshed_documents[i] = True
+            elif existing_doc_hash is None:
+                self.insert(document, **update_kwargs.pop("insert_kwargs", {}))
+                refreshed_documents[i] = True
+
+        return refreshed_documents
+
+    @abstractmethod
+    def as_retriever(self, **kwargs: Any) -> BaseRetriever:
+        pass
+
+    def as_query_engine(self, **kwargs: Any) -> BaseQueryEngine:
+        # NOTE: lazy import
+        from llama_index.query_engine.retriever_query_engine import RetrieverQueryEngine
+
+        retriever = self.as_retriever(**kwargs)
+
+        kwargs["retriever"] = retriever
+        if "service_context" not in kwargs:
+            kwargs["service_context"] = self._service_context
+        return RetrieverQueryEngine.from_args(**kwargs)
+
+----
+indices\base_retriever.py
+from abc import ABC, abstractmethod
+from typing import List
+from llama_index.data_structs.node import NodeWithScore
+
+from llama_index.indices.query.schema import QueryBundle, QueryType
+
+
+class BaseRetriever(ABC):
+    """Base retriever."""
+
+    def retrieve(self, str_or_query_bundle: QueryType) -> List[NodeWithScore]:
+        """Retrieve nodes given query.
+
+        Args:
+            str_or_query_bundle (QueryType): Either a query string or
+                a QueryBundle object.
+
+        """
+        if isinstance(str_or_query_bundle, str):
+            str_or_query_bundle = QueryBundle(str_or_query_bundle)
+        return self._retrieve(str_or_query_bundle)
+
+    @abstractmethod
+    def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
+        """Retrieve nodes given query.
+
+        Implemented by the user.
+
+        """
+        pass
+
+----
+indices\loading.py
+from typing import Any, List, Optional, Sequence
+from llama_index.indices.base import BaseGPTIndex
+from llama_index.indices.composability.graph import ComposableGraph
+from llama_index.indices.registry import INDEX_STRUCT_TYPE_TO_INDEX_CLASS
+from llama_index.storage.storage_context import StorageContext
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def load_index_from_storage(
+    storage_context: StorageContext,
+    index_id: Optional[str] = None,
+    **kwargs: Any,
+) -> BaseGPTIndex:
+    """Load index from storage context.
+
+    Args:
+        storage_context (StorageContext): storage context containing
+            docstore, index store and vector store.
+        index_id (Optional[str]): ID of the index to load.
+            Defaults to None, which assumes there's only a single index
+            in the index store and load it.
+        **kwargs: Additional keyword args to pass to the index constructors.
+    """
+    index_ids: Optional[Sequence[str]]
+    if index_id is None:
+        index_ids = None
+    else:
+        index_ids = [index_id]
+
+    indices = load_indices_from_storage(storage_context, index_ids=index_ids, **kwargs)
+
+    if len(indices) == 0:
+        raise ValueError(
+            "No index in storage context, check if you specified the right persist_dir."
+        )
+    elif len(indices) > 1:
+        raise ValueError(
+            f"Expected to load a single index, but got {len(indices)} instead. "
+            "Please specify index_id."
+        )
+
+    return indices[0]
+
+
+def load_indices_from_storage(
+    storage_context: StorageContext,
+    index_ids: Optional[Sequence[str]] = None,
+    **kwargs: Any,
+) -> List[BaseGPTIndex]:
+    """Load multiple indices from storage context
+
+    Args:
+        storage_context (StorageContext): storage context containing
+            docstore, index store and vector store.
+        index_id (Optional[Sequence[str]]): IDs of the indices to load.
+            Defaults to None, which loads all indices in the index store.
+        **kwargs: Additional keyword args to pass to the index constructors.
+    """
+    if index_ids is None:
+        logger.info("Loading all indices.")
+        index_structs = storage_context.index_store.index_structs()
+    else:
+        logger.info(f"Loading indices with ids: {index_ids}")
+        index_structs = []
+        for index_id in index_ids:
+            index_struct = storage_context.index_store.get_index_struct(index_id)
+            if index_struct is None:
+                raise ValueError(f"Failed to load index with ID {index_id}")
+            index_structs.append(index_struct)
+
+    indices = []
+    for index_struct in index_structs:
+        type_ = index_struct.get_type()
+        index_cls = INDEX_STRUCT_TYPE_TO_INDEX_CLASS[type_]
+        index = index_cls(
+            index_struct=index_struct, storage_context=storage_context, **kwargs
+        )
+        indices.append(index)
+    return indices
+
+
+def load_graph_from_storage(
+    storage_context: StorageContext,
+    root_id: str,
+    **kwargs: Any,
+) -> ComposableGraph:
+    """Load composable graph from storage context.
+
+    Args:
+        storage_context (StorageContext): storage context containing
+            docstore, index store and vector store.
+        root_id (str): ID of the root index of the graph.
+        **kwargs: Additional keyword args to pass to the index constructors.
+    """
+    indices = load_indices_from_storage(storage_context, index_ids=None, **kwargs)
+    all_indices = {index.index_id: index for index in indices}
+    graph = ComposableGraph(all_indices=all_indices, root_id=root_id)
+    return graph
+
+----
+indices\prompt_helper.py
+"""General prompt helper that can help deal with token limitations.
+
+The helper can split text. It can also concatenate text from Node
+structs but keeping token limitations in mind.
+
+"""
+
+from typing import Callable, List, Optional, Sequence
+
+from llama_index.constants import MAX_CHUNK_OVERLAP
+from llama_index.data_structs.node import Node
+from llama_index.langchain_helpers.chain_wrapper import LLMPredictor
+from llama_index.langchain_helpers.text_splitter import TokenTextSplitter
+from llama_index.prompts.base import Prompt
+from llama_index.utils import globals_helper
+
+
+class PromptHelper:
+    """Prompt helper.
+
+    This utility helps us fill in the prompt, split the text,
+    and fill in context information according to necessary token limitations.
+
+    Args:
+        max_input_size (int): Maximum input size for the LLM.
+        num_output (int): Number of outputs for the LLM.
+        max_chunk_overlap (int): Maximum chunk overlap for the LLM.
+        embedding_limit (Optional[int]): Maximum number of embeddings to use.
+        chunk_size_limit (Optional[int]): Maximum chunk size to use.
+        tokenizer (Optional[Callable[[str], List]]): Tokenizer to use.
+
+    """
+
+    def __init__(
+        self,
+        max_input_size: int,
+        num_output: int,
+        max_chunk_overlap: int,
+        embedding_limit: Optional[int] = None,
+        chunk_size_limit: Optional[int] = None,
+        tokenizer: Optional[Callable[[str], List]] = None,
+        separator: str = " ",
+    ) -> None:
+        """Init params."""
+        self.max_input_size = max_input_size
+        self.num_output = num_output
+        self.max_chunk_overlap = max_chunk_overlap
+        self.embedding_limit = embedding_limit
+        self.chunk_size_limit = chunk_size_limit
+        # TODO: make configurable
+        self._tokenizer = tokenizer or globals_helper.tokenizer
+        self._separator = separator
+        self.use_chunk_size_limit = chunk_size_limit is not None
+
+    @classmethod
+    def from_llm_predictor(
+        self,
+        llm_predictor: LLMPredictor,
+        max_chunk_overlap: Optional[int] = None,
+        embedding_limit: Optional[int] = None,
+        chunk_size_limit: Optional[int] = None,
+        tokenizer: Optional[Callable[[str], List]] = None,
+    ) -> "PromptHelper":
+        """Create from llm predictor.
+
+        This will autofill values like max_input_size and num_output.
+
+        """
+        llm_metadata = llm_predictor.get_llm_metadata()
+        max_chunk_overlap = max_chunk_overlap or min(
+            MAX_CHUNK_OVERLAP,
+            llm_metadata.max_input_size // 10,
+        )
+        if chunk_size_limit is not None:
+            max_chunk_overlap = min(max_chunk_overlap, chunk_size_limit // 10)
+
+        return self(
+            llm_metadata.max_input_size,
+            llm_metadata.num_output,
+            max_chunk_overlap,
+            embedding_limit=embedding_limit,
+            chunk_size_limit=chunk_size_limit,
+            tokenizer=tokenizer,
+        )
+
+    def get_chunk_size_given_prompt(
+        self, prompt_text: str, num_chunks: int, padding: Optional[int] = 1
+    ) -> int:
+        """Get chunk size making sure we can also fit the prompt in.
+
+        Chunk size is computed based on a function of the total input size,
+        the prompt length, the number of outputs, and the number of chunks.
+
+        If padding is specified, then we subtract that from the chunk size.
+        By default we assume there is a padding of 1 (for the newline between chunks).
+
+        Limit by embedding_limit and chunk_size_limit if specified.
+
+        """
+        prompt_tokens = self._tokenizer(prompt_text)
+        num_prompt_tokens = len(prompt_tokens)
+
+        # NOTE: if embedding limit is specified, then chunk_size must not be larger than
+        # embedding_limit
+        result = (
+            self.max_input_size - num_prompt_tokens - self.num_output
+        ) // num_chunks
+        if padding is not None:
+            result -= padding
+
+        if self.embedding_limit is not None:
+            result = min(result, self.embedding_limit)
+        if self.chunk_size_limit is not None and self.use_chunk_size_limit:
+            result = min(result, self.chunk_size_limit)
+
+        return result
+
+    def _get_empty_prompt_txt(self, prompt: Prompt) -> str:
+        """Get empty prompt text.
+
+        Substitute empty strings in parts of the prompt that have
+        not yet been filled out. Skip variables that have already
+        been partially formatted. This is used to compute the initial tokens.
+
+        """
+        fmt_dict = {
+            v: "" for v in prompt.input_variables if v not in prompt.partial_dict
+        }
+        # TODO: change later from llm=None
+        empty_prompt_txt = prompt.format(llm=None, **fmt_dict)
+        return empty_prompt_txt
+
+    def get_biggest_prompt(self, prompts: List[Prompt]) -> Prompt:
+        """Get biggest prompt.
+
+        Oftentimes we need to fetch the biggest prompt, in order to
+        be the most conservative about chunking text. This
+        is a helper utility for that.
+
+        """
+        empty_prompt_txts = [self._get_empty_prompt_txt(prompt) for prompt in prompts]
+        empty_prompt_txt_lens = [len(txt) for txt in empty_prompt_txts]
+        biggest_prompt = prompts[
+            empty_prompt_txt_lens.index(max(empty_prompt_txt_lens))
+        ]
+        return biggest_prompt
+
+    def get_text_splitter_given_prompt(
+        self, prompt: Prompt, num_chunks: int, padding: Optional[int] = 1
+    ) -> TokenTextSplitter:
+        """Get text splitter given initial prompt.
+
+        Allows us to get the text splitter which will split up text according
+        to the desired chunk size.
+
+        """
+        # generate empty_prompt_txt to compute initial tokens
+        empty_prompt_txt = self._get_empty_prompt_txt(prompt)
+        chunk_size = self.get_chunk_size_given_prompt(
+            empty_prompt_txt, num_chunks, padding=padding
+        )
+        text_splitter = TokenTextSplitter(
+            separator=self._separator,
+            chunk_size=chunk_size,
+            chunk_overlap=self.max_chunk_overlap // num_chunks,
+            tokenizer=self._tokenizer,
+        )
+        return text_splitter
+
+    def get_text_from_nodes(
+        self, node_list: List[Node], prompt: Optional[Prompt] = None
+    ) -> str:
+        """Get text from nodes. Used by tree-structured indices."""
+        num_nodes = len(node_list)
+        text_splitter = None
+        if prompt is not None:
+            # add padding given the newline character
+            text_splitter = self.get_text_splitter_given_prompt(
+                prompt,
+                num_nodes,
+                padding=1,
+            )
+        results = []
+        for node in node_list:
+            text = (
+                text_splitter.truncate_text(node.get_text())
+                if text_splitter is not None
+                else node.get_text()
+            )
+            results.append(text)
+
+        return "\n".join(results)
+
+    def get_numbered_text_from_nodes(
+        self, node_list: List[Node], prompt: Optional[Prompt] = None
+    ) -> str:
+        """Get text from nodes in the format of a numbered list.
+
+        Used by tree-structured indices.
+
+        """
+        num_nodes = len(node_list)
+        text_splitter = None
+        if prompt is not None:
+            # add padding given the number, and the newlines
+            text_splitter = self.get_text_splitter_given_prompt(
+                prompt,
+                num_nodes,
+                padding=5,
+            )
+        results = []
+        number = 1
+        for node in node_list:
+            node_text = " ".join(node.get_text().splitlines())
+            if text_splitter is not None:
+                node_text = text_splitter.truncate_text(node_text)
+            text = f"({number}) {node_text}"
+            results.append(text)
+            number += 1
+        return "\n\n".join(results)
+
+    def compact_text_chunks(
+        self, prompt: Prompt, text_chunks: Sequence[str]
+    ) -> List[str]:
+        """Compact text chunks.
+
+        This will combine text chunks into consolidated chunks
+        that more fully "pack" the prompt template given the max_input_size.
+
+        """
+        combined_str = "\n\n".join([c.strip() for c in text_chunks if c.strip()])
+        # resplit based on self.max_chunk_overlap
+        text_splitter = self.get_text_splitter_given_prompt(prompt, 1, padding=1)
+        return text_splitter.split_text(combined_str)
+
+----
+indices\registry.py
+"""Index registry."""
+
+from typing import Dict, Type
+
+from llama_index.data_structs.struct_type import IndexStructType
+from llama_index.indices.base import BaseGPTIndex
+from llama_index.indices.document_summary.base import GPTDocumentSummaryIndex
+from llama_index.indices.empty.base import GPTEmptyIndex
+from llama_index.indices.keyword_table.base import GPTKeywordTableIndex
+from llama_index.indices.knowledge_graph.base import GPTKnowledgeGraphIndex
+from llama_index.indices.list.base import GPTListIndex
+from llama_index.indices.struct_store.pandas import GPTPandasIndex
+from llama_index.indices.struct_store.sql import GPTSQLStructStoreIndex
+from llama_index.indices.tree.base import GPTTreeIndex
+from llama_index.indices.vector_store.base import GPTVectorStoreIndex
+
+INDEX_STRUCT_TYPE_TO_INDEX_CLASS: Dict[IndexStructType, Type[BaseGPTIndex]] = {
+    IndexStructType.TREE: GPTTreeIndex,
+    IndexStructType.LIST: GPTListIndex,
+    IndexStructType.KEYWORD_TABLE: GPTKeywordTableIndex,
+    IndexStructType.VECTOR_STORE: GPTVectorStoreIndex,
+    IndexStructType.SQL: GPTSQLStructStoreIndex,
+    IndexStructType.PANDAS: GPTPandasIndex,
+    IndexStructType.KG: GPTKnowledgeGraphIndex,
+    IndexStructType.EMPTY: GPTEmptyIndex,
+    IndexStructType.DOCUMENT_SUMMARY: GPTDocumentSummaryIndex,
+}
+
+----
+indices\service_context.py
+from dataclasses import dataclass
+from typing import Optional
+
+from llama_index.callbacks.base import CallbackManager
+from llama_index.embeddings.base import BaseEmbedding
+from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.indices.prompt_helper import PromptHelper
+from llama_index.langchain_helpers.chain_wrapper import LLMPredictor
+from llama_index.langchain_helpers.text_splitter import TokenTextSplitter
+from llama_index.logger import LlamaLogger
+from llama_index.node_parser.interface import NodeParser
+from llama_index.node_parser.simple import SimpleNodeParser
+
+
+def _get_default_node_parser(
+    chunk_size_limit: Optional[int] = None,
+    callback_manager: Optional[CallbackManager] = None,
+) -> NodeParser:
+    """Get default node parser."""
+    callback_manager = callback_manager or CallbackManager([])
+    if chunk_size_limit is None:
+        token_text_splitter = TokenTextSplitter(
+            callback_manager=callback_manager
+        )  # use default chunk size
+    else:
+        token_text_splitter = TokenTextSplitter(
+            chunk_size=chunk_size_limit, callback_manager=callback_manager
+        )
+    return SimpleNodeParser(
+        text_splitter=token_text_splitter, callback_manager=callback_manager
+    )
+
+
+@dataclass
+class ServiceContext:
+    """Service Context container.
+
+    The service context container is a utility container for LlamaIndex
+    index and query classes. It contains the following:
+    - llm_predictor: LLMPredictor
+    - prompt_helper: PromptHelper
+    - embed_model: BaseEmbedding
+    - node_parser: NodeParser
+    - llama_logger: LlamaLogger (deprecated)
+    - callback_manager: CallbackManager
+    - chunk_size_limit: chunk size limit
+
+    """
+
+    llm_predictor: LLMPredictor
+    prompt_helper: PromptHelper
+    embed_model: BaseEmbedding
+    node_parser: NodeParser
+    llama_logger: LlamaLogger
+    callback_manager: CallbackManager
+    chunk_size_limit: Optional[int] = None
+
+    @classmethod
+    def from_defaults(
+        cls,
+        llm_predictor: Optional[LLMPredictor] = None,
+        prompt_helper: Optional[PromptHelper] = None,
+        embed_model: Optional[BaseEmbedding] = None,
+        node_parser: Optional[NodeParser] = None,
+        llama_logger: Optional[LlamaLogger] = None,
+        callback_manager: Optional[CallbackManager] = None,
+        chunk_size_limit: Optional[int] = None,
+    ) -> "ServiceContext":
+        """Create a ServiceContext from defaults.
+        If an argument is specified, then use the argument value provided for that
+        parameter. If an argument is not specified, then use the default value.
+
+        Args:
+            llm_predictor (Optional[LLMPredictor]): LLMPredictor
+            prompt_helper (Optional[PromptHelper]): PromptHelper
+            embed_model (Optional[BaseEmbedding]): BaseEmbedding
+            node_parser (Optional[NodeParser]): NodeParser
+            llama_logger (Optional[LlamaLogger]): LlamaLogger (deprecated)
+            chunk_size_limit (Optional[int]): chunk_size_limit
+
+        """
+        callback_manager = callback_manager or CallbackManager([])
+        llm_predictor = llm_predictor or LLMPredictor()
+        llm_predictor.callback_manager = callback_manager
+
+        # NOTE: the embed_model isn't used in all indices
+        embed_model = embed_model or OpenAIEmbedding()
+        embed_model.callback_manager = callback_manager
+
+        prompt_helper = prompt_helper or PromptHelper.from_llm_predictor(
+            llm_predictor, chunk_size_limit=chunk_size_limit
+        )
+
+        node_parser = node_parser or _get_default_node_parser(
+            chunk_size_limit=chunk_size_limit, callback_manager=callback_manager
+        )
+
+        llama_logger = llama_logger or LlamaLogger()
+
+        return cls(
+            llm_predictor=llm_predictor,
+            embed_model=embed_model,
+            prompt_helper=prompt_helper,
+            node_parser=node_parser,
+            llama_logger=llama_logger,  # deprecated
+            callback_manager=callback_manager,
+            chunk_size_limit=chunk_size_limit,
+        )
+
+----
+indices\utils.py
+"""Utilities for GPT indices."""
+import logging
+import re
+from typing import Dict, List, Optional, Set, Tuple
+
+from llama_index.data_structs.node import Node
+from llama_index.utils import globals_helper, truncate_text
+from llama_index.vector_stores.types import VectorStoreQueryResult
+
+_logger = logging.getLogger(__name__)
+
+
+def get_sorted_node_list(node_dict: Dict[int, Node]) -> List[Node]:
+    """Get sorted node list. Used by tree-strutured indices."""
+    sorted_indices = sorted(node_dict.keys())
+    return [node_dict[index] for index in sorted_indices]
+
+
+def extract_numbers_given_response(response: str, n: int = 1) -> Optional[List[int]]:
+    """Extract number given the GPT-generated response.
+
+    Used by tree-structured indices.
+
+    """
+    numbers = re.findall(r"\d+", response)
+    if len(numbers) == 0:
+        return None
+    else:
+        return numbers[:n]
+
+
+def expand_tokens_with_subtokens(tokens: Set[str]) -> Set[str]:
+    """Get subtokens from a list of tokens., filtering for stopwords."""
+    results = set()
+    for token in tokens:
+        results.add(token)
+        sub_tokens = re.findall(r"\w+", token)
+        if len(sub_tokens) > 1:
+            results.update({w for w in sub_tokens if w not in globals_helper.stopwords})
+
+    return results
+
+
+def log_vector_store_query_result(
+    result: VectorStoreQueryResult, logger: Optional[logging.Logger] = None
+) -> None:
+    """Log vector store query result."""
+    logger = logger or _logger
+
+    assert result.ids is not None
+    assert result.nodes is not None
+    similarities = (
+        result.similarities
+        if result.similarities is not None and len(result.similarities) > 0
+        else [1.0 for _ in result.ids]
+    )
+
+    fmt_txts = []
+    for node_idx, node_similarity, node in zip(result.ids, similarities, result.nodes):
+        fmt_txt = f"> [Node {node_idx}] [Similarity score: \
+            {float(node_similarity):.6}] {truncate_text(node.get_text(), 100)}"
+        fmt_txts.append(fmt_txt)
+    top_k_node_text = "\n".join(fmt_txts)
+    logger.debug(f"> Top {len(result.nodes)} nodes:\n{top_k_node_text}")
+
+
+def default_format_node_batch_fn(
+    summary_nodes: List[Node],
+) -> str:
+    """Default format node batch function.
+
+    Assign each summary node a number, and format the batch of nodes.
+
+    """
+    fmt_node_txts = []
+    for idx in range(len(summary_nodes)):
+        number = idx + 1
+        fmt_node_txts.append(f"Document {number}:\n{summary_nodes[idx].get_text()}")
+    return "\n\n".join(fmt_node_txts)
+
+
+def default_parse_choice_select_answer_fn(
+    answer: str, num_choices: int, raise_error: bool = False
+) -> Tuple[List[int], Optional[List[float]]]:
+    """Default parse choice select answer function."""
+    answer_lines = answer.split("\n")
+    answer_nums = []
+    answer_relevances = []
+    for answer_line in answer_lines:
+        line_tokens = answer_line.split(",")
+        if len(line_tokens) != 2:
+            if not raise_error:
+                continue
+            else:
+                raise ValueError(
+                    f"Invalid answer line: {answer_line}. "
+                    "Answer line must be of the form: "
+                    "answer_num: <int>, answer_relevance: <float>"
+                )
+        answer_num = int(line_tokens[0].split(":")[1].strip())
+        if answer_num > num_choices:
+            continue
+        answer_nums.append(answer_num)
+        answer_relevances.append(float(line_tokens[1].split(":")[1].strip()))
+    return answer_nums, answer_relevances
+
+----
+indices\__init__.py
+"""LlamaIndex data structures."""
+
+# indices
+from llama_index.indices.keyword_table.base import GPTKeywordTableIndex
+from llama_index.indice
