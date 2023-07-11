@@ -1,0 +1,3451 @@
+The following text is a Git repository with code. The structure of the text are sections that begin with ----, followed by a single line containing the file path and file name, followed by a variable amount of lines containing the file contents. The text representing the Git repository ends when the symbols --END-- are encounted. Any further text beyond --END-- are meant to be interpreted as instructions using the aforementioned Git repository as context.
+----
+.all-contributorsrc
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "cyclic3",
+      "name": "cyclic3",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/15613874?v=4",
+      "profile": "https://github.com/Cyclic3",
+      "contributions": [
+        "design",
+        "maintenance",
+        "code",
+        "ideas"
+      ]
+    },
+    {
+      "login": "brandonskerritt",
+      "name": "Brandon",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/10378052?v=4",
+      "profile": "https://skerritt.blog",
+      "contributions": [
+        "design",
+        "maintenance",
+        "code",
+        "ideas"
+      ]
+    },
+    {
+      "login": "michalani",
+      "name": "michalani",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/27767884?v=4",
+      "profile": "https://github.com/michalani",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ashb07",
+      "name": "ashb07",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/24845568?v=4",
+      "profile": "https://github.com/ashb07",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "TheAlcanian",
+      "name": "Shardion",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/22127191?v=4",
+      "profile": "https://github.com/TheAlcanian",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "Bryzizzle",
+      "name": "Bryan",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/57810197?v=4",
+      "profile": "https://github.com/Bryzizzle",
+      "contributions": [
+        "translation",
+        "doc"
+      ]
+    },
+    {
+      "login": "lukasgabriel",
+      "name": "Lukas Gabriel",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/52338810?v=4",
+      "profile": "https://lukasgabriel.net",
+      "contributions": [
+        "code",
+        "bug",
+        "translation",
+        "ideas"
+      ]
+    },
+    {
+      "login": "DarshanBhoi",
+      "name": "Darshan",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/70128281?v=4",
+      "profile": "https://github.com/DarshanBhoi",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "SkeletalDemise",
+      "name": "SkeletalDemise",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/29117662?v=4",
+      "profile": "https://github.com/SkeletalDemise",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "cclauss",
+      "name": "Christian Clauss",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/3709715?v=4",
+      "profile": "https://www.patreon.com/cclauss",
+      "contributions": [
+        "code",
+        "bug"
+      ]
+    },
+    {
+      "login": "machinexa2",
+      "name": "Machinexa2",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/60662297?v=4",
+      "profile": "http://machinexa.xss.ht",
+      "contributions": [
+        "content"
+      ]
+    },
+    {
+      "login": "anantverma275",
+      "name": "Anant Verma",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/18184503?v=4",
+      "profile": "https://github.com/anantverma275",
+      "contributions": [
+        "code",
+        "bug"
+      ]
+    },
+    {
+      "login": "XVXTOR",
+      "name": "XVXTOR",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/40268197?v=4",
+      "profile": "https://github.com/XVXTOR",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "Itamikame",
+      "name": "Itamikame",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/59034423?v=4",
+      "profile": "https://github.com/Itamikame",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "MikeMerz",
+      "name": "MikeMerz",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/50526795?v=4",
+      "profile": "https://github.com/MikeMerz",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "jacobggman",
+      "name": "Jacob Galam",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/30216976?v=4",
+      "profile": "https://github.com/jacobggman",
+      "contributions": [
+        "code",
+        "bug"
+      ]
+    },
+    {
+      "login": "TuxTheXplorer",
+      "name": "TuxTheXplorer",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/37508897?v=4",
+      "profile": "https://tuxthexplorer.github.io/",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "Itamai",
+      "name": "Itamai",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/53093696?v=4",
+      "profile": "https://github.com/Itamai",
+      "contributions": [
+        "code",
+        "bug"
+      ]
+    },
+    {
+      "login": "Termack",
+      "name": "Filipe",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/26333901?v=4",
+      "profile": "https://github.com/Termack",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "malathit",
+      "name": "Malathi",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/2684148?v=4",
+      "profile": "https://github.com/malathit",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "HexChaos",
+      "name": "Jack",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/8947820?v=4",
+      "profile": "https://hexchaos.xyz/",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "yafkari",
+      "name": "Younes",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/41365655?v=4",
+      "profile": "https://github.com/yafkari",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "Marnick39",
+      "name": "Marnick Vandecauter",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/17315511?v=4",
+      "profile": "https://gitlab.com/Marnick39",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "mav8557",
+      "name": "Michael V",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/47306745?v=4",
+      "profile": "https://github.com/mav8557",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "chuinzer",
+      "name": "chuinzer",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/64257785?v=4",
+      "profile": "https://github.com/chuinzer",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "blackcat-917",
+      "name": "blackcat-917",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/53786619?v=4",
+      "profile": "https://github.com/blackcat-917",
+      "contributions": [
+        "translation",
+        "doc"
+      ]
+    },
+    {
+      "login": "Ozzyz",
+      "name": "Ã…smund Brekke",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/6113447?v=4",
+      "profile": "https://github.com/Ozzyz",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "sashreek1",
+      "name": "Sashreek Shankar",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/45600974?v=4",
+      "profile": "https://github.com/sashreek1",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "cryptobadger",
+      "name": "cryptobadger",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/26308101?v=4",
+      "profile": "https://github.com/cryptobadger",
+      "contributions": [
+        "code",
+        "bug"
+      ]
+    },
+    {
+      "login": "e1fy",
+      "name": "elf",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/61194758?v=4",
+      "profile": "https://github.com/e1fy",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "rogercyyu",
+      "name": "Roger Yu",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/45835736?v=4",
+      "profile": "https://github.com/rogercyyu",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "JesseEmond",
+      "name": "dysleixa",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1843555?v=4",
+      "profile": "https://github.com/JesseEmond",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "mohzulfikar",
+      "name": "Mohammad Zulfikar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/48849323?v=4",
+      "profile": "http://mohzulfikar.me",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "AABur",
+      "name": "Alexander Burchenko",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41373199?v=4",
+      "profile": "https://github.com/AABur",
+      "contributions": [
+        "translation"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "Ciphey",
+  "projectOwner": "Ciphey",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
+
+----
+codecov.yml
+codecov:
+  require_ci_to_pass: yes
+
+coverage:
+  precision: 2
+  round: down
+  range: "40...50"
+  status:
+    patch: no
+    changes: no
+    project:
+      default:
+        threshold: 2%
+        paths: 
+        - "ciphey"
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+comment:
+  layout: "reach,diff,flags,tree"
+  behavior: default
+  require_changes: no
+
+----
+CODE_OF_CONDUCT.md
+# Contributor Covenant Code of Conduct
+
+## Our Pledge
+
+In the interest of fostering an open and welcoming environment, we as
+contributors and maintainers pledge to making participation in our project and
+our community a harassment-free experience for everyone, regardless of age, body
+size, disability, ethnicity, sex characteristics, gender identity and expression,
+level of experience, education, socio-economic status, nationality, personal
+appearance, race, religion, or sexual identity and orientation.
+
+## Our Standards
+
+Examples of behavior that contributes to creating a positive environment
+include:
+
+* Using welcoming and inclusive language
+* Being respectful of differing viewpoints and experiences
+* Gracefully accepting constructive criticism
+* Focusing on what is best for the community
+* Showing empathy towards other community members
+
+Examples of unacceptable behavior by participants include:
+
+* The use of sexualized language or imagery and unwelcome sexual attention or
+ advances
+* Trolling, insulting/derogatory comments, and personal or political attacks
+* Public or private harassment
+* Publishing others' private information, such as a physical or electronic
+ address, without explicit permission
+* Other conduct which could reasonably be considered inappropriate in a
+ professional setting
+
+## Our Responsibilities
+
+Project maintainers are responsible for clarifying the standards of acceptable
+behavior and are expected to take appropriate and fair corrective action in
+response to any instances of unacceptable behavior.
+
+Project maintainers have the right and responsibility to remove, edit, or
+reject comments, commits, code, wiki edits, issues, and other contributions
+that are not aligned to this Code of Conduct, or to ban temporarily or
+permanently any contributor for other behaviors that they deem inappropriate,
+threatening, offensive, or harmful.
+
+## Scope
+
+This Code of Conduct applies both within project spaces and in public spaces
+when an individual is representing the project or its community. Examples of
+representing a project or community include using an official project e-mail
+address, posting via an official social media account, or acting as an appointed
+representative at an online or offline event. Representation of a project may be
+further defined and clarified by project maintainers.
+
+## Enforcement
+
+Instances of abusive, harassing, or otherwise unacceptable behavior may be
+reported by contacting the project team at brandon_skerrit. All
+complaints will be reviewed and investigated and will result in a response that
+is deemed necessary and appropriate to the circumstances. The project team is
+obligated to maintain confidentiality with regard to the reporter of an incident.
+Further details of specific enforcement policies may be posted separately.
+
+Project maintainers who do not follow or enforce the Code of Conduct in good
+faith may face temporary or permanent repercussions as determined by other
+members of the project's leadership.
+
+## Attribution
+
+This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 1.4,
+available at <https://www.contributor-covenant.org/version/1/4/code-of-conduct.html>
+
+[homepage]: https://www.contributor-covenant.org
+
+For answers to common questions about this code of conduct, see
+<https://www.contributor-covenant.org/faq>
+
+----
+CONTRIBUTING.md
+<p align="center">
+Translations <br>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/de/CONTRIBUTING.md>ðŸ‡©ðŸ‡ª DE   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/hu/CONTRIBUTING.md>ðŸ‡­ðŸ‡º HU   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/id/CONTRIBUTING.md>ðŸ‡®ðŸ‡© ID   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/it/CONTRIBUTING.md>ðŸ‡®ðŸ‡¹ IT   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/nl/CONTRIBUTING.md>ðŸ‡³ðŸ‡± NL   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/pt-br/CONTRIBUTING.md>ðŸ‡§ðŸ‡· PT-BR   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/ru/CONTRIBUTING.md>ðŸ‡·ðŸ‡º RU   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/zh/CONTRIBUTING.md>ðŸ‡¨ðŸ‡³ ZH   </a>
+</p>
+
+Howdy!
+
+So, you're interested in contributing to Ciphey? ðŸ¤”
+
+Perhaps you're confused as to where to start, or you believe your coding skills aren't "good enough"? Well, for the latter - that's ridiculous! We're perfectly okay with "bad code" and even then if you're reading this document you're probably a great programmer. I mean, newbies don't often learn to contribute to GitHub projects ðŸ˜‰
+
+Here are some ways you can contribute to Ciphey:
+
+- Add a new language ï¿½
+- Add more encryption methods ðŸ“š
+- Create more documentation (very important! We would be eternally grateful)
+- Fix bugs submitted via GitHub issues (we can support you in this ðŸ˜Š)
+- Refactor the code base ðŸ¥º
+
+If these sound hard, do not worry! This document will walk you through exactly how to achieve any of these. Also, your name will be added to Ciphey's contributors list, and we'll be eternally grateful! ï¿½
+
+We have a small Discord chat for you to talk to the developers and get some help. Alternatively, you can write a GitHub issue for your suggestion. If you want to be added to the Discord, DM us or ask us somehow.
+
+[Discord Server](https://discord.gg/KfyRUWw)
+
+# How to contribute
+
+Ciphey is always in need of more decryption tools! To learn how to integrate code into ciphey, check out:
+
+- <https://github.com/Ciphey/Ciphey/wiki/Adding-your-own-ciphers> for a simple tutorial
+- <https://github.com/Ciphey/Ciphey/wiki/Extending-Ciphey> for a API reference
+
+It would be nice if you wrote some tests for it, by simply copying a function in the Ciphey/tests/test_main.py and replacing the ciphertext with something encoded with your cipher. If you don't add tests, we will probably still merge it, but it will be much harder for us to diagnose bugs!
+
+It goes without saying that we will add you to the list of contributors for your hard work!
+
+# Add a new language ï¿½
+
+The default language checker, `brandon`, works with multiple languages. Now, this may sound daunting.
+But honestly, all you've got to do is take a dictionary, do a little analysis (we've written code to help you with this), add the dictionaries and analysis to a repo. And then add the option to `settings.yml`.
+
+# Create more documentation
+
+Documentation is the most important part of Ciphey. No documentation is extreme code debt, and we don't want that.
+
+Trust me when I say if you contribute to great documentation you will be seen on the same level as code contributors. Documentation is absolutely vital.
+
+There are lots of ways you can add documentation.
+
+- Doc strings in the code
+- Improving our current documentation (README, this file, our Ciphey Wiki pages)
+- Translating documentation
+
+And much more!
+
+# Fix bugs
+
+Visit our GitHub issues page to find all the bugs that Ciphey has! Squash them, and you'll be added to the contributors list. ;)
+
+# Refactor the code base
+
+Not all of Ciphey follows PEP8, and some of the code is repeated.
+
+----
+noxfile.py
+"""
+The file for Nox
+"""
+from typing import Any
+
+import nox
+from nox.sessions import Session
+
+locations = "ciphey/", "tests/", "docs/"
+nox.options.sessions = ["tests"]
+package = "ciphey"
+
+
+def install_with_constraints(session: Session, *args: str, **kwargs: Any) -> None:
+    """Install packages constrained by Poetry's lock file.
+    This function is a wrapper for nox.sessions.Session.install. It
+    invokes pip to install packages inside of the session's virtualenv.
+    Additionally, pip is passed a constraints file generated from
+    Poetry's lock file, to ensure that the packages are pinned to the
+    versions specified in poetry.lock. This allows you to manage the
+    packages as Poetry development dependencies.
+    Arguments:
+        session: The Session object.
+        args: Command-line arguments for pip.
+        kwargs: Additional keyword arguments for Session.install.
+    """
+    session.run(
+        "poetry",
+        "export",
+        "--dev",
+        "--format=requirements.txt",
+        "--output=requirements.txt",
+        external=True,
+    )
+    session.install("--constraint=requirements.txt", *args, **kwargs)
+
+
+# noxfile.py
+@nox.session
+def black(session):
+    args = session.posargs or locations
+    session.install("black")
+    session.run("black", *args)
+
+
+@nox.session(python="3.8")
+def coverage(session: Session) -> None:
+    """Upload coverage data."""
+    install_with_constraints(session, "coverage[toml]", "codecov")
+    session.run("pip3", "install", "cipheydists")
+    session.run("coverage", "xml", "--fail-under=0")
+    session.run("codecov", *session.posargs)
+
+
+# noxfile.py
+@nox.session
+def docs(session: Session) -> None:
+    """Build the documentation."""
+    install_with_constraints(session, "sphinx")
+    session.run("sphinx-build", "docs", "docs/_build")
+
+
+@nox.session
+def tests(session):
+    session.run("pip3", "install", "cipheydists")
+    session.run("poetry", "install", external=True)
+    session.run("poetry", "run", "pytest", "--cov=ciphey")
+
+----
+pyproject.toml
+[tool.poetry]
+name = "ciphey"
+version = "5.14.1"
+description = "Automated Decryption Tool"
+authors = ["Brandon <brandon@skerritt.blog>"]
+license = "MIT"
+documentation = "https://github.com/Ciphey/Ciphey/wiki"
+exclude = ["tests/hansard.txt"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+rich = ">=4,<11"
+pyyaml = ">=5.3.1,<7.0.0"
+pylint = "^2.6.0"
+flake8 = ">=3.8.4,<5.0.0"
+cipheydists = "^0.3.35"
+cipheycore = "^0.3.2"
+appdirs = "^1.4.4"
+typing_inspect = { version = ">=0.6,<0.8", python = "~3.7" }
+base58 = "^2.0.1"
+base91 = "^1.0.1"
+pybase62 = ">=0.4.3,<0.6.0"
+click = ">=7.1.2,<9.0.0"
+mock = "^4.0.3"
+pywhat = "3.0.0"
+xortool-ciphey = "^0.1.16"
+
+[tool.poetry.dev-dependencies]
+pytest-cov = "^3.0.0"
+pytest = "^7.1.2"
+black = "^21.4b2"
+neovim = "^0.3.1"
+codecov = "^2.1.11"
+sphinx = "^5.0.1"
+sphinx-autodoc-typehints = "^1.11.1"
+nltk = "^3.5"
+
+[tool.poetry.scripts]
+ciphey = 'ciphey.ciphey:main'
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+----
+README.md
+<p align="center">
+Translations <br>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/de/README.md>ðŸ‡©ðŸ‡ª DE   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/fr/README.md>ðŸ‡«ðŸ‡· FR   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/hu/README.md>ðŸ‡­ðŸ‡º HU   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/id/README.md>ðŸ‡®ðŸ‡© ID   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/it/README.md>ðŸ‡®ðŸ‡¹ IT   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/nl/README.md>ðŸ‡³ðŸ‡± NL   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/pt-br/README.md>ðŸ‡§ðŸ‡· PT-BR   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/ru/README.md>ðŸ‡·ðŸ‡º RU   </a>
+<a href=https://github.com/Ciphey/Ciphey/tree/master/translations/zh/README.md>ðŸ‡¨ðŸ‡³ ZH   </a>
+ <br><br>
+âž¡ï¿½
+<a href="https://github.com/Ciphey/Ciphey/wiki">Documentation</a> |
+<a href="https://discord.gg/zYTM3rZM4T">Discord</a> |
+ <a href="https://github.com/Ciphey/Ciphey/wiki/Installation">Installation Guide</a>
+ â¬…ï¿½
+
+<br>
+  <img src="https://github.com/Ciphey/Ciphey/raw/master/Pictures_for_README/binoculars.png" alt="Ciphey">
+</p>
+
+<p align="center">
+<img src="https://pepy.tech/badge/ciphey">
+ <img src="https://pepy.tech/badge/ciphey/month">
+  <a href="https://discord.gg/zYTM3rZM4T"><img alt="Discord" src="https://img.shields.io/discord/754001738184392704"></a>
+<a href="https://pypi.org/project/ciphey/"><img src="https://img.shields.io/pypi/v/ciphey.svg"></a>
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="Ciphey">
+
+<br>
+Fully automated decryption/decoding/cracking tool using natural language processing & artificial intelligence, along with some common sense.
+</p>
+<hr>
+
+## [Installation Guide](https://github.com/Ciphey/Ciphey/wiki/Installation)
+
+| <p align="center"><a href="https://pypi.org/project/ciphey">ï¿½ Python | <p align="center"><a href="https://hub.docker.com/r/remnux/ciphey">ï¿½ Docker (Universal) | <p align="center"><a href="https://ports.macports.org/port/ciphey/summary">ï¿½ MacPorts (macOS) | <p align="center"><a href="https://formulae.brew.sh/formula/ciphey">ï¿½ Homebrew (macOS/Linux) |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |--------------------------------------------------------------------------------- |
+| <p align="center"><img src="https://github.com/Ciphey/Ciphey/raw/master/Pictures_for_README/python.png" /></p>    | <p align="center"><img src="https://github.com/Ciphey/Ciphey/raw/master/Pictures_for_README/docker.png" /></p> | <p align="center"><img src="https://github.com/Ciphey/Ciphey/raw/master/Pictures_for_README/macports.png" /></p> | <p align="center"><img src="https://github.com/Ciphey/Ciphey/raw/master/Pictures_for_README/homebrew.png" /></p> |
+| `python3 -m pip install ciphey --upgrade` | `docker run -it --rm remnux/ciphey` | `sudo port install ciphey` | `brew install ciphey` |
+
+| Linux                                                                                                                   | Mac OS                                                                                                                     | Windows                                                                                                                   |
+| ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ciphey/ciphey/Python%20application?label=Linux) | ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ciphey/ciphey/Python%20application?label=Mac%20OS) | ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ciphey/ciphey/Python%20application?label=Windows) |
+
+<hr>
+
+# ðŸ¤” What is this?
+
+Input encrypted text, get the decrypted text back.
+
+> "What type of encryption?"
+
+That's the point. You don't know, you just know it's possibly encrypted. Ciphey will figure it out for you.
+
+Ciphey can solve most things in 3 seconds or less.
+
+<p align="center" href="https://asciinema.org/a/336257">
+  <img src="https://github.com/Ciphey/Ciphey/raw/master/Pictures_for_README/index.gif" alt="Ciphey demo">
+</p>
+
+Ciphey aims to be a tool to automate a lot of decryptions & decodings such as multiple base encodings, classical ciphers, hashes or more advanced cryptography.
+
+If you don't know much about cryptography, or you want to quickly check the ciphertext before working on it yourself, Ciphey is for you.
+
+**The technical part.** Ciphey uses a custom built artificial intelligence module (_AuSearch_) with a _Cipher Detection Interface_ to approximate what something is encrypted with. And then a custom-built, customisable natural language processing _Language Checker Interface_, which can detect when the given text becomes plaintext.
+
+No neural networks or bloated AI here. We only use what is fast and minimal.
+
+And that's just the tip of the iceberg. For the full technical explanation, check out our [documentation](https://github.com/Ciphey/Ciphey/wiki).
+
+# âœ¨ Features
+
+- **50+ encryptions/encodings supported** such as binary, Morse code and Base64. Classical ciphers like the Caesar cipher, Affine cipher and the Vigenere cipher. Along with modern encryption like repeating-key XOR and more. **[For the full list, click here](https://github.com/Ciphey/Ciphey/wiki/Supported-Ciphers)**
+- **Custom Built Artificial Intelligence with Augmented Search (AuSearch) for answering the question "what encryption was used?"** Resulting in decryptions taking less than 3 seconds.
+- **Custom built natural language processing module** Ciphey can determine whether something is plaintext or not. Whether that plaintext is JSON, a CTF flag, or English, Ciphey can get it in a couple of milliseconds.
+- **Multi Language Support** at present, only German & English (with AU, UK, CAN, USA variants).
+- **Supports encryptions and hashes** Which the alternatives such as CyberChef Magic do not.
+- **[C++ core](https://github.com/Ciphey/CipheyCore)** Blazingly fast.
+
+# ðŸ”­ Ciphey vs CyberChef
+
+## ï¿½ Base64 Encoded 42 times
+
+<table>
+  <tr>
+  <th>Name</th>
+    <th>âš¡ Ciphey âš¡ </th>
+    <th>ï¿½ CyberChef ï¿½</th>
+  </tr>
+  <tr>
+  <th>Gif</th>
+    <td><img src="https://github.com/Ciphey/Ciphey/raw/master/Pictures_for_README/ciphey_gooder_cyberchef.gif" alt="The guy she tells you not to worry about"></td>
+    <td><img src="https://github.com/Ciphey/Ciphey/raw/master/Pictures_for_README/not_dying.gif" alt="You"></td>
+  </tr>
+  <tr>
+  <th>Time</th>
+    <td>2 seconds</td>
+    <td>6 seconds</td>
+  </tr>
+    <tr>
+  <th>Setup</th>
+    <td><ul><li>Run ciphey on the file</li></ul></td>
+    <td><ul><li>Set the regex param to "{"</li><li>You need to know how many times to recurse</li><li>You need to know it's Base64 all the way down</li><li>You need to load CyberChef (it's a bloated JS app)</li><li>Know enough about CyberChef to create this pipeline</li><li>Invert the match</li></ul></td>
+  </tr>
+</table>
+
+<sub><b>Note</b> The gifs may load at different times, so one may appear significantly faster than another.</sub><br>
+<sub><b>A note on magic </b>CyberChef's most similar feature to Ciphey is Magic. Magic fails instantly on this input and crashes. The only way we could force CyberChef to compete was to manually define it.</sub>
+
+We also tested CyberChef and Ciphey with a **6gb file**. Ciphey cracked it in **5 minutes and 54 seconds**. CyberChef crashed before it even started.
+
+## ðŸ“Š Ciphey vs Katana vs CyberChef Magic
+
+| **Name**                                   | âš¡ Ciphey âš¡ | ðŸ—¡ï¿½ Katana ðŸ—¡ï¿½ | ï¿½ CyberChef Magic ï¿½ |
+| ------------------------------------------ | ------------ | ------------ | --------------------- |
+| Advanced Language Checker                  | âœ…           | ï¿½           | âœ…                    |
+| Supports Encryptions                       | âœ…           | âœ…           | ï¿½                    |
+| Releases named after Dystopian themes ðŸŒƒ   | âœ…           | ï¿½           | ï¿½                    |
+| Supports hashes                            | âœ…           | âœ…           | ï¿½                    |
+| Easy to set up                             | âœ…           | ï¿½           | âœ…                    |
+| Can guess what something is encrypted with | âœ…           | ï¿½           | ï¿½                    |
+| Created for hackers by hackers             | âœ…           | âœ…           | ï¿½                    |
+
+# ðŸŽ¬ Getting Started
+
+If you're having trouble with installing Ciphey, [read this.](https://github.com/Ciphey/Ciphey/wiki/Common-Issues-&-Their-Solutions)
+
+## â€¼ï¿½ Important Links (Docs, Installation guide, Discord Support)
+
+| Installation Guide                                                          | Documentation                                             | Discord                                     | Docker Image (from REMnux)                                                                          |
+| --------------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| ðŸ“– [Installation Guide](https://github.com/Ciphey/Ciphey/wiki/Installation) | ðŸ“š [Documentation](https://github.com/Ciphey/Ciphey/wiki) | ðŸ¦œ [Discord](https://discord.gg/zYTM3rZM4T) | ï¿½ [Docker Documentation](https://docs.remnux.org/run-tools-in-containers/remnux-containers#ciphey) |
+
+## ï¿½ï¿½â™€ï¿½Running Ciphey
+
+There are 3 ways to run Ciphey.
+
+1. File Input `ciphey -f encrypted.txt`
+2. Unqualified input `ciphey -- "Encrypted input"`
+3. Normal way `ciphey -t "Encrypted input"`
+
+![Gif showing 3 ways to run Ciphey](https://github.com/Ciphey/Ciphey/raw/master/Pictures_for_README/3ways.gif)
+
+To get rid of the progress bars, probability table, and all the noise use the quiet mode.
+
+`ciphey -t "encrypted text here" -q`
+
+For a full list of arguments, run `ciphey --help`.
+
+### âš—ï¿½ Importing Ciphey
+
+You can import Ciphey\'s main and use it in your own programs and code. `from Ciphey.__main__ import main`
+
+# ðŸŽª Contributors
+
+Ciphey was invented by [Bee](https://github.com/bee-san) in 2008, and revived in 2019. Ciphey wouldn't be where it was today without [Cyclic3](https://github.com/Cyclic3) - president of UoL's Cyber Security Society.
+
+Ciphey was revived & recreated by the [Cyber Security Society](https://www.cybersoc.cf/) for use in CTFs. If you're ever in Liverpool, consider giving a talk or sponsoring our events. Email us at `cybersecurity@society.liverpoolguild.org` to find out more ðŸ¤ 
+
+**Major Credit** to George H for working out how we could use proper algorithms to speed up the search process.
+**Special thanks** to [varghalladesign](https://www.facebook.com/varghalladesign) for designing the logo. Check out their other design work!
+
+## ï¿½ï¿½ðŸ¦º [Contributing](https://github.com/Ciphey/Ciphey/wiki/Contributing)
+
+Don't be afraid to contribute! We have many, many things you can do to help out. Each of them labelled and easily explained with examples. If you're trying to contribute but stuck, tag @bee-san âœ¨
+
+Alternatively, join the Discord group and send a message there (link in [contrib file](https://github.com/Ciphey/Ciphey/wiki/Contributing)) or at the top of this README as a badge.
+
+Please read the [contributing file](https://github.com/Ciphey/Ciphey/wiki/Contributing) for exact details on how to contribute âœ¨
+
+By doing so, you'll get your name added to the README below and get to be apart of an ever-growing project!
+[![Stargazers over time](https://starchart.cc/Ciphey/Ciphey.svg)](https://starchart.cc/Ciphey/Ciphey)
+
+## ðŸ’° Financial Contributors
+
+The contributions will be used to fund not only the future of Ciphey and its authors, but also Cyber Security Society at the University of Liverpool.
+
+GitHub doesn't support "sponsor this project and we'll evenly distribute the money", so pick a link and we'll sort it out on our end ðŸ¥°
+
+## âœ¨ Contributors
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/Cyclic3"><img src="https://avatars1.githubusercontent.com/u/15613874?v=4?s=100" width="100px;" alt=""/><br /><sub><b>cyclic3</b></sub></a><br /><a href="#design-cyclic3" title="Design">ðŸŽ¨</a> <a href="#maintenance-cyclic3" title="Maintenance">ðŸš§</a> <a href="https://github.com/Ciphey/Ciphey/commits?author=cyclic3" title="Code">ðŸ’»</a> <a href="#ideas-cyclic3" title="Ideas, Planning, & Feedback">ðŸ¤”</a></td>
+    <td align="center"><a href="https://skerritt.blog"><img src="https://avatars3.githubusercontent.com/u/10378052?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Brandon</b></sub></a><br /><a href="#design-brandonskerritt" title="Design">ðŸŽ¨</a> <a href="#maintenance-brandonskerritt" title="Maintenance">ðŸš§</a> <a href="https://github.com/Ciphey/Ciphey/commits?author=brandonskerritt" title="Code">ðŸ’»</a> <a href="#ideas-brandonskerritt" title="Ideas, Planning, & Feedback">ðŸ¤”</a></td>
+    <td align="center"><a href="https://github.com/michalani"><img src="https://avatars0.githubusercontent.com/u/27767884?v=4?s=100" width="100px;" alt=""/><br /><sub><b>michalani</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=michalani" title="Code">ðŸ’»</a></td>
+    <td align="center"><a href="https://github.com/ashb07"><img src="https://avatars2.githubusercontent.com/u/24845568?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ashb07</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=ashb07" title="Code">ðŸ’»</a></td>
+    <td align="center"><a href="https://github.com/TheAlcanian"><img src="https://avatars3.githubusercontent.com/u/22127191?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Shardion</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/issues?q=author%3ATheAlcanian" title="Bug reports">ï¿½</a></td>
+    <td align="center"><a href="https://github.com/Bryzizzle"><img src="https://avatars0.githubusercontent.com/u/57810197?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Bryan</b></sub></a><br /><a href="#translation-Bryzizzle" title="Translation">ï¿½</a> <a href="https://github.com/Ciphey/Ciphey/commits?author=Bryzizzle" title="Documentation">ðŸ“–</a></td>
+    <td align="center"><a href="https://lukasgabriel.net"><img src="https://avatars0.githubusercontent.com/u/52338810?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lukas Gabriel</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=lukasgabriel" title="Code">ðŸ’»</a> <a href="https://github.com/Ciphey/Ciphey/issues?q=author%3Alukasgabriel" title="Bug reports">ï¿½</a> <a href="#translation-lukasgabriel" title="Translation">ï¿½</a> <a href="#ideas-lukasgabriel" title="Ideas, Planning, & Feedback">ðŸ¤”</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/DarshanBhoi"><img src="https://avatars2.githubusercontent.com/u/70128281?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Darshan</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/issues?q=author%3ADarshanBhoi" title="Bug reports">ï¿½</a></td>
+    <td align="center"><a href="https://github.com/SkeletalDemise"><img src="https://avatars1.githubusercontent.com/u/29117662?v=4?s=100" width="100px;" alt=""/><br /><sub><b>SkeletalDemise</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=SkeletalDemise" title="Code">ðŸ’»</a></td>
+    <td align="center"><a href="https://www.patreon.com/cclauss"><img src="https://avatars3.githubusercontent.com/u/3709715?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Christian Clauss</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=cclauss" title="Code">ðŸ’»</a> <a href="https://github.com/Ciphey/Ciphey/issues?q=author%3Acclauss" title="Bug reports">ï¿½</a></td>
+    <td align="center"><a href="http://machinexa.xss.ht"><img src="https://avatars1.githubusercontent.com/u/60662297?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Machinexa2</b></sub></a><br /><a href="#content-machinexa2" title="Content">ðŸ–‹</a></td>
+    <td align="center"><a href="https://github.com/anantverma275"><img src="https://avatars1.githubusercontent.com/u/18184503?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Anant Verma</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=anantverma275" title="Code">ðŸ’»</a> <a href="https://github.com/Ciphey/Ciphey/issues?q=author%3Aanantverma275" title="Bug reports">ï¿½</a></td>
+    <td align="center"><a href="https://github.com/XVXTOR"><img src="https://avatars1.githubusercontent.com/u/40268197?v=4?s=100" width="100px;" alt=""/><br /><sub><b>XVXTOR</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=XVXTOR" title="Documentation">ðŸ“–</a></td>
+    <td align="center"><a href="https://github.com/Itamikame"><img src="https://avatars2.githubusercontent.com/u/59034423?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Itamikame</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=Itamikame" title="Code">ðŸ’»</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/MikeMerz"><img src="https://avatars3.githubusercontent.com/u/50526795?v=4?s=100" width="100px;" alt=""/><br /><sub><b>MikeMerz</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=MikeMerz" title="Code">ðŸ’»</a></td>
+    <td align="center"><a href="https://github.com/jacobggman"><img src="https://avatars2.githubusercontent.com/u/30216976?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jacob Galam</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=jacobggman" title="Code">ðŸ’»</a> <a href="https://github.com/Ciphey/Ciphey/issues?q=author%3Ajacobggman" title="Bug reports">ï¿½</a></td>
+    <td align="center"><a href="https://tuxthexplorer.github.io/"><img src="https://avatars1.githubusercontent.com/u/37508897?v=4?s=100" width="100px;" alt=""/><br /><sub><b>TuxTheXplorer</b></sub></a><br /><a href="#translation-TuxTheXplorer" title="Translation">ï¿½</a></td>
+    <td align="center"><a href="https://github.com/Itamai"><img src="https://avatars3.githubusercontent.com/u/53093696?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Itamai</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=Itamai" title="Code">ðŸ’»</a> <a href="https://github.com/Ciphey/Ciphey/issues?q=author%3AItamai" title="Bug reports">ï¿½</a></td>
+    <td align="center"><a href="https://github.com/Termack"><img src="https://avatars2.githubusercontent.com/u/26333901?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Filipe</b></sub></a><br /><a href="#translation-Termack" title="Translation">ï¿½</a></td>
+    <td align="center"><a href="https://github.com/malathit"><img src="https://avatars0.githubusercontent.com/u/2684148?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Malathi</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=malathit" title="Code">ðŸ’»</a></td>
+    <td align="center"><a href="https://hexchaos.xyz/"><img src="https://avatars1.githubusercontent.com/u/8947820?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jack</b></sub></a><br /><a href="#translation-HexChaos" title="Translation">ï¿½</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/yafkari"><img src="https://avatars3.githubusercontent.com/u/41365655?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Younes</b></sub></a><br /><a href="#translation-yafkari" title="Translation">ï¿½</a></td>
+    <td align="center"><a href="https://gitlab.com/Marnick39"><img src="https://avatars2.githubusercontent.com/u/17315511?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Marnick Vandecauter</b></sub></a><br /><a href="#translation-Marnick39" title="Translation">ï¿½</a></td>
+    <td align="center"><a href="https://github.com/mav8557"><img src="https://avatars0.githubusercontent.com/u/47306745?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Michael V</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=mav8557" title="Code">ðŸ’»</a></td>
+    <td align="center"><a href="https://github.com/chuinzer"><img src="https://avatars2.githubusercontent.com/u/64257785?v=4?s=100" width="100px;" alt=""/><br /><sub><b>chuinzer</b></sub></a><br /><a href="#translation-chuinzer" title="Translation">ï¿½</a></td>
+    <td align="center"><a href="https://github.com/blackcat-917"><img src="https://avatars1.githubusercontent.com/u/53786619?v=4?s=100" width="100px;" alt=""/><br /><sub><b>blackcat-917</b></sub></a><br /><a href="#translation-blackcat-917" title="Translation">ï¿½</a> <a href="https://github.com/Ciphey/Ciphey/commits?author=blackcat-917" title="Documentation">ðŸ“–</a></td>
+    <td align="center"><a href="https://github.com/Ozzyz"><img src="https://avatars3.githubusercontent.com/u/6113447?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ã…smund Brekke</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=Ozzyz" title="Code">ðŸ’»</a></td>
+    <td align="center"><a href="https://github.com/sashreek1"><img src="https://avatars1.githubusercontent.com/u/45600974?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Sashreek Shankar</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=sashreek1" title="Code">ðŸ’»</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/cryptobadger"><img src="https://avatars2.githubusercontent.com/u/26308101?v=4?s=100" width="100px;" alt=""/><br /><sub><b>cryptobadger</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=cryptobadger" title="Code">ðŸ’»</a> <a href="https://github.com/Ciphey/Ciphey/issues?q=author%3Acryptobadger" title="Bug reports">ï¿½</a></td>
+    <td align="center"><a href="https://github.com/e1fy"><img src="https://avatars3.githubusercontent.com/u/61194758?v=4?s=100" width="100px;" alt=""/><br /><sub><b>elf</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=e1fy" title="Code">ðŸ’»</a></td>
+    <td align="center"><a href="https://github.com/rogercyyu"><img src="https://avatars0.githubusercontent.com/u/45835736?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Roger Yu</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=rogercyyu" title="Code">ðŸ’»</a></td>
+    <td align="center"><a href="https://github.com/JesseEmond"><img src="https://avatars.githubusercontent.com/u/1843555?v=4?s=100" width="100px;" alt=""/><br /><sub><b>dysleixa</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=JesseEmond" title="Code">ðŸ’»</a></td>
+    <td align="center"><a href="http://mohzulfikar.me"><img src="https://avatars.githubusercontent.com/u/48849323?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Mohammad Zulfikar</b></sub></a><br /><a href="https://github.com/Ciphey/Ciphey/commits?author=mohzulfikar" title="Documentation">ðŸ“–</a></td>
+    <td align="center"><a href="https://github.com/AABur"><img src="https://avatars.githubusercontent.com/u/41373199?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Alexander Burchenko</b></sub></a><br /><a href="#translation-AABur" title="Translation">ï¿½</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+----
+ciphey\ciphey.py
+"""
+ â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•—  â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—   â–ˆâ–ˆâ•—
+â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â•šâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â•šâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½    â•šâ–ˆâ–ˆâ•”ï¿½
+â•šâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â–ˆâ–ˆâ•‘
+https://github.com/Ciphey
+https://github.com/Ciphey/Ciphey/wiki
+
+The cycle goes:
+main -> argparsing (if needed) -> call_encryption -> new Ciphey object -> decrypt() -> produceProbTable ->
+one_level_of_decryption -> decrypt_normal
+"""
+import os
+import warnings
+from typing import Any, Optional, Union
+
+import click
+from appdirs import AppDirs
+import logging
+from rich.logging import RichHandler
+from rich.console import Console
+
+from . import iface
+
+warnings.filterwarnings("ignore")
+
+console = Console()
+
+
+def decrypt(config: iface.Config, ctext: Any) -> Union[str, bytes]:
+    """A simple alias for searching a ctext and makes the answer pretty"""
+    res: Optional[iface.SearchResult] = config.objs["searcher"].search(ctext)
+    if res is None:
+        return "Failed to crack"
+    if config.verbosity < 0:
+        return res.path[-1].result.value
+    else:
+        return iface.pretty_search_results(res)
+
+
+def get_name(ctx, param, value):
+    # reads from stdin if value was not supplied
+    if not value and not click.get_text_stream("stdin").isatty():
+        click.get_text_stream("stdin").read().strip()
+        return click.get_text_stream("stdin").read().strip()
+    else:
+        return value
+
+
+def print_help(ctx):
+    # prints help menu
+    # if no arguments are passed
+    click.echo(ctx.get_help())
+    ctx.exit()
+
+
+@click.command()
+@click.option(
+    "-t",
+    "--text",
+    help="The ciphertext you want to decrypt.",
+    type=str,
+)
+@click.option(
+    "-q", "--quiet", help="Decrease verbosity", type=int, count=True, default=None
+)
+@click.option(
+    "-g",
+    "--greppable",
+    help="Only print the answer (useful for grep)",
+    type=bool,
+    is_flag=True,
+    default=None,
+)
+@click.option("-v", "--verbose", count=True, type=int)
+@click.option("-C", "--checker", help="Use the given checker", default=None)
+@click.option(
+    "-c",
+    "--config",
+    help="Uses the given config file. Defaults to appdirs.user_config_dir('ciphey', 'ciphey')/'config.yml'",
+)
+@click.option("-w", "--wordlist", help="Uses the given wordlist")
+@click.option(
+    "-p",
+    "--param",
+    help="Passes a parameter to the language checker",
+    multiple=True,
+)
+@click.option(
+    "-l",
+    "--list-params",
+    help="List the parameters of the selected module",
+    type=bool,
+)
+@click.option(
+    "--searcher",
+    help="Select the searching algorithm to use",
+)
+# HARLAN TODO XXX
+# I switched this to a boolean flag system
+# https://click.palletsprojects.com/en/7.x/options/#boolean-flags
+# True for bytes input, False for str
+@click.option(
+    "-b",
+    "--bytes",
+    help="Forces ciphey to use binary mode for the input",
+    is_flag=True,
+    default=None,
+)
+@click.option(
+    "--default-dist",
+    help="Sets the default character/byte distribution",
+    type=str,
+    default=None,
+)
+@click.option(
+    "-m",
+    "--module",
+    help="Adds a module from the given path",
+    type=click.Path(),
+    multiple=True,
+)
+@click.option(
+    "-A",
+    "--appdirs",
+    help="Print the location of where Ciphey wants the settings file to be",
+    type=bool,
+    is_flag=True,
+)
+@click.option("-f", "--file", type=click.File("rb"), required=False)
+@click.argument("text_stdin", callback=get_name, required=False)
+def main(**kwargs):
+    """Ciphey - Automated Decryption Tool
+
+    Documentation:
+    https://github.com/Ciphey/Ciphey/wiki\n
+    Discord (support here, we're online most of the day):
+    http://discord.skerritt.blog\n
+    GitHub:
+    https://github.com/ciphey/ciphey\n
+
+    Ciphey is an automated decryption tool using smart artificial intelligence and natural language processing. Input encrypted text, get the decrypted text back.
+
+    Examples:\n
+        Basic Usage: ciphey -t "aGVsbG8gbXkgbmFtZSBpcyBiZWU="
+
+    """
+
+    """Function to deal with arguments. Either calls with args or not. Makes Pytest work.
+
+    It gets the arguments in the function definition using locals()
+    if withArgs is True, that means this is being called with command line args
+    so go to arg_parsing() to get those args
+    we then update locals() with the new command line args and remove "withArgs"
+    This function then calls call_encryption(**result) which passes our dict of args
+    to the function as its own arguments using dict unpacking.
+        Returns:
+            The output of the decryption.
+    """
+
+    # if user wants to know where appdirs is
+    # print and exit
+    if "appdirs" in kwargs and kwargs["appdirs"]:
+        dirs = AppDirs("Ciphey", "Ciphey")
+        path_to_config = dirs.user_config_dir
+        print(
+            f"The settings.yml file should be at {os.path.join(path_to_config, 'settings.yml')}"
+        )
+        return None
+
+    # Now we create the config object
+    config = iface.Config()
+
+    # Load the settings file into the config
+    load_msg: str
+    cfg_arg = kwargs["config"]
+    if cfg_arg is None:
+        # Make sure that the config dir actually exists
+        os.makedirs(iface.Config.get_default_dir(), exist_ok=True)
+        config.load_file(create=True)
+        load_msg = f"Opened config file at {os.path.join(iface.Config.get_default_dir(), 'config.yml')}"
+    else:
+        config.load_file(cfg_arg)
+        load_msg = f"Opened config file at {cfg_arg}"
+
+    # Load the verbosity, so that we can start logging
+    verbosity = kwargs["verbose"]
+    quiet = kwargs["quiet"]
+    if verbosity is None:
+        if quiet is not None:
+            verbosity = -quiet
+    elif quiet is not None:
+        verbosity -= quiet
+    if kwargs["greppable"] is not None:
+        verbosity -= 999
+    # Use the existing value as a base
+    config.verbosity += verbosity
+    config.update_log_level(config.verbosity)
+    logging.info(load_msg)
+    logging.debug(f"Got cmdline args {kwargs}")
+
+    # Now we load the modules
+    module_arg = kwargs["module"]
+    if module_arg is not None:
+        config.modules += list(module_arg)
+
+    # We need to load formats BEFORE we instantiate objects
+    if kwargs["bytes"] is not None:
+        config.update_format("bytes")
+
+    # Next, load the objects
+    params = kwargs["param"]
+    if params is not None:
+        for i in params:
+            key, value = i.split("=", 1)
+            parent, name = key.split(".", 1)
+            config.update_param(parent, name, value)
+    config.update("checker", kwargs["checker"])
+    config.update("searcher", kwargs["searcher"])
+    config.update("default_dist", kwargs["default_dist"])
+
+    config.complete_config()
+
+    logging.debug(f"Command line opts: {kwargs}")
+    logging.debug(f"Config finalised: {config}")
+
+    # Finally, we load the plaintext
+    if kwargs["text"] is None:
+        if kwargs["file"] is not None:
+            kwargs["text"] = kwargs["file"].read()
+        elif kwargs["text_stdin"] is not None:
+            kwargs["text"] = kwargs["text_stdin"]
+        else:
+            # else print help menu
+            print("[bold red]Error. No inputs were given to Ciphey. [bold red]")
+
+            @click.pass_context
+            def all_procedure(ctx):
+                print_help(ctx)
+
+            all_procedure()
+
+            return None
+
+    if issubclass(config.objs["format"], type(kwargs["text"])):
+        pass
+    elif config.objs["format"] == str and isinstance(kwargs["text"], bytes):
+        kwargs["text"] = kwargs["text"].decode("utf-8")
+    elif config.objs["format"] == bytes and isinstance(kwargs["text"], str):
+        kwargs["text"] = kwargs["text"].encode("utf-8")
+    else:
+        raise TypeError(f"Cannot load type {config.format} from {type(kwargs['text'])}")
+
+    result: Optional[str]
+
+    # if debug or quiet mode is on, run without spinner
+    if config.verbosity != 0:
+        result = decrypt(config, kwargs["text"])
+    else:
+        # else, run with spinner if verbosity is 0
+        with console.status("[bold green]Thinking...", spinner="moon") as status:
+            config.set_spinner(status)
+            result = decrypt(config, kwargs["text"])
+    if result is None:
+        result = "Could not find any solutions."
+
+    console.print(result)
+
+----
+ciphey\common.py
+"""Some useful adapters"""
+from typing import Any
+
+
+def id_lambda(value: Any):
+    """
+    A function used in dynamic class generation that abstracts away a constant return value (like in getName)
+    """
+    return lambda *args: value
+
+
+def fix_case(target: str, base: str) -> str:
+    """Returns the lower-case string target with the case of base"""
+    ret = "".join(
+        [
+            target[i].upper() if base[i].isupper() else target[i]
+            for i in range(len(target))
+        ]
+    )
+    return "".join(
+        [
+            target[i].upper() if base[i].isupper() else target[i]
+            for i in range(len(target))
+        ]
+    )
+
+----
+ciphey\mathsHelper.py
+"""
+ â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•—  â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—   â–ˆâ–ˆâ•—
+â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â•šâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â•šâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½    â•šâ–ˆâ–ˆâ•”ï¿½
+â•šâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â–ˆâ–ˆâ•‘
+Â© Brandon Skerritt
+Github: brandonskerritt
+
+Class to provide helper functions for mathematics
+(oh, not entirely mathematics either. Some NLP stuff and sorting dicts. It's just a helper class
+)
+"""
+
+from collections import OrderedDict
+from string import punctuation
+from typing import Optional
+
+import logging
+from rich.logging import RichHandler
+
+
+class mathsHelper:
+    """Class to provide helper functions for mathematics and other small things"""
+
+    def __init__(self):
+        # ETAOIN is the most popular letters in order
+        self.ETAOIN = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
+        self.LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    @staticmethod
+    def gcd(a, b) -> int:
+        """Greatest common divisor.
+
+        The Greatest Common Divisor of a and b using Euclid's Algorithm.
+
+        Args:
+            a -> num 1
+            b -> num 2
+
+        Returns:
+            Returns  GCD(a, b)
+
+        """
+        # Return
+        while a != 0:
+            a, b = b % a, a
+        return b
+
+    @staticmethod
+    def mod_inv(a: int, m: int) -> Optional[int]:
+        """
+        Returns the modular inverse of a mod m, or None if it does not exist.
+
+        The modular inverse of a is the number a_inv that satisfies the equation
+        a_inv * a mod m === 1 mod m
+
+        Note: This is a naive implementation, and runtime may be improved in several ways.
+        For instance by checking if m is prime to perform a different calculation,
+        or by using the extended euclidean algorithm.
+        """
+        for i in range(1, m):
+            if (m * i + 1) % a == 0:
+                return (m * i + 1) // a
+        return None
+
+    @staticmethod
+    def percentage(part: float, whole: float) -> float:
+        """Returns percentage.
+
+        Just a normal algorithm to return the percent.
+
+        Args:
+            part -> part of the whole number
+            whole -> the whole number
+
+        Returns:
+            Returns the percentage of part to whole.
+
+        """
+        if part <= 0 or whole <= 0:
+            return 0
+        # works with percentages
+        return 100 * float(part) / float(whole)
+
+    def sort_prob_table(self, prob_table: dict) -> dict:
+        """Sorts the probability table.
+
+        Sorts a dictionary of dictionaries (and all the sub-dictionaries).
+
+        Args:
+            prob_table -> The probability table returned by the neural network to sort.
+
+        Returns:
+            Returns the prob_table, but sorted.
+
+        """
+        # for each object: prob table in dictionary
+        max_overall: int = 0
+        max_dict_pair: dict = {}
+        highest_key = None
+        empty_dict: dict = {}
+        # sorts the prob table before we find max, and converts it to order dicts
+        for key, value in prob_table.items():
+            prob_table[key] = self.new_sort(value)
+            prob_table[key] = dict(prob_table[key])
+
+        # gets maximum key then sets it to the front
+        counter_max: int = 0
+        counter_prob: int = len(prob_table)
+        while counter_max < counter_prob:
+            max_overall = 0
+            highest_key = None
+            logging.debug(
+                f"Running while loop in sort_prob_table, counterMax is {counter_max}"
+            )
+            for key, value in prob_table.items():
+                logging.debug(f"Sorting {key}")
+                maxLocal = 0
+                # for each item in that table
+                for key2, value2 in value.items():
+                    logging.debug(
+                        f"Running key2 {key2}, value2 {value2} for loop for {value.items()}"
+                    )
+                    maxLocal = maxLocal + value2
+                    logging.debug(
+                        f"MaxLocal is {maxLocal} and maxOverall is {max_overall}"
+                    )
+                    if maxLocal > max_overall:
+                        logging.debug(f"New max local found {maxLocal}")
+                        # because the dict doesn't reset
+                        max_dict_pair = {}
+                        max_overall = maxLocal
+                        # so eventually, we get the maximum dict pairing?
+                        max_dict_pair[key] = value
+                        highest_key = key
+                        logging.debug(f"Highest key is {highest_key}")
+                # removes the highest key from the prob table
+            logging.debug(
+                f"Prob table is {prob_table} and highest key is {highest_key}"
+            )
+            logging.debug(f"Removing {prob_table[highest_key]}")
+            del prob_table[highest_key]
+            logging.debug(f"Prob table after deletion is {prob_table}")
+            counter_max += 1
+            empty_dict = {**empty_dict, **max_dict_pair}
+
+        # returns the max dict (at the start) with the prob table
+        # this way, it should always work on most likely first.
+        logging.debug(
+            f"The prob table is {prob_table} and the maxDictPair is {max_dict_pair}"
+        )
+        logging.debug(f"The new sorted prob table is {empty_dict}")
+        return empty_dict
+
+    @staticmethod
+    def new_sort(new_dict: dict) -> dict:
+        """Uses OrderedDict to sort a dictionary.
+
+        I think it's faster than my implementation.
+
+        Args:
+            new_dict -> the dictionary to sort
+
+        Returns:
+            Returns the dict, but sorted.
+
+        """
+        # (f"d is {d}")
+        logging.debug(f"The old dictionary before new_sort() is {new_dict}")
+        sorted_i = OrderedDict(
+            sorted(new_dict.items(), key=lambda x: x[1], reverse=True)
+        )
+        logging.debug(f"The dictionary after new_sort() is {sorted_i}")
+        # sortedI = sort_dictionary(x)
+        return sorted_i
+
+    @staticmethod
+    def is_ascii(s: str) -> bool:
+        """Returns the boolean value if is_ascii is an ascii char.
+
+        Does what it says on the tree. Stolen from
+        https://stackoverflow.com/questions/196345/how-to-check-if-a-string-in-python-is-in-ascii
+
+        Args:
+            s -> the char to check.
+
+        Returns:
+            Returns the boolean of the char.
+
+        """
+
+        return bool(lambda s: len(s) == len(s.encode()))
+
+    @staticmethod
+    def strip_punctuation(text: str) -> str:
+        """Strips punctuation from a given string.
+
+        Uses string.punctuation.
+
+        Args:
+            text -> the text to strip punctuation from.
+
+        Returns:
+            Returns string without punctuation.
+        """
+        text: str = (str(text).translate(str.maketrans("", "", punctuation))).strip(
+            "\n"
+        )
+        return text
+
+----
+ciphey\__init__.py
+from . import basemods, common, iface
+from .ciphey import decrypt
+
+----
+ciphey\__main__.py
+#! /usr/bin/env python3
+
+"""
+Ciphey: https://github.com/Ciphey/Ciphey
+"""
+
+import platform
+import sys
+
+if __name__ == "__main__":
+    major = sys.version_info[0]
+    minor = sys.version_info[1]
+
+    python_version = (
+        str(sys.version_info[0])
+        + "."
+        + str(sys.version_info[1])
+        + "."
+        + str(sys.version_info[2])
+    )
+
+    if major != 3 or minor < 6:
+        print(
+            f"Ciphey requires Python 3.6+, you are using {python_version}. Please install a higher Python version. https://www.python.org/downloads/"
+        )
+        print(
+            "Alternatively, visit our Discord and use the Ciphey bot in #bots http://discord.skerritt.blog"
+        )
+        sys.exit(1)
+    if platform.system() == "Windows":
+        if minor > 8:
+            print(
+                "Ciphey does not currently support Python 3.9 on Windows. Please use the Discord bot at http://discord.skerritt.blog"
+            )
+            sys.exit(1)
+
+        if sys.maxsize > 2 ** 32 is False:
+            print(
+                "You are using Python 32 bit and Windows, Ciphey does not support this. Please upgrade to Python 64-bit here https://www.python.org/downloads/"
+            )
+            sys.exit(1)
+    from .ciphey import main
+
+    main()
+
+----
+ciphey\basemods\__init__.py
+from . import Checkers, Crackers, Decoders, Resources, Searchers
+
+----
+ciphey\basemods\Checkers\any.py
+from typing import Dict, Optional
+
+from ciphey.iface import Config, ParamSpec, PolymorphicChecker, registry
+
+
+@registry.register
+class Any(PolymorphicChecker):
+    """Should only be used for debugging, frankly"""
+
+    def getExpectedRuntime(self, text) -> float:
+        return 0  # TODO: actually calculate this
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+
+    def check(self, text: str) -> Optional[str]:
+        return ""
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        pass
+
+----
+ciphey\basemods\Checkers\brandon.py
+"""
+ â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•—  â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—   â–ˆâ–ˆâ•—
+â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â•šâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â•šâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½    â•šâ–ˆâ–ˆâ•”ï¿½
+â•šâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â–ˆâ–ˆâ•‘
+Â© Brandon Skerritt
+Github: brandonskerritt
+
+Class to determine whether something is English or not.
+1. Calculate the Chi Squared score of a sentence
+2. If the score is significantly lower than the average score, it _might_ be English
+    2.1. If the score _might_ be English, then take the text and compare it to the sorted dictionary
+    in O(n log n) time.
+    It creates a percentage of "How much of this text is in the dictionary?"
+    The dictionary contains:
+        * 20,000 most common US words
+        * 10,000 most common UK words (there's no repetition between the two)
+        * The top 10,000 passwords
+    If the word "Looks like" English (chi-squared) and if it contains English words, we can conclude it is
+    very likely English. The alternative is doing the dictionary thing but with an entire 479k word dictionary (slower)
+    2.2. If the score is not English, but we haven't tested enough to create an average, then test it against
+     the dictionary
+
+Things to optimise:
+* We only run the dictionary if it's 20% smaller than the average for chi squared
+* We consider it "English" if 45% of the text matches the dictionary
+* We run the dictionary if there is less than 10 total chisquared test
+
+How to add a language:
+* Download your desired dictionary. Try to make it the most popular words, for example. Place this file into this
+ folder with languagename.txt
+As an example, this comes built in with english.txt
+Find the statistical frequency of each letter in that language.
+For English, we have:
+self.languages = {
+    "English":
+    [0.0855, 0.0160, 0.0316, 0.0387, 0.1210,0.0218, 0.0209, 0.0496, 0.0733, 0.0022,0.0081, 0.0421, 0.0253, 0.0717,
+    0.0747,0.0207, 0.0010, 0.0633, 0.0673, 0.0894,0.0268, 0.0106, 0.0183, 0.0019, 0.0172,0.0011]
+}
+In chisquared.py
+To add your language, do:
+self.languages = {
+    "English":
+    [0.0855, 0.0160, 0.0316, 0.0387, 0.1210,0.0218, 0.0209, 0.0496, 0.0733, 0.0022,0.0081, 0.0421, 0.0253, 0.0717,
+    0.0747,0.0207, 0.0010, 0.0633, 0.0673, 0.0894,0.0268, 0.0106, 0.0183, 0.0019, 0.0172,0.0011]
+    "German": [0.0973]
+}
+In alphabetical order
+And you're.... Done! Make sure the name of the two match up
+"""
+import sys
+from math import ceil
+from typing import Dict, Optional
+
+import logging
+from rich.logging import RichHandler
+
+from ciphey.iface import Checker, Config, ParamSpec, T, registry
+
+sys.path.append("..")
+try:
+    import mathsHelper as mh
+except ModuleNotFoundError:
+    import ciphey.mathsHelper as mh
+
+
+@registry.register
+class Brandon(Checker[str]):
+    """
+    Class designed to confirm whether something is **language** based on how many words of **language** appears
+    Call confirmLanguage(text, language)
+    * text: the text you want to confirm
+    * language: the language you want to confirm
+
+    Find out what language it is by using chisquared.py, the highest chisquared score is the language
+    languageThreshold = 45
+    if a string is 45% **language** words, then it's confirmed to be english
+    """
+
+    def getExpectedRuntime(self, text: T) -> float:
+        # TODO: actually work this out
+        # TODO its 0.2 seconds on average
+        return 1e-4  # 100 Âµs
+
+    wordlist: set
+
+    def clean_text(self, text: str) -> set:
+        """Cleans the text ready to be checked
+
+        Strips punctuation, makes it lower case, turns it into a set separated by spaces, removes duplicate words
+
+        Args:
+            text -> The text we use to perform analysis on
+
+        Returns:
+            text -> the text as a list, now cleaned
+
+        """
+        # makes the text unique words and readable
+        text = text.lower()
+        text = self.mh.strip_punctuation(text)
+        text = text.split(" ")
+        text = filter(lambda x: len(x) > 2, text)
+        text = set(text)
+        return text
+
+    def checker(self, text: str, threshold: float, text_length: int, var: set) -> bool:
+        """Given text determine if it passes checker
+
+        The checker uses the variable passed to it. I.E. Stopwords list, 1k words, dictionary
+
+        Args:
+            text -> The text to check
+            threshold -> at what point do we return True? The percentage of text that is in var before we return True
+            text_length -> the length of the text
+            var -> the variable we are checking against. Stopwords list, 1k words list, dictionary list.
+        Returns:
+            boolean -> True for it passes the test, False for it fails the test."""
+        if text is None:
+            logging.debug("Checker's text is None, so returning False")
+            return False
+        if var is None:
+            logging.debug("Checker's input var is None, so returning False")
+            return False
+
+        percent = ceil(text_length * threshold)
+        logging.debug(f"Checker's chunks are size {percent}")
+        meet_threshold = 0
+        location = 0
+        end = percent
+
+        if text_length <= 0:
+            return False
+
+        while location <= text_length:
+            # chunks the text, so only gets THRESHOLD chunks of text at a time
+            text = list(text)
+            to_analyse = text[location:end]
+            logging.debug(f"To analyse is {to_analyse}")
+            for word in to_analyse:
+                # if word is a stopword, + 1 to the counter
+                if word in var:
+                    logging.debug(
+                        f"{word} is in var, which means I am +=1 to the meet_threshold which is {meet_threshold}"
+                    )
+                    meet_threshold += 1
+                meet_threshold_percent = meet_threshold / text_length
+                if meet_threshold_percent >= threshold:
+                    logging.debug(
+                        f"Returning true since the percentage is {meet_threshold / text_length} and the threshold is {threshold}"
+                    )
+                    # if we meet the threshold, return True
+                    # otherwise, go over again until we do
+                    # We do this in the for loop because if we're at 24% and THRESHOLD is 25
+                    # we don't want to wait THRESHOLD to return true, we want to return True ASAP
+                    return True
+            location = end
+            end = end + percent
+        logging.debug(
+            f"The language proportion {meet_threshold_percent} is under the threshold {threshold}"
+        )
+        return False
+
+    def __init__(self, config: Config):
+        # Suppresses warning
+        super().__init__(config)
+        self.mh = mh.mathsHelper()
+
+        phases = config.get_resource(self._params()["phases"])
+
+        self.thresholds_phase1 = phases["1"]
+        self.thresholds_phase2 = phases["2"]
+        self.top1000Words = config.get_resource(self._params().get("top1000"))
+        self.wordlist = config.get_resource(self._params()["wordlist"])
+        self.stopwords = config.get_resource(self._params().get("stopwords"))
+
+        self.len_phase1 = len(self.thresholds_phase1)
+        self.len_phase2 = len(self.thresholds_phase2)
+
+    def check(self, text: str) -> Optional[str]:
+        """Checks to see if the text is in English
+
+        Performs a decryption, but mainly parses the internal data packet and prints useful information.
+
+        Args:
+            text -> The text we use to perform analysis on
+
+        Returns:
+            bool -> True if the text is English, False otherwise.
+
+        """
+        logging.debug(f'In Language Checker with "{text}"')
+        text = self.clean_text(text)
+        logging.debug(f'Text split to "{text}"')
+        if text == "":
+            logging.debug("Returning None from Brandon as the text cleaned is none.")
+            return None
+
+        length_text = len(text)
+
+        what_to_use = {}
+
+        # this code decides what checker / threshold to use
+        # if text is over or equal to maximum size, just use the maximum possible checker
+        what_to_use = self.calculateWhatChecker(
+            length_text, self.thresholds_phase1.keys()
+        )
+        logging.debug(self.thresholds_phase1)
+        what_to_use = self.thresholds_phase1[str(what_to_use)]
+        # def checker(self, text: str, threshold: float, text_length: int, var: set) -> bool:
+        if "check" in what_to_use:
+            # perform check 1k words
+            result = self.checker(
+                text, what_to_use["check"], length_text, self.top1000Words
+            )
+        elif "stop" in what_to_use:
+            # perform stopwords
+            result = self.checker(
+                text, what_to_use["stop"], length_text, self.stopwords
+            )
+        elif "dict" in what_to_use:
+            result = self.checker(text, what_to_use["dict"], length_text, self.wordlist)
+            # If result is None, no point doing it again in phase2
+            if not result:
+                return None
+        else:
+            logging.info(f"It is neither stop or check, but instead {what_to_use}")
+
+        # return False if phase 1 fails
+        if not result:
+            return None
+        else:
+            what_to_use = self.calculateWhatChecker(
+                length_text, self.thresholds_phase2.keys()
+            )
+            what_to_use = self.thresholds_phase2[str(what_to_use)]
+            result = self.checker(text, what_to_use["dict"], length_text, self.wordlist)
+        return "" if result else None
+
+    def calculateWhatChecker(self, length_text, key):
+        """Calculates what threshold / checker to use
+
+        If the length of the text is over the maximum sentence length, use the last checker / threshold
+        Otherwise, traverse the keys backwards until we find a key range that does not fit.
+        So we traverse backwards and see if the sentence length is between current - 1 and current
+        In this way, we find the absolute lowest checker / percentage threshold.
+        We traverse backwards because if the text is longer than the max sentence length, we already know.
+        In total, the keys are only 5 items long or so. It is not expensive to move backwards, nor is it expensive to move forwards.
+
+        Args:
+            length_text -> The length of the text
+            key -> What key we want to use. I.E. Phase1 keys, Phase2 keys.
+        Returns:
+            what_to_use -> the key of the lowest checker."""
+
+        _keys = list(key)
+        _keys = list(map(int, _keys))
+        if length_text >= int(_keys[-1]):
+            what_to_use = list(key)[_keys.index(_keys[-1])]
+        else:
+            # this algorithm finds the smallest possible fit for the text
+            for counter, i in reversed(list(enumerate(_keys))):
+                #  [0, 110, 150]
+                if i <= length_text:
+                    what_to_use = i
+        return what_to_use
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "top1000": ParamSpec(
+                desc="A wordlist of the top 1000 words",
+                req=False,
+                default="cipheydists::list::english1000",
+            ),
+            "wordlist": ParamSpec(
+                desc="A wordlist of all the words",
+                req=False,
+                default="cipheydists::list::english",
+            ),
+            "stopwords": ParamSpec(
+                desc="A wordlist of StopWords",
+                req=False,
+                default="cipheydists::list::englishStopWords",
+            ),
+            "threshold": ParamSpec(
+                desc="The minimum proportion (between 0 and 1) that must be in the dictionary",
+                req=False,
+                default=0.45,
+            ),
+            "phases": ParamSpec(
+                desc="Language-specific phase thresholds",
+                req=False,
+                default="cipheydists::brandon::english",
+            ),
+        }
+
+----
+ciphey\basemods\Checkers\entropy.py
+from typing import Dict, Optional
+
+import logging
+from rich.logging import RichHandler
+
+from ciphey.iface import Checker, Config, ParamSpec, T, registry
+
+
+@registry.register
+class Entropy(Checker[str]):
+
+    """
+    Uses entropy to determine plaintext
+    """
+
+    def check(self, text: T) -> Optional[str]:
+        logging.debug("Trying entropy checker")
+        pass
+
+    def getExpectedRuntime(self, text: T) -> float:
+        # TODO: actually bench this
+        # Uses benchmark from Discord
+        return 2e-7 * len(text)
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        pass
+
+----
+ciphey\basemods\Checkers\ezcheck.py
+from typing import Dict, List, Optional
+
+from ciphey.iface import Checker, Config, ParamSpec, T, registry
+
+from .brandon import Brandon
+from .format import JsonChecker
+from .human import HumanChecker
+from .quadgrams import Quadgrams
+from .regex import RegexList
+from .what import What
+
+
+@registry.register
+class EzCheck(Checker[str]):
+    """
+    This object is effectively a prebuilt quorum (with requirement 1) of common patterns, followed by a human check
+    """
+
+    def check(self, text: str) -> Optional[str]:
+        for checker in self.checkers:
+            res = checker.check(text)
+            if (
+                res is not None
+                and (self.decider is None or self.decider.check(text)) is not None
+            ):
+                return res
+        return None
+
+    def getExpectedRuntime(self, text: T) -> float:
+        return sum(
+            i.getExpectedRuntime(text) for i in self.checkers
+        ) + self.decider.getExpectedRuntime(text)
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+
+        self.checkers: List[Checker[str]] = []
+        # Disable human checker for automated systems
+        if config.verbosity >= 0:
+            self.decider = config(HumanChecker)
+        else:
+            self.decider = None
+
+        # We need to modify the config for each of the objects
+
+        # First PyWhat, as it's the fastest
+        self.checkers.append(config(What))
+
+        # Next, the json checker
+        self.checkers.append(config(JsonChecker))
+
+        # Second to last, the quadgrams checker
+        self.checkers.append(config(Quadgrams))
+
+        # Finally, the Brandon checker, as it is the slowest
+        self.checkers.append(config(Brandon))
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        pass
+
+----
+ciphey\basemods\Checkers\format.py
+import json
+from typing import Dict, Optional
+
+import logging
+from rich.logging import RichHandler
+
+from ciphey.iface import Checker, Config, ParamSpec, T, registry
+
+
+@registry.register
+class JsonChecker(Checker[str]):
+
+    """
+    This object is effectively a prebuilt quorum (with requirement 1) of common patterns
+    """
+
+    def check(self, text: T) -> Optional[str]:
+        logging.debug("Trying json checker")
+
+        # https://github.com/Ciphey/Ciphey/issues/389
+        if text.isdigit():
+            return None
+
+        try:
+            json.loads(text)
+            return ""
+        except ValueError:
+            return None
+
+    def getExpectedRuntime(self, text: T) -> float:
+        # TODO: actually bench this
+        return 1e-7 * len(text)  # From benchmarks I found online
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        pass
+
+----
+ciphey\basemods\Checkers\gtest.py
+from typing import Dict, Optional
+
+import logging
+from rich.logging import RichHandler
+
+from ciphey.iface import Checker, Config, ParamSpec, T, registry
+
+
+@registry.register
+class GTestChecker(Checker[str]):
+
+    """
+    G-test of fitness, similar to Chi squared.
+    """
+
+    def check(self, text: T) -> Optional[str]:
+        logging.debug("Trying entropy checker")
+        pass
+
+    def getExpectedRuntime(self, text: T) -> float:
+        # TODO: actually bench this
+        return 4e-7 * len(text)
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        pass
+
+----
+ciphey\basemods\Checkers\human.py
+from typing import Dict, Optional
+
+from ciphey.iface import Checker, Config, ParamSpec, registry
+from rich.console import Console
+from rich.markup import escape
+
+console = Console()
+
+
+@registry.register
+class HumanChecker(Checker[str]):
+
+    """
+    Uses the person's decision to determine plaintext
+    """
+
+    def check(self, ctext: str) -> Optional[str]:
+        with self._config().pause_spinner_handle():
+            response = console.input(
+                f"Possible plaintext: [blue bold]{escape(ctext.__repr__())}[/blue bold] ([green]y[/green]/[red]N[/red]): "
+            )
+        if response == "y":
+            return ""
+        elif response in ("n", ""):
+            return None
+        else:
+            return self.check(ctext)
+
+    def getExpectedRuntime(self, text: str) -> float:
+        return 1  # About a second
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return None
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+
+----
+ciphey\basemods\Checkers\quadgrams.py
+import logging
+import re
+from math import log10
+from typing import Dict, Optional
+
+from ciphey.iface import Checker, Config, ParamSpec, T, Translation, registry
+from rich.logging import RichHandler
+
+
+@registry.register
+class Quadgrams(Checker[str]):
+
+    """
+    Uses Quadgrams to determine plaintext
+    """
+
+    def check(self, ctext: T) -> Optional[str]:
+        logging.debug("Trying Quadgrams checker")
+        # Capitalize and remove everything that's not a letter
+        ctext = re.sub("[^A-Z]", "", ctext.upper())
+        quadgrams = self.QUADGRAMS_DICT
+        quadgrams_sum = sum(quadgrams.values())
+        score = 0
+        for key in quadgrams.keys():
+            quadgrams[key] = float(quadgrams[key]) / quadgrams_sum
+        floor = log10(0.01 / quadgrams_sum)
+        for i in range(len(ctext) - 4 + 1):
+            # Get all quadgrams from ctext and check if they're in the dict
+            # If yes then add the score of those quadgrams to the total score
+            if ctext[i : i + 4] in quadgrams:
+                score += quadgrams[ctext[i : i + 4]]
+            else:
+                score += floor
+        if len(ctext) > 0:
+            score = score / len(ctext)
+        logging.info(f"Quadgrams is {score}")
+        # The default threshold was found to work the best from lots of testing
+        if score > self.threshold:
+            return ""
+        return None
+
+    def getExpectedRuntime(self, text: T) -> float:
+        # TODO: actually bench this
+        return 2e-7 * len(text)
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "dict": ParamSpec(
+                desc="The quadgrams dictionary to use",
+                req=False,
+                default="cipheydists::dist::quadgrams",
+            ),
+            "score": ParamSpec(
+                desc="The score threshold to use",
+                req=False,
+                default=0.00011,
+            ),
+        }
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.QUADGRAMS_DICT = config.get_resource(self._params()["dict"], Translation)
+        self.threshold = float(self._params()["score"])
+
+----
+ciphey\basemods\Checkers\quorum.py
+from typing import Dict, Generic, Optional
+
+from ciphey.iface import Checker, Config, ParamSpec, T, _registry
+
+
+class Quorum(Generic[T], Checker[T]):
+    def check(self, text: T) -> Optional[str]:
+        left = self._params().k
+        results = []
+        for checker in self.checkers:
+            results.append(checker.check(text))
+            if results[-1] is None:
+                continue
+            left -= 1
+            # Early return check
+            if left == 0:
+                return str(results)
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+
+        if self._params().k is None:
+            k = len(self._params()["checker"])
+        # These checks need to be separate, to make sure that we do not have zero members
+        if self._params().k == 0 or self._params().k > len(self._params()["checker"]):
+            raise IndexError(
+                "k must be between 0 and the number of checkers (inclusive)"
+            )
+
+        self.checkers = []
+        for i in self._params()["checker"]:
+            # This enforces type consistency
+            self.checkers.append(_registry.get_named(i, Checker[T]))
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "checker": ParamSpec(
+                req=True, desc="The checkers to be used for analysis", list=True
+            ),
+            "k": ParamSpec(
+                req=False,
+                desc="The minimum quorum size. Defaults to the number of checkers",
+            ),
+        }
+
+----
+ciphey\basemods\Checkers\regex.py
+import re
+from typing import Dict, Optional
+
+import logging
+from rich.logging import RichHandler
+
+from ciphey.iface import Checker, Config, ParamSpec, T, registry
+
+
+@registry.register
+class Regex(Checker[str]):
+    def getExpectedRuntime(self, text: T) -> float:
+        return 1e-5  # TODO: actually calculate this
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.regexes = list(map(re.compile, self._params()["regex"]))
+        logging.debug(f"There are {len(self.regexes)} regexes")
+
+    def check(self, text: str) -> Optional[str]:
+        for regex in self.regexes:
+            logging.debug(f"Trying regex {regex} on {text}")
+            res = regex.search(text)
+            logging.debug(f"Results: {res}")
+            if res:
+                return f"Passed with regex {regex}. Want to contribute to Ciphey? Submit your regex here to allow Ciphey to automatically get this next time https://github.com/bee-san/pyWhat/wiki/Adding-your-own-Regex\n"
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "regex": ParamSpec(
+                req=True,
+                desc="The regex that must be matched (in a substring)",
+                list=True,
+            )
+        }
+
+
+@registry.register
+class RegexList(Checker[str]):
+    def getExpectedRuntime(self, text: T) -> float:
+        return 1e-5  # TODO: actually calculate this
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.regexes = []
+        for i in self._params()["resource"]:
+            self.regexes += [re.compile(regex) for regex in config.get_resource(i)]
+        logging.debug(f"There are {len(self.regexes)} regexes")
+
+    def check(self, text: str) -> Optional[str]:
+        for regex in self.regexes:
+            logging.debug(f"Trying regex {regex} on {text}")
+            res = regex.search(text)
+            logging.debug(f"Results: {res}")
+            if res:
+                return f"passed with regex {regex}"
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "resource": ParamSpec(
+                req=True,
+                desc="A list of regexes that could be matched",
+                list=True,
+            )
+        }
+
+----
+ciphey\basemods\Checkers\what.py
+from typing import Dict, Optional
+
+from ciphey.iface import Checker, Config, ParamSpec, T, registry
+import logging
+from rich.logging import RichHandler
+from pywhat import identifier
+from rich.console import Console
+
+console = Console()
+
+
+@registry.register
+class What(Checker[str]):
+
+    """
+    Uses PyWhat to determine plaintext with regexes
+    https://github.com/bee-san/pyWhat
+    """
+
+    def check(self, ctext: T) -> Optional[str]:
+        logging.debug("Trying PyWhat checker")
+        returned_regexes = self.id.identify(ctext)
+        if returned_regexes["Regexes"]:
+            matched_regex = returned_regexes["Regexes"]['text'][0]["Regex Pattern"]
+
+            ret = f'The plaintext is a [yellow]{matched_regex["Name"]}[/yellow]'
+            human = (
+                f'\nI think the plaintext is a [yellow]{matched_regex["Name"]}[/yellow]'
+            )
+
+            if "Description" in matched_regex and matched_regex["Description"]:
+                s = matched_regex["Description"]
+                # lowercases first letter so it doesn't look weird
+                s = f", which is {s[0].lower() + s[1:]}\n"
+                ret += s
+                human += s
+
+            # if URL is attached, include that too.
+            if "URL" in matched_regex and matched_regex["URL"]:
+                link = matched_regex["URL"] + ctext.replace(" ", "")
+                ret += f"\nClick here to view in browser [#CAE4F1][link={link}]{link}[/link][/#CAE4F1]\n"
+
+            # If greppable mode is on, don't print this
+            if self.config.verbosity >= 0:
+                # Print with full stop
+                console.print(human)
+            return ret
+        return None
+
+    def getExpectedRuntime(self, text: T) -> float:
+        # TODO: actually bench this
+        return 2e-7 * len(text)
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return None
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.config = config
+        self.id = identifier.Identifier()
+
+----
+ciphey\basemods\Checkers\__init__.py
+from . import any, brandon, ezcheck, format, human, quadgrams, quorum, regex, what
+
+----
+ciphey\basemods\Crackers\affine.py
+# Community
+# by https://github.com/Ozzyz
+
+from typing import Dict, List, Optional
+
+import cipheycore
+import logging
+from rich.logging import RichHandler
+
+from ciphey.common import fix_case
+from ciphey.iface import Config, Cracker, CrackInfo, CrackResult, ParamSpec, registry
+from ciphey.mathsHelper import mathsHelper
+
+
+@registry.register
+class Affine(Cracker[str]):
+    """
+    Each character in the Affine Cipher is encoded with the rule E(x) = (ax + b) mod m
+    m is the size of the alphabet, while a and b are the keys in the cipher. a must be coprime to b.
+    The Caesar cipher is a specific case of the Affine Cipher, with a=1 and b being the shift of the cipher.
+    Decryption is performed by D(x) = a_inv (x - b) mod m where a_inv is the modular multiplicative inverse of a mod m.
+
+    In this version of the Affine Cipher, we do not allow alphabets with several instances of the same letter in different cases.
+    For instance, the alphabet 'ABCdef123' is allowed, but 'AaBbCc' is not.
+    """
+
+    def getInfo(self, ctext: str) -> CrackInfo:
+        return CrackInfo(
+            success_likelihood=0.1,
+            success_runtime=1e-5,
+            failure_runtime=1e-5,
+        )
+
+    @staticmethod
+    def getTarget() -> str:
+        return "affine"
+
+    def attemptCrack(self, ctext: str) -> List[CrackResult]:
+        """
+        Brute forces all the possible combinations of a and b to attempt to crack the cipher.
+        """
+        logging.debug("Attempting affine")
+        candidates = []
+
+        # a and b are coprime if gcd(a,b) is 1.
+        possible_a = [
+            a
+            for a in range(1, self.alphabet_length)
+            if mathsHelper.gcd(a, self.alphabet_length) == 1
+        ]
+        logging.info(
+            f"Trying Affine Cracker with {len(possible_a)} a-values and {self.alphabet_length} b-values"
+        )
+
+        for a in possible_a:
+            a_inv = mathsHelper.mod_inv(a, self.alphabet_length)
+            # If there is no inverse, we cannot decrypt the text
+            if a_inv is None:
+                continue
+            for b in range(self.alphabet_length):
+                # Pass in lowered text. This means that we expect alphabets to not contain both 'a' and 'A'.
+                translated = self.decrypt(ctext.lower(), a_inv, b, self.alphabet_length)
+
+                candidate_probability = self.plaintext_probability(translated)
+                if candidate_probability > self.plaintext_prob_threshold:
+                    candidates.append(
+                        CrackResult(
+                            value=fix_case(translated, ctext), key_info=f"a={a}, b={b}"
+                        )
+                    )
+        logging.info(f"Affine Cipher returned {len(candidates)} candidates")
+        return candidates
+
+    def plaintext_probability(self, translated: str) -> float:
+        """
+        Analyses the translated text and applies the chi squared test to see if it is a probable plaintext candidate
+        Returns the probability of the chi-squared test.
+        """
+        analysis = cipheycore.analyse_string(translated)
+        return cipheycore.chisq_test(analysis, self.expected)
+
+    def decrypt(self, text: str, a_inv: int, b: int, m: int) -> str:
+        """
+        Each letter is decrypted at D(x) = a_inv (x - b) mod m where x is the char
+        We treat the char value as its index in the alphabet, so if
+        the alphabet is 'abcd....' and the char is 'b', it has the value 1.
+        """
+        return "".join([self.decryptChar(char, a_inv, b, m) for char in text])
+
+    def decryptChar(self, char: str, a_inv: int, b: int, m: int) -> str:
+
+        # We lower the alphabet since both ctext and alphabet need to be in the same case in order
+        # to perform the shifts. The translated text will have fixed case after the translation anyways.
+        # This is only necessary if the specified alphabet is uppercase.
+        alphabet = [x.lower() for x in self.group]
+
+        # Preserve characters that are not in alphabet
+        if char not in alphabet:
+            return char
+        char_idx = alphabet.index(char)
+        decrypted_char_idx = (a_inv * (char_idx - b)) % m
+        return alphabet[decrypted_char_idx]
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "expected": ParamSpec(
+                desc="The expected distribution of the plaintext",
+                req=False,
+                config_ref=["default_dist"],
+            ),
+            "group": ParamSpec(
+                desc="An ordered sequence of chars that make up the alphabet",
+                req=False,
+                default="abcdefghijklmnopqrstuvwxyz",
+            ),
+        }
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.group = list(self._params()["group"])
+        self.expected = config.get_resource(self._params()["expected"])
+        self.alphabet_length = len(self.group)
+        self.cache = config.cache
+        self.plaintext_prob_threshold = 0.01
+
+----
+ciphey\basemods\Crackers\ascii_shift.py
+"""
+ â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•—  â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—   â–ˆâ–ˆâ•—
+â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â•šâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â•šâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½    â•šâ–ˆâ–ˆâ•”ï¿½
+â•šâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â–ˆâ–ˆâ•‘
+Â© Brandon Skerritt
+Github: brandonskerritt
+"""
+
+from typing import Dict, List, Optional
+
+import cipheycore
+import logging
+from rich.logging import RichHandler
+
+from ciphey.iface import Config, Cracker, CrackInfo, CrackResult, ParamSpec, registry
+
+
+@registry.register
+class Ascii_shift(Cracker[str]):
+    def getInfo(self, ctext: str) -> CrackInfo:
+        analysis = self.cache.get_or_update(
+            ctext,
+            "cipheycore::simple_analysis",
+            lambda: cipheycore.analyse_string(ctext),
+        )
+
+        return CrackInfo(
+            success_likelihood=cipheycore.caesar_detect(analysis, self.expected),
+            # TODO: actually calculate runtimes
+            success_runtime=1e-5,
+            failure_runtime=1e-5,
+        )
+
+    @staticmethod
+    def getTarget() -> str:
+        return "ascii_shift"
+
+    def attemptCrack(self, ctext: str) -> List[CrackResult]:
+        logging.info(f"Trying ASCII shift cipher on {ctext}")
+
+        logging.debug("Beginning cipheycore simple analysis")
+
+        # Hand it off to the core
+        analysis = self.cache.get_or_update(
+            ctext,
+            "cipheycore::simple_analysis",
+            lambda: cipheycore.analyse_string(ctext),
+        )
+        logging.debug("Beginning cipheycore::caesar")
+        possible_keys = cipheycore.caesar_crack(
+            analysis, self.expected, self.group, self.p_value
+        )
+
+        n_candidates = len(possible_keys)
+        logging.info(f"ASCII shift returned {n_candidates} candidates")
+
+        if n_candidates == 0:
+            logging.debug("Filtering for better results")
+            analysis = cipheycore.analyse_string(ctext, self.group)
+            possible_keys = cipheycore.caesar_crack(
+                analysis, self.expected, self.group, self.p_value
+            )
+
+        candidates = []
+
+        for candidate in possible_keys:
+            logging.debug(f"Candidate {candidate.key} has prob {candidate.p_value}")
+            translated = cipheycore.caesar_decrypt(ctext, candidate.key, self.group)
+            candidates.append(CrackResult(value=translated, key_info=candidate.key))
+
+        return candidates
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "expected": ParamSpec(
+                desc="The expected distribution of the plaintext",
+                req=False,
+                config_ref=["default_dist"],
+            ),
+            "group": ParamSpec(
+                desc="An ordered sequence of chars that make up the ASCII shift cipher alphabet",
+                req=False,
+                default="""\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f""",
+            ),
+            "p_value": ParamSpec(
+                desc="The p-value to use for standard frequency analysis",
+                req=False,
+                default=0.01,
+            )
+            # TODO: add "filter" param
+        }
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.group = list(self._params()["group"])
+        self.expected = config.get_resource(self._params()["expected"])
+        self.cache = config.cache
+        self.p_value = float(self._params()["p_value"])
+
+----
+ciphey\basemods\Crackers\baconian.py
+import re
+from typing import Dict, List, Optional
+
+from ciphey.iface import (
+    Config,
+    Cracker,
+    CrackInfo,
+    CrackResult,
+    ParamSpec,
+    Translation,
+    registry,
+)
+import logging
+from rich.logging import RichHandler
+
+
+@registry.register
+class Baconian(Cracker[str]):
+    def getInfo(self, ctext: str) -> CrackInfo:
+        return CrackInfo(
+            success_likelihood=0.1,
+            success_runtime=1e-5,
+            failure_runtime=1e-5,
+        )
+
+    @staticmethod
+    def getTarget() -> str:
+        return "baconian"
+
+    def attemptCrack(self, ctext: str) -> List[CrackResult]:
+        """
+        Attempts to decode both variants of the Baconian cipher.
+        """
+        logging.debug("Attempting Baconian cracker")
+        candidates = []
+        result = []
+        ctext_decoded = ""
+        ctext_decoded2 = ""
+
+        # Convert to uppercase and replace delimiters and whitespace with nothing
+        ctext = re.sub(r"[,;:\-\s]", "", ctext.upper())
+
+        # Make sure ctext only contains A and B
+        if bool(re.search(r"[^AB]", ctext)) is True:
+            logging.debug("Failed to crack baconian due to non baconian character(s)")
+            return None
+
+        # Make sure ctext is divisible by 5
+        ctext_len = len(ctext)
+        if ctext_len % 5:
+            logging.debug(
+                f"Failed to decode Baconian because length must be a multiple of 5, not '{ctext_len}'"
+            )
+            return None
+
+        # Split ctext into groups of 5
+        ctext = " ".join(ctext[i : i + 5] for i in range(0, len(ctext), 5))
+        ctext_split = ctext.split(" ")
+        baconian_keys = self.BACONIAN_DICT.keys()
+
+        # Decode I=J and U=V variant
+        for i in ctext_split:
+            if i in baconian_keys:
+                ctext_decoded += self.BACONIAN_DICT[i]
+
+        # Decode variant that assigns each letter a unique code
+        for i in ctext_split:
+            if "+" + i in baconian_keys:
+                ctext_decoded2 += self.BACONIAN_DICT["+" + i]
+
+        candidates.append(ctext_decoded)
+        candidates.append(ctext_decoded2)
+        for candidate in candidates:
+            if candidate != "":
+                if candidate == candidates[0]:
+                    result.append(CrackResult(value=candidate, key_info="I=J & U=V"))
+                else:
+                    result.append(CrackResult(value=candidate))
+        logging.debug(f"Baconian cracker - Returning results: {result}")
+        return result
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "expected": ParamSpec(
+                desc="The expected distribution of the plaintext",
+                req=False,
+                config_ref=["default_dist"],
+            ),
+            "dict": ParamSpec(
+                desc="The Baconian alphabet dictionary to use",
+                req=False,
+                default="cipheydists::translate::baconian",
+            ),
+        }
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.BACONIAN_DICT = config.get_resource(self._params()["dict"], Translation)
+        self.expected = config.get_resource(self._params()["expected"])
+        self.cache = config.cache
+
+----
+ciphey\basemods\Crackers\caesar.py
+"""
+ â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•—  â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—   â–ˆâ–ˆâ•—
+â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â•šâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â•šâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½    â•šâ–ˆâ–ˆâ•”ï¿½
+â•šâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â–ˆâ–ˆâ•‘
+Â© Brandon Skerritt
+Github: brandonskerritt
+"""
+from distutils import util
+from typing import Dict, List, Optional, Union
+
+import cipheycore
+import logging
+from rich.logging import RichHandler
+
+from ciphey.common import fix_case
+from ciphey.iface import Config, Cracker, CrackInfo, CrackResult, ParamSpec, registry
+
+
+@registry.register
+class Caesar(Cracker[str]):
+    def getInfo(self, ctext: str) -> CrackInfo:
+        analysis = self.cache.get_or_update(
+            ctext,
+            "cipheycore::simple_analysis",
+            lambda: cipheycore.analyse_string(ctext),
+        )
+
+        return CrackInfo(
+            success_likelihood=cipheycore.caesar_detect(analysis, self.expected),
+            # TODO: actually calculate runtimes
+            success_runtime=1e-5,
+            failure_runtime=1e-5,
+        )
+
+    @staticmethod
+    def getTarget() -> str:
+        return "caesar"
+
+    def attemptCrack(self, ctext: str) -> List[CrackResult]:
+        logging.info(f"Trying caesar cipher on {ctext}")
+        # Convert it to lower case
+        #
+        # TODO: handle different alphabets
+        if self.lower:
+            message = ctext.lower()
+        else:
+            message = ctext
+
+        logging.debug("Beginning cipheycore simple analysis")
+
+        # Hand it off to the core
+        analysis = self.cache.get_or_update(
+            ctext,
+            "cipheycore::simple_analysis",
+            lambda: cipheycore.analyse_string(ctext),
+        )
+        logging.debug("Beginning cipheycore::caesar")
+        possible_keys = cipheycore.caesar_crack(
+            analysis, self.expected, self.group, self.p_value
+        )
+
+        n_candidates = len(possible_keys)
+        logging.info(f"Caesar returned {n_candidates} candidates")
+
+        if n_candidates == 0:
+            logging.debug("Filtering for better results")
+            analysis = cipheycore.analyse_string(ctext, self.group)
+            possible_keys = cipheycore.caesar_crack(
+                analysis, self.expected, self.group, self.p_value
+            )
+
+        candidates = []
+
+        for candidate in possible_keys:
+            logging.debug(f"Candidate {candidate.key} has prob {candidate.p_value}")
+            translated = cipheycore.caesar_decrypt(message, candidate.key, self.group)
+            candidates.append(
+                CrackResult(value=fix_case(translated, ctext), key_info=candidate.key)
+            )
+
+        return candidates
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "expected": ParamSpec(
+                desc="The expected distribution of the plaintext",
+                req=False,
+                config_ref=["default_dist"],
+            ),
+            "group": ParamSpec(
+                desc="An ordered sequence of chars that make up the caesar cipher alphabet",
+                req=False,
+                default="abcdefghijklmnopqrstuvwxyz",
+            ),
+            "lower": ParamSpec(
+                desc="Whether or not the ciphertext should be converted to lowercase first",
+                req=False,
+                default=True,
+            ),
+            "p_value": ParamSpec(
+                desc="The p-value to use for standard frequency analysis",
+                req=False,
+                default=0.01,
+            )
+            # TODO: add "filter" param
+        }
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.lower: Union[str, bool] = self._params()["lower"]
+        if not isinstance(self.lower, bool):
+            self.lower = util.strtobool(self.lower)
+        self.group = list(self._params()["group"])
+        self.expected = config.get_resource(self._params()["expected"])
+        self.cache = config.cache
+        self.p_value = float(self._params()["p_value"])
+
+----
+ciphey\basemods\Crackers\hash.py
+"""
+This is Hashbuster but slightly modified to work with Ciphey.
+Why reinvent the wheel?
+Changes (that I can remember)
+* timeout set, as hashbuster took AGES before timeout was set.
+https://github.com/s0md3v/Hash-Buster
+"""
+
+import re
+from typing import Dict, List, Optional
+
+import requests
+import logging
+from rich.logging import RichHandler
+
+from ciphey.iface import Config, Cracker, CrackInfo, CrackResult, ParamSpec, T, registry
+
+thread_count = 4
+
+
+def alpha(ctext, hashtype):
+    return None
+
+
+def beta(ctext, hashtype):
+    try:
+        response = requests.get(
+            "https://hashtoolkit.com/reverse-hash/?hash=", ctext, timeout=5
+        ).text
+    except requests.exceptions.ReadTimeout as e:
+        logging.info(f"Beta failed timeout {e}")
+    match = re.search(r'/generate-hash/?text=.*?"', response)
+    if match:
+        return match.group(1)
+    return None
+
+
+def gamma(ctext, hashtype):
+    try:
+        response = requests.get(
+            "https://www.nitrxgen.net/md5db/" + ctext, timeout=5
+        ).text
+    except requests.exceptions.ReadTimeout as e:
+        logging.info(f"Gamma failed with {e}")
+    if response:
+        return response
+    else:
+        return None
+
+
+def delta(ctext, hashtype):
+    return None
+
+
+def theta(ctext, hashtype):
+    try:
+        response = requests.get(
+            "https://md5decrypt.net/Api/api.php?hash=%s&hash_type=%s&email=deanna_abshire@proxymail.eu&code=1152464b80a61728"
+            % (ctext, hashtype),
+            timeout=5,
+        ).text
+    except requests.exceptions.ReadTimeout as e:
+        logging.info(f"Gamma failed with {e}")
+    if len(response) != 0:
+        return response
+    else:
+        return None
+
+
+md5 = [gamma, alpha, beta, theta, delta]
+sha1 = [alpha, beta, theta, delta]
+sha256 = [alpha, beta, theta]
+sha384 = [alpha, beta, theta]
+sha512 = [alpha, beta, theta]
+
+
+result = {}
+
+
+def crack(ctext):
+    raise "Error Crack is called"
+
+
+def threaded(ctext):
+    resp = crack(ctext)
+    if resp:
+        print(ctext + " : " + resp)
+        result[ctext] = resp
+
+
+@registry.register
+class HashBuster(Cracker[str]):
+    @staticmethod
+    def getTarget() -> str:
+        return "hash"
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return None
+
+    @staticmethod
+    def priority() -> float:
+        return 0.05
+
+    def getInfo(self, ctext: T) -> CrackInfo:
+        # TODO calculate these properly
+        return CrackInfo(
+            success_likelihood=0.5,
+            success_runtime=5,
+            failure_runtime=5,
+        )
+
+    def attemptCrack(self, ctext: T) -> List[CrackResult]:
+        logging.info("Starting to crack hashes")
+        result = False
+
+        candidates = []
+        if len(ctext) == 32:
+            for api in md5:
+                r = api(ctext, "md5")
+                if result is not None or r is not None:
+                    logging.debug("MD5 returns True {r}")
+                    candidates.append(result, "MD5")
+        elif len(ctext) == 40:
+            for api in sha1:
+                r = api(ctext, "sha1")
+                if result is not None and r is not None:
+                    logging.debug("sha1 returns true")
+                    candidates.append(result, "SHA1")
+        elif len(ctext) == 64:
+            for api in sha256:
+                r = api(ctext, "sha256")
+                if result is not None and r is not None:
+                    logging.debug("sha256 returns true")
+                    candidates.append(result, "SHA256")
+        elif len(ctext) == 96:
+            for api in sha384:
+                r = api(ctext, "sha384")
+                if result is not None and r is not None:
+                    logging.debug("sha384 returns true")
+                    candidates.append(result, "SHA384")
+        elif len(ctext) == 128:
+            for api in sha512:
+                r = api(ctext, "sha512")
+                if result is not None and r is not None:
+                    logging.debug("sha512 returns true")
+                    candidates.append(result, "SHA512")
+
+        # TODO what the fuck is this code?
+        logging.debug(f"Hash buster returning {result}")
+        # TODO add to 5.1 make this return multiple possible candidates
+        return [CrackResult(value=candidates[0][0], misc_info=candidates[1][1])]
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+
+----
+ciphey\basemods\Crackers\rot47.py
+"""
+ â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•—  â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—   â–ˆâ–ˆâ•—
+â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â•šâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â•šâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½    â•šâ–ˆâ–ˆâ•”ï¿½
+â•šâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â–ˆâ–ˆâ•‘
+Â© Brandon Skerritt
+Github: brandonskerritt
+"""
+
+from typing import Dict, List, Optional
+
+import cipheycore
+import logging
+from rich.logging import RichHandler
+
+from ciphey.iface import Config, Cracker, CrackInfo, CrackResult, ParamSpec, registry
+
+
+@registry.register
+class Rot47(Cracker[str]):
+    def getInfo(self, ctext: str) -> CrackInfo:
+        analysis = self.cache.get_or_update(
+            ctext,
+            "cipheycore::simple_analysis",
+            lambda: cipheycore.analyse_string(ctext),
+        )
+
+        return CrackInfo(
+            success_likelihood=cipheycore.caesar_detect(analysis, self.expected),
+            # TODO: actually calculate runtimes
+            success_runtime=1e-5,
+            failure_runtime=1e-5,
+        )
+
+    @staticmethod
+    def getTarget() -> str:
+        return "rot47"
+
+    def attemptCrack(self, ctext: str) -> List[CrackResult]:
+        logging.info(f"Trying ROT47 cipher on {ctext}")
+
+        logging.debug("Beginning cipheycore simple analysis")
+
+        # Hand it off to the core
+        analysis = self.cache.get_or_update(
+            ctext,
+            "cipheycore::simple_analysis",
+            lambda: cipheycore.analyse_string(ctext),
+        )
+        logging.debug("Beginning cipheycore::caesar")
+        possible_keys = cipheycore.caesar_crack(
+            analysis, self.expected, self.group, self.p_value
+        )
+
+        n_candidates = len(possible_keys)
+        logging.info(f"ROT47 returned {n_candidates} candidates")
+
+        if n_candidates == 0:
+            logging.debug("Filtering for better results")
+            analysis = cipheycore.analyse_string(ctext, self.group)
+            possible_keys = cipheycore.caesar_crack(
+                analysis, self.expected, self.group, self.p_value
+            )
+
+        candidates = []
+
+        for candidate in possible_keys:
+            logging.debug(f"Candidate {candidate.key} has prob {candidate.p_value}")
+            translated = cipheycore.caesar_decrypt(ctext, candidate.key, self.group)
+            candidates.append(CrackResult(value=translated, key_info=candidate.key))
+
+        return candidates
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "expected": ParamSpec(
+                desc="The expected distribution of the plaintext",
+                req=False,
+                config_ref=["default_dist"],
+            ),
+            "group": ParamSpec(
+                desc="An ordered sequence of chars that make up the ROT47 cipher alphabet",
+                req=False,
+                default="""!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~""",
+            ),
+            "p_value": ParamSpec(
+                desc="The p-value to use for standard frequency analysis",
+                req=False,
+                default=0.01,
+            )
+            # TODO: add "filter" param
+        }
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.group = list(self._params()["group"])
+        self.expected = config.get_resource(self._params()["expected"])
+        self.cache = config.cache
+        self.p_value = float(self._params()["p_value"])
+
+----
+ciphey\basemods\Crackers\soundex.py
+import re
+from typing import Dict, List, Optional
+
+import logging
+from rich.logging import RichHandler
+
+from ciphey.iface import (
+    Config,
+    Cracker,
+    CrackInfo,
+    CrackResult,
+    ParamSpec,
+    Translation,
+    registry,
+)
+
+
+@registry.register
+class Soundex(Cracker[str]):
+    def getInfo(self, ctext: str) -> CrackInfo:
+        return CrackInfo(
+            success_likelihood=0.1,
+            success_runtime=1e-5,
+            failure_runtime=1e-5,
+        )
+
+    @staticmethod
+    def getTarget() -> str:
+        return "soundex"
+
+    def attemptCrack(self, ctext: str) -> List[CrackResult]:
+        """
+        Attempts to crack Soundex by generating all possible combinations.
+        """
+        logging.debug("Attempting Soundex cracker")
+        word_list = []
+        sentences = []
+        result = []
+
+        # Convert to uppercase and replace delimiters and whitespace with nothing
+        ctext = re.sub(r"[,;:\-\s]", "", ctext.upper())
+
+        # Make sure ctext contains only A-Z and 0-9
+        if bool(re.search(r"[^A-Z0-9]", ctext)) is True:
+            logging.debug("Failed to crack soundex due to non soundex character(s)")
+            return None
+
+        # Make sure ctext is divisible by 4
+        ctext_len = len(ctext)
+        if ctext_len % 4:
+            logging.debug(
+                f"Failed to decode Soundex because length must be a multiple of 4, not '{ctext_len}'"
+            )
+            return None
+
+        # Split ctext into groups of 4
+        ctext = " ".join(ctext[i : i + 4] for i in range(0, len(ctext), 4))
+        ctext_split = ctext.split(" ")
+        soundex_keys = self.SOUNDEX_DICT.keys()
+
+        # Find all words that correspond to each given soundex code
+        for code in ctext_split:
+            if code in soundex_keys:
+                word_list.append(self.SOUNDEX_DICT[code])
+
+        logging.info(f"Possible words for given encoded text: {word_list}")
+
+        # Find all possible sentences
+        self.getSentenceCombo(
+            word_list,
+            sentences,
+            self.frequency_dict,
+            self.sentence_freq,
+            self.word_freq,
+        )
+
+        sorted_sentences = self.sortlistwithdict(sentences, self.frequency_dict)
+
+        for sentence in sorted_sentences:
+            result.append(CrackResult(value=sentence))
+
+        logging.debug(f"Soundex cracker - Returning results: {result}")
+        return result
+
+    def sortlistwithdict(self, listtosort, hashes):
+        """
+        This function uses the sum of ranks (based on frequency) of each word in each
+        sentence and sorts them according to it.
+        """
+        return sorted(listtosort, key=lambda x: hashes[x])
+
+    def getSentenceCombo(
+        self, A, sentences, frequency_dict, sentence_freq, word_freq, result="", n=0
+    ):
+        """
+        This function uses recursion to generate a list of sentences from all possible
+        words for a given set of soundex codes.
+        """
+        logging.debug("Creating all possible sentences from Soundex")
+        if n == len(A):
+            sentences.append(result[1:])
+            for word in result[1:].split():
+                # Adding the rank of each word to find out the sentence's net frequency
+                if word in word_freq:
+                    sentence_freq += word_freq.index(word)
+                # If the word isn't in the frequency list then it's a very uncommon word
+                # so we add a large number (5000)
+                else:
+                    sentence_freq += 5000
+            frequency_dict[result[1:]] = sentence_freq
+            sentence_freq = 0
+            return
+
+        for word in A[n]:
+            out = result + " " + word
+            self.getSentenceCombo(
+                A, sentences, frequency_dict, sentence_freq, word_freq, out, n + 1
+            )
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "dict": ParamSpec(
+                desc="The Soundex dictionary to use",
+                req=False,
+                default="cipheydists::translate::soundex",
+            ),
+            "freq": ParamSpec(
+                desc="The word frequency dictionary to use",
+                req=False,
+                default="cipheydists::list::English5000Freq",
+            ),
+        }
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.SOUNDEX_DICT = config.get_resource(self._params()["dict"], Translation)
+        self.word_freq = config.get_resource(self._params()["freq"], Translation)
+        self.frequency_dict = {}
+        self.sentence_freq = 0
+
+----
+ciphey\basemods\Crackers\vigenere.py
+"""
+ â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•—  â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—   â–ˆâ–ˆâ•—
+â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â•šâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â•šâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½    â•šâ–ˆâ–ˆâ•”ï¿½
+â•šâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â–ˆâ–ˆâ•‘
+Â© Brandon Skerritt
+Github: brandonskerritt
+"""
+from distutils import util
+from typing import Dict, List, Optional, Union
+
+import cipheycore
+import logging
+from rich.logging import RichHandler
+
+from ciphey.common import fix_case
+from ciphey.iface import Config, Cracker, CrackInfo, CrackResult, ParamSpec, registry
+
+
+@registry.register
+class Vigenere(Cracker[str]):
+    def getInfo(self, ctext: str) -> CrackInfo:
+        if self.keysize is not None:
+            analysis = self.cache.get_or_update(
+                ctext,
+                f"vigenere::{self.keysize}",
+                lambda: cipheycore.analyse_string(
+                    ctext.lower(), self.keysize, self.group
+                ),
+            )
+
+            val = cipheycore.vigenere_detect(analysis, self.expected)
+
+            logging.info(f"Vigenere has likelihood {val}")
+
+            return CrackInfo(
+                success_likelihood=val,
+                # TODO: actually calculate runtimes
+                success_runtime=1e-3,
+                failure_runtime=1e-2,
+            )
+
+        likely_lens = self.cache.get_or_update(
+            ctext,
+            "vigenere::likely_lens",
+            lambda: cipheycore.vigenere_likely_key_lens(
+                ctext.lower(), self.expected, self.group, self.detect_p_value
+            ),
+        )
+
+        # Filter out the lens that make no sense
+        likely_lens = [i for i in likely_lens if i.len <= self.max_key_length]
+
+        for keysize in likely_lens:
+            # Store the analysis
+            analysis = self.cache.get_or_update(
+                ctext, f"vigenere::{keysize.len}", lambda: keysize.tab
+            )
+        if len(likely_lens) == 0:
+            return CrackInfo(
+                success_likelihood=0,
+                # TODO: actually calculate runtimes
+                success_runtime=2e-3,
+                failure_runtime=2e-2,
+            )
+
+        logging.info(
+            f"Vigenere has likelihood {likely_lens[0].p_value} with lens {[i.len for i in likely_lens]}"
+        )
+
+        return CrackInfo(
+            success_likelihood=likely_lens[0].p_value,
+            # TODO: actually calculate runtimes
+            success_runtime=2e-4,
+            failure_runtime=2e-4,
+        )
+
+    @staticmethod
+    def getTarget() -> str:
+        return "vigenere"
+
+    def crackOne(
+        self, ctext: str, analysis: cipheycore.windowed_analysis_res, real_ctext: str
+    ) -> List[CrackResult]:
+        possible_keys = cipheycore.vigenere_crack(
+            analysis, self.expected, self.group, self.p_value
+        )
+        if len(possible_keys) > self.clamp:
+            possible_keys = possible_keys[: self.clamp]
+        logging.debug(
+            f"Vigenere crack got keys: {[[i for i in candidate.key] for candidate in possible_keys]}"
+        )
+        return [
+            CrackResult(
+                value=fix_case(
+                    cipheycore.vigenere_decrypt(ctext, candidate.key, self.group),
+                    real_ctext,
+                ),
+                key_info="".join([self.group[i] for i in candidate.key]),
+                misc_info=f"p-value was {candidate.p_value}",
+            )
+            for candidate in possible_keys[: min(len(possible_keys), 10)]
+        ]
+
+    def attemptCrack(self, ctext: str) -> List[CrackResult]:
+        logging.info("Trying vigenere cipher")
+        # Convert it to lower case
+        if self.lower:
+            message = ctext.lower()
+        else:
+            message = ctext
+
+        # Analysis must be done here, where we know the case for the cache
+        if self.keysize is not None:
+            return self.crackOne(
+                message,
+                self.cache.get_or_update(
+                    ctext,
+                    f"vigenere::{self.keysize}",
+                    lambda: cipheycore.analyse_string(
+                        message, self.keysize, self.group
+                    ),
+                ),
+                ctext,
+            )
+
+        arrs = []
+        likely_lens = self.cache.get_or_update(
+            ctext,
+            "vigenere::likely_lens",
+            lambda: cipheycore.vigenere_likely_key_lens(
+                message, self.expected, self.group
+            ),
+        )
+        possible_lens = [i for i in likely_lens]
+        possible_lens.sort(key=lambda i: i.p_value)
+        logging.debug(f"Got possible lengths {[i.len for i in likely_lens]}")
+        # TODO: work out length
+        for i in possible_lens:
+            arrs.extend(
+                self.crackOne(
+                    message,
+                    self.cache.get_or_update(
+                        ctext,
+                        f"vigenere::{i.len}",
+                        lambda: cipheycore.analyse_string(message, i.len, self.group),
+                    ),
+                    ctext,
+                )
+            )
+
+        logging.info(f"Vigenere returned {len(arrs)} candidates")
+        return arrs
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "expected": ParamSpec(
+                desc="The expected distribution of the plaintext",
+                req=False,
+                config_ref=["default_dist"],
+            ),
+            "group": ParamSpec(
+                desc="An ordered sequence of chars that make up the caesar cipher alphabet",
+                req=False,
+                default="abcdefghijklmnopqrstuvwxyz",
+            ),
+            "lower": ParamSpec(
+                desc="Whether or not the ciphertext should be converted to lowercase first",
+                req=False,
+                default=True,
+            ),
+            "keysize": ParamSpec(
+                desc="A key size that should be used. If not given, will attempt to work it out",
+                req=False,
+            ),
+            "p_value": ParamSpec(
+                desc="The p-value to use for windowed frequency analysis",
+                req=False,
+                default=0.5,
+            ),
+            "detect_p_value": ParamSpec(
+                desc="The p-value to use for the detection of Vigenere length",
+                req=False,
+                default=0.01,
+            ),
+            "clamp": ParamSpec(
+                desc="The maximum number of candidates that can be returned per key len",
+                req=False,
+                default=10,
+            ),
+        }
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.lower: Union[str, bool] = self._params()["lower"]
+        if not isinstance(self.lower, bool):
+            self.lower = util.strtobool(self.lower)
+        self.group = list(self._params()["group"])
+        self.expected = config.get_resource(self._params()["expected"])
+        self.cache = config.cache
+        self.keysize = self._params().get("keysize")
+        if self.keysize is not None:
+            self.keysize = int(self.keysize)
+        self.p_value = float(self._params()["p_value"])
+        self.detect_p_value = float(self._params()["detect_p_value"])
+        self.clamp = int(self._params()["clamp"])
+        self.max_key_length = 16
+
+----
+ciphey\basemods\Crackers\xandy.py
+import re
+from typing import Dict, List, Optional
+
+import logging
+from rich.logging import RichHandler
+
+from ciphey.iface import Config, Cracker, CrackInfo, CrackResult, ParamSpec, registry
+
+
+@registry.register
+class Xandy(Cracker[str]):
+    def getInfo(self, ctext: str) -> CrackInfo:
+        return CrackInfo(
+            success_likelihood=0.1,
+            success_runtime=1e-5,
+            failure_runtime=1e-5,
+        )
+
+    @staticmethod
+    def binary_to_ascii(variant):
+        # Convert the binary string to an integer with base 2
+        binary_int = int(variant, 2)
+        byte_number = binary_int.bit_length() + 7 // 8
+
+        # Convert the resulting int to a bytearray and then decode it to ASCII text
+        binary_array = binary_int.to_bytes(byte_number, "big")
+        try:
+            ascii_text = binary_array.decode()
+            logging.debug(f"Found possible solution: {ascii_text[:32]}")
+            return ascii_text
+        except UnicodeDecodeError as e:
+            logging.debug(f"Failed to crack X-Y due to a UnicodeDecodeError: {e}")
+            return ""
+
+    @staticmethod
+    def getTarget() -> str:
+        return "xandy"
+
+    def attemptCrack(self, ctext: str) -> List[CrackResult]:
+        """
+        Checks an input if it only consists of two or three different letters.
+        If this is the case, it attempts to regard those letters as
+        0 and 1 (with the third characters as an optional delimiter) and then
+        converts it to ASCII text.
+        """
+        logging.debug("Attempting X-Y replacement")
+        variants = []
+        candidates = []
+        result = []
+
+        # Convert the ctext to all-lowercase and regex-match & replace all whitespace
+        ctext = re.sub(r"\s+", "", ctext.lower(), flags=re.UNICODE)
+
+        # cset contains every unique value in the ctext
+        cset = list(set(list(ctext)))
+        cset_len = len(cset)
+
+        if not 1 < cset_len < 4:
+            # We only consider inputs with two or three unique values
+            logging.debug(
+                "Failed to crack X-Y due to not containing two or three unique values"
+            )
+            return None
+
+        logging.debug(f"String contains {cset_len} unique values: {cset}")
+
+        # In case of three unique values, we regard the least frequent character as the delimiter
+        if cset_len == 3:
+            # Count each unique character in the set to determine the least frequent one
+            counting_list = []
+            for char in cset:
+                counting_list.append(ctext.count(char))
+            val, index = min((val, index) for (index, val) in enumerate(counting_list))
+            delimiter = cset[index]
+            logging.debug(
+                f"{delimiter} occurs {val} times and is the probable delimiter"
+            )
+            # Remove the delimiter from the ctext and compute new cset
+            ctext = ctext.replace(delimiter, "")
+            cset = list(set(list(ctext)))
+
+        # Form both variants of the substitution
+        for i in range(2):
+            if i:
+                variants.append(ctext.replace(cset[0], "1").replace(cset[1], "0"))
+            else:
+                variants.append(ctext.replace(cset[0], "0").replace(cset[1], "1"))
+
+        # Apply function to both variants and strip stray NULL characters
+        for variant in variants:
+            candidates.append(self.binary_to_ascii(variant).strip("\x00"))
+        for i, candidate in enumerate(candidates):
+            if candidate != "":
+                keyinfo = f"{cset[0]} -> {i} & {cset[1]} -> {str(int(not i))}"
+                result.append(CrackResult(value=candidate, key_info=keyinfo))
+                logging.debug(f"X-Y cracker - Returning results: {result}")
+                return result
+
+    @staticmethod
+    def getParams() -> Optional[Dict[str, ParamSpec]]:
+        return {
+            "expected": ParamSpec(
+                desc="The expected distribution of the plaintext",
+                req=False,
+                config_ref=["default_dist"],
+            )
+        }
+
+    def __init__(self, config: Config):
+        super().__init__(config)
+        self.expected = config.get_resource(self._params()["expected"])
+        self.cache = config.cache
+
+----
+ciphey\basemods\Crackers\xortool.py
+"""
+ â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•—  â–ˆâ–ˆâ•—â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•—   â–ˆâ–ˆâ•—
+â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ï¿½â•šâ–ˆâ–ˆâ•— â–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â•šâ–ˆâ–ˆâ–ˆâ–ˆâ•”ï¿½
+â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½ï¿½ â–ˆâ–ˆâ•”ï¿½ï¿½â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•”ï¿½ï¿½ï¿½    â•šâ–ˆâ–ˆâ•”ï¿½
+â•šâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—â–ˆâ–ˆâ•‘â–ˆâ–ˆâ•‘     â–ˆâ–ˆâ•‘  â–ˆâ–ˆâ•‘â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ•—   â–ˆâ–ˆâ•‘
+Â© Brandon Skerritt
+Github: bee-san
+"""
+from typing import Dict, List, Optional
+
+import logging
+from rich.logging import RichHandler
+
+from xortool_ciphey import tool_main
+
+from ciphey.iface import Config, Cracker, CrackInfo, CrackResult, ParamSpec, registry
+
+
+@registry.register
+class XorTool
