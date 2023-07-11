@@ -1,0 +1,3634 @@
+The following text is a Git repository with code. The structure of the text are sections that begin with ----, followed by a single line containing the file path and file name, followed by a variable amount of lines containing the file contents. The text representing the Git repository ends when the symbols --END-- are encounted. Any further text beyond --END-- are meant to be interpreted as instructions using the aforementioned Git repository as context.
+----
+setup.cfg
+[isort]
+default_section = FIRSTPARTY
+ensure_newline_before_comments = True
+force_grid_wrap = 0
+include_trailing_comma = True
+known_first_party = huggingface_hub
+known_third_party =
+    absl
+    conllu
+    datasets
+    elasticsearch
+    fairseq
+    faiss-cpu
+    fastprogress
+    fire
+    fsspec
+    fugashi
+    git
+    graphviz
+    h5py
+    matplotlib
+    nltk
+    numpy
+    packaging
+    pandas
+    pydot
+    PIL
+    psutil
+    pytest
+    pytorch_lightning
+    rouge_score
+    sacrebleu
+    seqeval
+    sklearn
+    streamlit
+    tensorboardX
+    tensorflow
+    tensorflow_datasets
+    timeout_decorator
+    torch
+    torchtext
+    torchvision
+    torch_xla
+    tqdm
+
+line_length = 119
+lines_after_imports = 2
+multi_line_output = 3
+use_parentheses = True
+
+[flake8]
+exclude = .git,__pycache__,old,build,dist,.venv*
+ignore = B028, E203, E501, E741, W503
+max-line-length = 119
+
+[tool:pytest]
+# -Werror::FutureWarning -> test fails if FutureWarning is thrown
+# -s                     -> logs are not captured
+# -v                     -> verbose mode
+# --log-cli-level=INFO   -> log level
+# --durations=0          -> print execution time of each test
+addopts = -Werror::FutureWarning --log-cli-level=INFO -sv --durations=0
+env =
+    HUGGINGFACE_CO_STAGING=1
+    DISABLE_SYMLINKS_IN_WINDOWS_TESTS=1
+
+----
+pyproject.toml
+[tool.black]
+line-length = 119
+target_version = ['py37', 'py38', 'py39', 'py310']
+preview = true
+
+[tool.mypy]
+ignore_missing_imports = true
+no_implicit_optional = true
+scripts_are_modules = true
+
+[tool.ruff]
+# Ignored rules:
+#   "E501" -> line length violation
+#   "F821" -> undefined named in type annotation (e.g. Literal["something"])
+ignore = ["E501", "F821"]
+select = ["E", "F", "I", "W"]
+line-length = 119
+
+[tool.ruff.isort]
+lines-after-imports = 2
+known-first-party = ["huggingface_hub"]
+
+----
+README.md
+# `huggingface_hub`
+
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+<a href="https://codecov.io/gh/huggingface/huggingface_hub"><img alt="Code coverage" src="https://codecov.io/gh/huggingface/huggingface_hub/branch/main/graph/badge.svg?token=RXP95LE2XL"></a>
+<a href="https://github.com/huggingface/huggingface_hub/releases"><img alt="GitHub release" src="https://img.shields.io/github/release/huggingface/huggingface_hub.svg"></a>
+<a href="https://github.com/huggingface/huggingface_hub"><img alt="Documentation" src="https://img.shields.io/pypi/pyversions/huggingface_hub.svg"></a>
+<a href="https://huggingface.co/docs/huggingface_hub/index"><img alt="Documentation" src="https://img.shields.io/website/http/huggingface.co/docs/huggingface_hub/index.svg?down_color=red&down_message=offline&up_message=online&label=doc"></a>
+
+## Welcome to the huggingface_hub library
+
+
+The `huggingface_hub` is a client library to interact with the Hugging Face Hub. The Hugging Face Hub is a platform with over 230K models, 40K datasets, and 30K demos in which people can easily collaborate in their ML workflows. The Hub works as a central place where anyone can share, explore, discover, and experiment with open-source Machine Learning.
+
+With `huggingface_hub`, you can easily download and upload models, datasets, and Spaces. You can extract useful information from the Hub, and do much more. Some example use cases:
+* Downloading and caching files from a Hub repository.
+* Creating repositories and uploading an updated model every few epochs.
+* Extract metadata from all models that match certain criteria (e.g. models for `text-classification`).
+* List all files from a specific repository.
+
+Read all about it in [the library documentation](https://huggingface.co/docs/huggingface_hub).
+
+<br>
+
+## Integrating to the Hub.
+
+We're partnering with cool open source ML libraries to provide free model hosting and versioning. You can find the existing integrations [here](https://huggingface.co/docs/hub/libraries).
+
+The advantages are:
+
+- Free model or dataset hosting for libraries and their users.
+- Built-in file versioning, even with very large files, thanks to a git-based approach.
+- Hosted inference API for all models publicly available.
+- In-browser widgets to play with the uploaded models.
+- Anyone can upload a new model for your library, they just need to add the corresponding tag for the model to be discoverable.
+- Fast downloads! We use Cloudfront (a CDN) to geo-replicate downloads so they're blazing fast from anywhere on the globe.
+- Usage stats and more features to come.
+
+If you would like to integrate your library, feel free to open an issue to begin the discussion. We wrote a [step-by-step guide](https://huggingface.co/docs/hub/adding-a-library) with â¤ï¸ showing how to do this integration.
+
+<br>
+
+## Feedback (feature requests, bugs, etc.) is super welcome ðŸ’™ðŸ’šðŸ’›ðŸ’œâ™¥ï¸ðŸ§¡
+
+----
+setup.py
+from setuptools import find_packages, setup
+
+
+def get_version() -> str:
+    rel_path = "src/huggingface_hub/__init__.py"
+    with open(rel_path, "r") as fp:
+        for line in fp.read().splitlines():
+            if line.startswith("__version__"):
+                delim = '"' if '"' in line else "'"
+                return line.split(delim)[1]
+    raise RuntimeError("Unable to find version string.")
+
+
+install_requires = [
+    "filelock",
+    "fsspec",
+    "requests",
+    "tqdm>=4.42.1",
+    "pyyaml>=5.1",
+    "typing-extensions>=3.7.4.3",  # to be able to import TypeAlias
+    "importlib_metadata;python_version<'3.8'",
+    "packaging>=20.9",
+]
+
+extras = {}
+
+extras["cli"] = [
+    "InquirerPy==0.3.4",
+    # Note: installs `prompt-toolkit` in the background
+]
+
+extras["torch"] = [
+    "torch",
+]
+
+extras["fastai"] = [
+    "toml",
+    "fastai>=2.4",
+    "fastcore>=1.3.27",
+]
+
+extras["tensorflow"] = ["tensorflow", "pydot", "graphviz"]
+
+
+extras["testing"] = extras["cli"] + [
+    "jedi",
+    "Jinja2",
+    "pytest",
+    "pytest-cov",
+    "pytest-env",
+    "pytest-xdist",
+    "pytest-vcr",  # to mock Inference
+    "urllib3<2.0",  # VCR.py broken with urllib3 2.0 (see https://urllib3.readthedocs.io/en/stable/v2-migration-guide.html)
+    "soundfile",
+    "Pillow",
+    "gradio",  # to test webhooks
+    "numpy",  # for embeddings
+]
+
+# Typing extra dependencies list is duplicated in `.pre-commit-config.yaml`
+# Please make sure to update the list there when adding a new typing dependency.
+extras["typing"] = [
+    "types-PyYAML",
+    "types-requests",
+    "types-simplejson",
+    "types-toml",
+    "types-tqdm",
+    "types-urllib3",
+]
+
+extras["quality"] = [
+    "black~=23.1",
+    "ruff>=0.0.241",
+    "mypy==0.982",
+]
+
+extras["all"] = extras["testing"] + extras["quality"] + extras["typing"]
+
+extras["dev"] = extras["all"]
+
+
+setup(
+    name="huggingface_hub",
+    version=get_version(),
+    author="Hugging Face, Inc.",
+    author_email="julien@huggingface.co",
+    description="Client library to download and publish models, datasets and other repos on the huggingface.co hub",
+    long_description=open("README.md", "r", encoding="utf-8").read(),
+    long_description_content_type="text/markdown",
+    keywords="model-hub machine-learning models natural-language-processing deep-learning pytorch pretrained-models",
+    license="Apache",
+    url="https://github.com/huggingface/huggingface_hub",
+    package_dir={"": "src"},
+    packages=find_packages("src"),
+    extras_require=extras,
+    entry_points={
+        "console_scripts": ["huggingface-cli=huggingface_hub.commands.huggingface_cli:main"],
+        "fsspec.specs": "hf=huggingface_hub.HfFileSystem",
+    },
+    python_requires=">=3.7.0",
+    install_requires=install_requires,
+    classifiers=[
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    ],
+    include_package_data=True,
+)
+
+----
+Makefile
+.PHONY: contrib quality style test
+
+
+check_dirs := contrib src tests utils setup.py
+
+
+quality:
+	black --check $(check_dirs)
+	ruff $(check_dirs)
+	mypy src
+	python utils/check_contrib_list.py
+	python utils/check_static_imports.py
+
+style:
+	black $(check_dirs)
+	ruff $(check_dirs) --fix
+	python utils/check_contrib_list.py --update
+	python utils/check_static_imports.py --update
+
+repocard:
+	python utils/push_repocard_examples.py
+
+
+test:
+	pytest ./tests/
+
+# Taken from https://stackoverflow.com/a/12110773
+# Commands:
+#	make contrib_setup_timm : setup tests for timm
+#	make contrib_test_timm  : run tests for timm
+#	make contrib_timm       : setup and run tests for timm
+#	make contrib_clear_timm : delete timm virtual env
+#
+#	make contrib_setup      : setup ALL tests
+#	make contrib_test       : run ALL tests
+#	make contrib            : setup and run ALL tests
+#	make contrib_clear      : delete all virtual envs
+# Use -j4 flag to run jobs in parallel.
+CONTRIB_LIBS := sentence_transformers spacy timm
+CONTRIB_JOBS := $(addprefix contrib_,${CONTRIB_LIBS})
+CONTRIB_CLEAR_JOBS := $(addprefix contrib_clear_,${CONTRIB_LIBS})
+CONTRIB_SETUP_JOBS := $(addprefix contrib_setup_,${CONTRIB_LIBS})
+CONTRIB_TEST_JOBS := $(addprefix contrib_test_,${CONTRIB_LIBS})
+
+contrib_clear_%:
+	rm -rf contrib/$*/.venv
+
+contrib_setup_%:
+	python3 -m venv contrib/$*/.venv
+	./contrib/$*/.venv/bin/pip install -r contrib/$*/requirements.txt
+	./contrib/$*/.venv/bin/pip uninstall -y huggingface_hub
+	./contrib/$*/.venv/bin/pip install -e .[testing]
+
+contrib_test_%:
+	./contrib/$*/.venv/bin/python -m pytest contrib/$*
+
+contrib_%:
+	make contrib_setup_$*
+	make contrib_test_$*
+
+contrib: ${CONTRIB_JOBS};
+contrib_clear: ${CONTRIB_CLEAR_JOBS}; echo "Successful contrib tests."
+contrib_setup: ${CONTRIB_SETUP_JOBS}; echo "Successful contrib setup."
+contrib_test: ${CONTRIB_TEST_JOBS}; echo "Successful contrib tests."
+
+----
+MANIFEST.in
+include src/huggingface_hub/templates/modelcard_template.md
+include src/huggingface_hub/templates/datasetcard_template.md
+
+----
+CODE_OF_CONDUCT.md
+
+# Contributor Covenant Code of Conduct
+
+## Our Pledge
+
+We as members, contributors, and leaders pledge to make participation in our
+community a harassment-free experience for everyone, regardless of age, body
+size, visible or invisible disability, ethnicity, sex characteristics, gender
+identity and expression, level of experience, education, socio-economic status,
+nationality, personal appearance, race, religion, or sexual identity
+and orientation.
+
+We pledge to act and interact in ways that contribute to an open, welcoming,
+diverse, inclusive, and healthy community.
+
+## Our Standards
+
+Examples of behavior that contributes to a positive environment for our
+community include:
+
+* Demonstrating empathy and kindness toward other people
+* Being respectful of differing opinions, viewpoints, and experiences
+* Giving and gracefully accepting constructive feedback
+* Accepting responsibility and apologizing to those affected by our mistakes,
+  and learning from the experience
+* Focusing on what is best not just for us as individuals, but for the
+  overall community
+
+Examples of unacceptable behavior include:
+
+* The use of sexualized language or imagery, and sexual attention or
+  advances of any kind
+* Trolling, insulting or derogatory comments, and personal or political attacks
+* Public or private harassment
+* Publishing others' private information, such as a physical or email
+  address, without their explicit permission
+* Other conduct which could reasonably be considered inappropriate in a
+  professional setting
+
+## Enforcement Responsibilities
+
+Community leaders are responsible for clarifying and enforcing our standards of
+acceptable behavior and will take appropriate and fair corrective action in
+response to any behavior that they deem inappropriate, threatening, offensive,
+or harmful.
+
+Community leaders have the right and responsibility to remove, edit, or reject
+comments, commits, code, wiki edits, issues, and other contributions that are
+not aligned to this Code of Conduct, and will communicate reasons for moderation
+decisions when appropriate.
+
+## Scope
+
+This Code of Conduct applies within all community spaces, and also applies when
+an individual is officially representing the community in public spaces.
+Examples of representing our community include using an official e-mail address,
+posting via an official social media account, or acting as an appointed
+representative at an online or offline event.
+
+## Enforcement
+
+Instances of abusive, harassing, or otherwise unacceptable behavior may be
+reported to the community leaders responsible for enforcement at
+feedback@huggingface.co.
+All complaints will be reviewed and investigated promptly and fairly.
+
+All community leaders are obligated to respect the privacy and security of the
+reporter of any incident.
+
+## Enforcement Guidelines
+
+Community leaders will follow these Community Impact Guidelines in determining
+the consequences for any action they deem in violation of this Code of Conduct:
+
+### 1. Correction
+
+**Community Impact**: Use of inappropriate language or other behavior deemed
+unprofessional or unwelcome in the community.
+
+**Consequence**: A private, written warning from community leaders, providing
+clarity around the nature of the violation and an explanation of why the
+behavior was inappropriate. A public apology may be requested.
+
+### 2. Warning
+
+**Community Impact**: A violation through a single incident or series
+of actions.
+
+**Consequence**: A warning with consequences for continued behavior. No
+interaction with the people involved, including unsolicited interaction with
+those enforcing the Code of Conduct, for a specified period of time. This
+includes avoiding interactions in community spaces as well as external channels
+like social media. Violating these terms may lead to a temporary or
+permanent ban.
+
+### 3. Temporary Ban
+
+**Community Impact**: A serious violation of community standards, including
+sustained inappropriate behavior.
+
+**Consequence**: A temporary ban from any sort of interaction or public
+communication with the community for a specified period of time. No public or
+private interaction with the people involved, including unsolicited interaction
+with those enforcing the Code of Conduct, is allowed during this period.
+Violating these terms may lead to a permanent ban.
+
+### 4. Permanent Ban
+
+**Community Impact**: Demonstrating a pattern of violation of community
+standards, including sustained inappropriate behavior,  harassment of an
+individual, or aggression toward or disparagement of classes of individuals.
+
+**Consequence**: A permanent ban from any sort of public interaction within
+the community.
+
+## Attribution
+
+This Code of Conduct is adapted from the [Contributor Covenant][homepage],
+version 2.0, available at
+https://www.contributor-covenant.org/version/2/0/code_of_conduct.html.
+
+Community Impact Guidelines were inspired by [Mozilla's code of conduct
+enforcement ladder](https://github.com/mozilla/diversity).
+
+[homepage]: https://www.contributor-covenant.org
+
+For answers to common questions about this code of conduct, see the FAQ at
+https://www.contributor-covenant.org/faq. Translations are available at
+https://www.contributor-covenant.org/translations.
+----
+codecov.yml
+comment:
+  # https://docs.codecov.com/docs/pull-request-comments#requiring-changes
+  require_changes: true
+  # https://docs.codecov.com/docs/pull-request-comments#after_n_builds
+  after_n_builds: 12
+
+coverage:
+  status:
+    # not in PRs
+    patch: false
+    project: false
+
+github_checks:
+  annotations: false
+
+----
+.pre-commit-config.yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: check-yaml
+        exclude: .github/conda/meta.yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-case-conflict
+      - id: check-merge-conflict
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
+      - id: black
+  - repo: https://github.com/charliermarsh/ruff-pre-commit # https://github.com/charliermarsh/ruff#usage
+    rev: 'v0.0.243'
+    hooks:
+      - id: ruff
+
+----
+CONTRIBUTING.md
+<!---
+Copyright 2020 The HuggingFace Team. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+# How to contribute to huggingface_hub, the GitHub repository?
+
+Everyone is welcome to contribute, and we value everybody's contribution. Code
+is thus not the only way to help the community. Answering questions, helping
+others, reaching out and improving the documentations are immensely valuable to
+the community.
+
+It also helps us if you spread the word: reference the library from blog posts
+on the awesome projects it made possible, shout out on Twitter every time it has
+helped you, or simply star the repo to say "thank you".
+
+Whichever way you choose to contribute, please be mindful to respect our
+[code of conduct](https://github.com/huggingface/huggingface_hub/blob/master/CODE_OF_CONDUCT.md).
+
+### The client library, `huggingface_hub`
+
+This repository hosts the client library `huggingface_hub`, which is a frontend to the Hugging Face Hub.
+this part lives in `src/huggingface_hub` and `tests`.
+
+There are many ways you can contribute to this client library:
+* Fixing outstanding issues with the existing code;
+* Contributing to the examples or to the documentation;
+* Submitting issues related to bugs or desired new features.
+
+## Submitting a new issue or feature request
+
+Do your best to follow these guidelines when submitting an issue or a feature
+request. It will make it easier for us to come back to you quickly and with good
+feedback.
+
+### Did you find a bug?
+
+The `huggingface_hub`library is robust and reliable thanks to the users who notify us of
+the problems they encounter. So thank you for reporting an issue.
+
+First, we would really appreciate it if you could **make sure the bug was not
+already reported** (use the search bar on Github under Issues).
+
+Did not find it? :( So we can act quickly on it, please follow these steps:
+
+* Include your **OS type and version**, the versions of **Python**, **PyTorch** and
+  **Tensorflow** when applicable;
+* A short, self-contained, code snippet that allows us to reproduce the bug in
+  less than 30s;
+* Provide the *full* traceback if an exception is raised by copying the text from your terminal
+  in the issue description.
+
+### Do you want a new feature?
+
+A good feature request addresses the following points:
+
+1. Motivation first:
+* Is it related to a problem/frustration with the library? If so, please explain
+  why and provide a code snippet that demonstrates the problem best.
+* Is it related to something you would need for a project? We'd love to hear
+  about it!
+* Is it something you worked on and think could benefit the community?
+  Awesome! Tell us what problem it solved for you.
+2. Write a *full paragraph* describing the feature;
+3. Provide a **code snippet** that demonstrates its future use;
+4. In case this is related to a paper, please attach a link;
+5. Attach any additional information (drawings, screenshots, etc.) you think may help.
+
+If your issue is well written we're already 80% of the way there by the time you
+post it.
+
+## Submitting a pull request (PR)
+
+Before writing code, we strongly advise you to search through the existing PRs or
+issues to make sure that nobody is already working on the same thing. If you are
+unsure, it is always a good idea to open an issue to get some feedback.
+
+You will need basic `git` proficiency to be able to contribute to
+`huggingface_hub`. `git` is not the easiest tool to use but it has the greatest
+manual. Type `git --help` in a shell and enjoy. If you prefer books, [Pro
+Git](https://git-scm.com/book/en/v2) is a very good reference.
+
+Follow these steps to start contributing:
+
+1. Fork the [repository](https://github.com/huggingface/huggingface_hub) by
+   clicking on the 'Fork' button on the repository's page. This creates a copy of the code
+   under your GitHub user account.
+
+2. Clone your fork to your local disk, and add the base repository as a remote. The following command
+   assumes you have your public SSH key uploaded to GitHub. See the following guide for more
+   [information](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository).
+
+   ```bash
+   $ git clone git@github.com:<your Github handle>/huggingface_hub.git
+   $ cd huggingface_hub
+   $ git remote add upstream https://github.com/huggingface/huggingface_hub.git
+   ```
+
+3. Create a new branch to hold your development changes, and do this for every new PR you work on.
+
+   Start by synchronizing your `main` branch with the `upstream/main` branch (ore details in the [GitHub Docs](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/syncing-a-fork)):
+
+   ```bash
+   $ git checkout main
+   $ git fetch upstream
+   $ git merge upstream/main
+   ```
+
+   Once your `main` branch is synchronized, create a new branch from it:
+
+   ```bash
+   $ git checkout -b a-descriptive-name-for-my-changes
+   ```
+
+   **Do not** work on the `master` branch.
+
+4. Set up a development environment by running the following command in a virtual environment a conda or a
+   virtual environment you've created for working on this library:
+
+   ```bash
+   $ pip install -e ".[dev]"
+   ```
+
+   (If huggingface_hub was already installed in the virtual environment, remove
+   it with `pip uninstall huggingface_hub` before reinstalling it in editable
+   mode with the `-e` flag.)
+
+5. Develop the features on your branch.
+
+   As you work on the features, you should make sure that the test suite
+   passes. You should run the tests impacted by your changes like this (see
+   below an explanation regarding the environment variable):
+
+   ```bash
+   $ pytest tests/<TEST_TO_RUN>.py
+   ```
+
+   > For the following commands leveraging the `make` utility, we recommend using the WSL system when running on
+   > Windows. More information [here](https://docs.microsoft.com/en-us/windows/wsl/about).
+
+   You can also run the full suite with the following command.
+
+   ```bash
+   $ make test
+   ```
+
+   `hugginface_hub` relies on `black` and `ruff` to format its source code
+   consistently. You can install pre-commit hooks so that these styles are
+   applied and checked on files that you have touched in each commit:
+
+   ```bash
+   pip install pre-commit
+   pre-commit install
+   ```
+
+   You only need to do the above once in your repository's environment. If for
+   any reason you would like to disable pre-commit hooks on a commit, you can
+   pass `-n` to your `git commit` command to temporarily disable pre-commit
+   hooks.
+
+   To permanently disable hooks, you can run the following command:
+   ```bash
+   pre-commit uninstall
+   ```
+
+   Alternatively, you can apply automatic style corrections and code
+   verifications manually with the following command:
+
+   ```bash
+   $ make style
+   ```
+
+   `huggingface_hub` also uses `ruff` and a few custom scripts to check for coding mistakes. Quality
+   control runs in CI, however you can also run the same checks with:
+
+   ```bash
+   $ make quality
+   ```
+
+   Once you're happy with your changes, add changed files using `git add` and
+   make a commit with `git commit` to record your changes locally:
+
+   ```bash
+   $ git add modified_file.py
+   $ git commit
+   ```
+
+   Please write [good commit messages](https://chris.beams.io/posts/git-commit/).
+
+   It is a good idea to sync your copy of the code with the original
+   repository regularly. The following document covers it in length: [github documentation](
+   https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork)
+
+   And here's how you can do it quickly from your `git` commandline:
+
+   ```bash
+   $ git fetch upstream
+   $ git rebase upstream/master
+   ```
+
+   Push the changes to your account using:
+
+   ```bash
+   $ git push -u origin a-descriptive-name-for-my-changes
+   ```
+
+6. Once you are satisfied (**and the checklist below is happy too**), go to the
+   webpage of your fork on GitHub. Click on 'Pull request' to send your changes
+   to the project maintainers for review.
+
+7. It's ok if maintainers ask you for changes. It happens to core contributors
+   too! So everyone can see the changes in the Pull request, work in your local
+   branch and push the changes to your fork. They will automatically appear in
+   the pull request.
+
+8. Once your changes have been approved, one of the project maintainers will
+ merge your pull request for you.
+
+### Checklist
+
+1. The title of your pull request should be a summary of its contribution;
+2. If your pull request addresses an issue, please mention the issue number in
+   the pull request description to make sure they are linked (and people
+   consulting the issue know you are working on it);
+3. To indicate a work in progress please prefix the title with `[WIP]`, or mark
+   the PR as a draft PR. These are useful to avoid duplicated work, and to differentiate
+   it from PRs ready to be merged;
+4. Make sure existing tests pass;
+5. Add high-coverage tests. No quality testing = no merge.
+6. Due to the rapidly growing repository, it is important to make sure that no files that would significantly weigh down the repository are added. This includes images, videos and other non-text files. We prefer to leverage a hf.co hosted `dataset` like
+   the ones hosted on [`hf-internal-testing`](https://huggingface.co/hf-internal-testing) in which to place these files and reference
+   them by URL. We recommend putting them in the following dataset: [huggingface/documentation-images](https://huggingface.co/datasets/huggingface/documentation-images).
+   If an external contribution, feel free to add the images to your PR and ask a Hugging Face member to migrate your images
+   to this dataset.
+
+### Tests
+
+An extensive test suite is included to test the library behavior and several examples. Library tests can be found in
+the [tests folder](https://github.com/huggingface/huggingface_hub/tree/main/tests).
+
+The `huggingface_hub` library's normal behavior is to work with the production Hugging Face Hub. However,
+for tests, we prefer to run on a staging version. In order to do this, the `HUGGINGFACE_CO_STAGING`
+environment variable to `1` when running tests (see `setup.cfg` config file).
+
+We use `pytest` in order to run the tests for the library . From the root of the
+repository they can be run with the following:
+
+```bash
+$ python -m pytest ./tests
+```
+
+In fact, that's how `make test` is implemented (without the `pip install` line)!
+
+You can specify a smaller set of tests in order to test only the feature
+you're working on.
+
+For example, the following will only run the tests in the `test_repository.py` file:
+
+```bash
+$ python -m pytest ./tests/test_repository.py
+```
+
+And the following will only run the tests that include `tag` in their name:
+
+```bash
+$ python -m pytest ./tests -k tag
+```
+
+#### A corner case: testing Spaces
+
+Fully testing Spaces is not possible on staging. We need to use the production environment
+ for it (e.g huggingface.co). To do so, a personal User Access Token has to be set as
+ `HUGGINGFACE_PRODUCTION_USER_TOKEN` environment variable, specifically for these tests.
+ This value is configured in the Github CI but you need to set it on your machine to run
+ the tests locally. The token requires write permission and a credit card must be set on
+ your account.
+
+ Note that if the token is not find, the related tests are skipped.
+
+----
+utils/_legacy_check_future_compatible_signatures.py
+# coding=utf-8
+# Copyright 2022-present, the HuggingFace Inc. team.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Contains a tool to add/check the definition of "async" methods of `HfApi` in `huggingface_hub.hf_api.py`.
+
+WARNING: this is a script kept to help with `@future_compatible` methods of `HfApi` but it is not 100% correct.
+Keeping it here for reference but it is not used in the CI/Makefile.
+
+What is done correctly:
+1. Add "as_future" as argument to the method signature
+2. Set Union[T, Future[T]] as return type to the method signature
+3. Document "as_future" argument in the docstring of the method
+
+What is NOT done correctly:
+1. Generated stubs are grouped at the top of the `HfApi` class. They must be copy-pasted (overload definition must be
+just before the method implementation)
+2. `#type: ignore` must be adjusted in the first stub (if multiline definition)
+"""
+import argparse
+import inspect
+import os
+import re
+import tempfile
+from pathlib import Path
+from typing import Callable, NoReturn
+
+import black
+from ruff.__main__ import find_ruff_bin
+
+from huggingface_hub.hf_api import HfApi
+
+
+STUBS_SECTION_TEMPLATE = """
+    ### Stubs section start ###
+
+    # This section contains stubs for the methods that are marked as `@future_compatible`. Those methods have a
+    # different return type depending on the `as_future: bool` value. For better integrations with IDEs, we provide
+    # stubs for both return types. The actual implementation of those methods is written below.
+
+    # WARNING: this section have been generated automatically. Do not modify it manually. If you modify it manually, your
+    # changes will be overwritten. To re-generate this section, run `make style` (or `python utils/check_future_compatible_signatures.py`
+    # directly).
+
+    # FAQ:
+    # 1. Why should we have these? For better type annotation which helps with IDE features like autocompletion.
+    # 2. Why not a separate `hf_api.pyi` file? Would require to re-defined all the existing annotations from `hf_api.py`.
+    # 3. Why not at the end of the module? Because `@overload` methods must be defined first.
+    # 4. Why not another solution? I'd be glad, but this is the "less worse" I could find.
+    # For more details, see https://github.com/huggingface/huggingface_hub/pull/1458
+
+
+    {stubs}
+
+    # WARNING: this section have been generated automatically. Do not modify it manually. If you modify it manually, your
+    # changes will be overwritten. To re-generate this section, run `make style` (or `python utils/check_future_compatible_signatures.py`
+    # directly).
+
+    ### Stubs section end ###
+"""
+
+STUBS_SECTION_TEMPLATE_REGEX = re.compile(r"### Stubs section start ###.*### Stubs section end ###", re.DOTALL)
+
+AS_FUTURE_SIGNATURE_TEMPLATE = "as_future: bool = False"
+
+AS_FUTURE_DOCSTRING_TEMPLATE = """
+            as_future (`bool`, *optional*):
+                Whether or not to run this method in the background. Background jobs are run sequentially without
+                blocking the main thread. Passing `as_future=True` will return a [Future](https://docs.python.org/3/library/concurrent.futures.html#future-objects)
+                object. Defaults to `False`."""
+
+ARGS_DOCSTRING_REGEX = re.compile(
+    """
+^[ ]{8}Args:   # Match args section ...
+(.*?)          # ... everything ...
+^[ ]{8}\\S      # ... until next section or end of docstring
+""",
+    re.MULTILINE | re.IGNORECASE | re.VERBOSE | re.DOTALL,
+)
+
+SIGNATURE_REGEX_FULL = re.compile(r"^\s*def.*?-> (.*?):", re.DOTALL | re.MULTILINE)
+SIGNATURE_REGEX_RETURN_TYPE = re.compile(r"-> (.*?):")
+SIGNATURE_REGEX_RETURN_TYPE_WITH_FUTURE = re.compile(r"-> Union\[(.*?), (.*?)\]:")
+
+
+HF_API_FILE_PATH = Path(__file__).parents[1] / "src" / "huggingface_hub" / "hf_api.py"
+HF_API_FILE_CONTENT = HF_API_FILE_PATH.read_text()
+
+
+def generate_future_compatible_method(method: Callable, method_source: str) -> str:
+    # 1. Document `as_future` parameter
+    if AS_FUTURE_DOCSTRING_TEMPLATE not in method_source:
+        match = ARGS_DOCSTRING_REGEX.search(method_source)
+        if match is None:
+            raise ValueError(f"Could not find `Args` section in docstring of {method}.")
+        args_docs = match.group(1).strip()
+        method_source = method_source.replace(args_docs, args_docs + AS_FUTURE_DOCSTRING_TEMPLATE)
+
+    # 2. Update signature
+    # 2.a. Add `as_future` parameter
+    if AS_FUTURE_SIGNATURE_TEMPLATE not in method_source:
+        match = SIGNATURE_REGEX_FULL.search(method_source)
+        if match is None:
+            raise ValueError(f"Could not find signature of {method} in source.")
+        method_source = method_source.replace(
+            match.group(), match.group().replace(") ->", f" {AS_FUTURE_SIGNATURE_TEMPLATE}) ->"), 1
+        )
+
+    # 2.b. Update return value
+    if "Future[" not in method_source:
+        match = SIGNATURE_REGEX_RETURN_TYPE.search(method_source)
+        if match is None:
+            raise ValueError(f"Could not find return type of {method} in source.")
+        base_type = match.group(1).strip()
+        return_type = f"Union[{base_type}, Future[{base_type}]]"
+        return_value_replaced = match.group().replace(match.group(1), return_type)
+        method_source = method_source.replace(match.group(), return_value_replaced)
+
+    # 3. Generate @overload stubs
+    match = SIGNATURE_REGEX_FULL.search(method_source)
+    if match is None:
+        raise ValueError(f"Could not find signature of {method} in source.")
+    method_sig = match.group()
+
+    match = SIGNATURE_REGEX_RETURN_TYPE_WITH_FUTURE.search(method_sig)
+    if match is None:
+        raise ValueError(f"Could not find return type (with Future) of {method} in source.")
+    no_future_return_type = match.group(1).strip()
+    with_future_return_type = match.group(2).strip()
+
+    # 3.a. Stub when `as_future=False`
+    no_future_stub = "    @overload\n" + method_sig
+    no_future_stub = no_future_stub.replace(AS_FUTURE_SIGNATURE_TEMPLATE, "as_future: Literal[False] = ...")
+    no_future_stub = SIGNATURE_REGEX_RETURN_TYPE.sub(rf"-> {no_future_return_type}:", no_future_stub)
+    no_future_stub += "  # type: ignore\n        ..."  # only the first stub requires "type: ignore"
+
+    # 3.b. Stub when `as_future=True`
+    with_future_stub = "    @overload\n" + method_sig
+    with_future_stub = with_future_stub.replace(AS_FUTURE_SIGNATURE_TEMPLATE, "as_future: Literal[True] = ...")
+    with_future_stub = SIGNATURE_REGEX_RETURN_TYPE.sub(rf"-> {with_future_return_type}:", with_future_stub)
+    with_future_stub += "\n        ..."
+
+    stubs_source = no_future_stub + "\n\n" + with_future_stub + "\n\n"
+
+    # 4. All good!
+    return method_source, stubs_source
+
+
+def generate_hf_api_module() -> str:
+    raw_code = HF_API_FILE_CONTENT
+
+    # Process all Future-compatible methods
+    all_stubs_source = ""
+    for _, method in inspect.getmembers(HfApi, predicate=inspect.isfunction):
+        if not getattr(method, "is_future_compatible", False):
+            continue
+        source = inspect.getsource(method)
+        method_source, stubs_source = generate_future_compatible_method(method, source)
+
+        raw_code = raw_code.replace(source, method_source)
+        all_stubs_source += "\n\n" + stubs_source
+
+    # Generate code with stubs
+    generated_code = STUBS_SECTION_TEMPLATE_REGEX.sub(STUBS_SECTION_TEMPLATE.format(stubs=all_stubs_source), raw_code)
+
+    # Format (black+ruff)
+    return format_generated_code(generated_code)
+
+
+def format_generated_code(code: str) -> str:
+    """
+    Format some code with black+ruff. Cannot be done "on the fly" so we first save the code in a temporary file.
+    """
+    # Format with black
+    code = black.format_file_contents(code, fast=False, mode=black.FileMode(line_length=119))
+
+    # Format with ruff
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filepath = Path(tmpdir) / "__init__.py"
+        filepath.write_text(code)
+        ruff_bin = find_ruff_bin()
+        os.spawnv(os.P_WAIT, ruff_bin, ["ruff", str(filepath), "--fix", "--quiet"])
+        return filepath.read_text()
+
+
+def check_future_compatible_hf_api(update: bool) -> NoReturn:
+    """Check that the code defining the threaded version of HfApi is up-to-date."""
+    # If expected `__init__.py` content is different, test fails. If '--update-init-file'
+    # is used, `__init__.py` file is updated before the test fails.
+    expected_content = generate_hf_api_module()
+    if expected_content != HF_API_FILE_CONTENT:
+        if update:
+            with HF_API_FILE_PATH.open("w") as f:
+                f.write(expected_content)
+
+            print(
+                "âœ… Signature/docstring/annotations for Future-compatible methods have been updated in"
+                " `./src/huggingface_hub/hf_api.py`.\n   Please make sure the changes are accurate and commit them."
+            )
+            exit(0)
+        else:
+            print(
+                "âŒ Expected content mismatch for Future compatible methods in `./src/huggingface_hub/hf_api.py`.\n  "
+                " Please run `make style` or `python utils/check_future_compatible_signatures.py --update`."
+            )
+            exit(1)
+
+    print("âœ… All good! (Future-compatible methods)")
+    exit(0)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--update",
+        action="store_true",
+        help="Whether to override `./src/huggingface_hub/hf_api.py` if a change is detected.",
+    )
+    args = parser.parse_args()
+
+    check_future_compatible_hf_api(update=args.update)
+
+----
+utils/check_static_imports.py
+# coding=utf-8
+# Copyright 2022-present, the HuggingFace Inc. team.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Contains a tool to reformat static imports in `huggingface_hub.__init__.py`."""
+import argparse
+import os
+import re
+import tempfile
+from pathlib import Path
+from typing import NoReturn
+
+from ruff.__main__ import find_ruff_bin
+
+from huggingface_hub import _SUBMOD_ATTRS
+
+
+INIT_FILE_PATH = Path(__file__).parents[1] / "src" / "huggingface_hub" / "__init__.py"
+SETUP_CFG_PATH = Path(__file__).parents[1] / "setup.cfg"
+
+IF_TYPE_CHECKING_LINE = "\nif TYPE_CHECKING:  # pragma: no cover\n"
+SUBMOD_ATTRS_PATTERN = re.compile("_SUBMOD_ATTRS = {[^}]+}")  # match the all dict
+
+
+def check_static_imports(update: bool) -> NoReturn:
+    """Check all imports are made twice (1 in lazy-loading and 1 in static checks).
+
+    For more explanations, see `./src/huggingface_hub/__init__.py`.
+    This script is used in the `make style` and `make quality` checks.
+    """
+    with INIT_FILE_PATH.open() as f:
+        init_content = f.read()
+
+    # Get first half of the `__init__.py` file.
+    # WARNING: Content after this part will be entirely re-generated which means
+    # human-edited changes will be lost !
+    init_content_before_static_checks = init_content.split(IF_TYPE_CHECKING_LINE)[0]
+
+    # Search and replace `_SUBMOD_ATTRS` dictionary definition. This ensures modules
+    # and functions that can be lazy-loaded are alphabetically ordered for readability.
+    if SUBMOD_ATTRS_PATTERN.search(init_content_before_static_checks) is None:
+        print("Error: _SUBMOD_ATTRS dictionary definition not found in `./src/huggingface_hub/__init__.py`.")
+        exit(1)
+
+    _submod_attrs_definition = (
+        "_SUBMOD_ATTRS = {\n"
+        + "\n".join(
+            f'    "{module}": [\n'
+            + "\n".join(f'        "{attr}",' for attr in sorted(_SUBMOD_ATTRS[module]))
+            + "\n    ],"
+            for module in sorted(_SUBMOD_ATTRS.keys())
+        )
+        + "\n}"
+    )
+    reordered_content_before_static_checks = SUBMOD_ATTRS_PATTERN.sub(
+        _submod_attrs_definition, init_content_before_static_checks
+    )
+
+    # Generate the static imports given the `_SUBMOD_ATTRS` dictionary.
+    static_imports = [
+        f"    from .{module} import {attr} # noqa: F401"
+        for module, attributes in _SUBMOD_ATTRS.items()
+        for attr in attributes
+    ]
+
+    # Generate the expected `__init__.py` file content and apply formatter on it.
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filepath = Path(tmpdir) / "__init__.py"
+        filepath.write_text(
+            reordered_content_before_static_checks + IF_TYPE_CHECKING_LINE + "\n".join(static_imports) + "\n"
+        )
+        ruff_bin = find_ruff_bin()
+        os.spawnv(os.P_WAIT, ruff_bin, ["ruff", str(filepath), "--fix", "--quiet"])
+        expected_init_content = filepath.read_text()
+
+    # If expected `__init__.py` content is different, test fails. If '--update-init-file'
+    # is used, `__init__.py` file is updated before the test fails.
+    if init_content != expected_init_content:
+        if update:
+            with INIT_FILE_PATH.open("w") as f:
+                f.write(expected_init_content)
+
+            print(
+                "âœ… Imports have been updated in `./src/huggingface_hub/__init__.py`."
+                "\n   Please make sure the changes are accurate and commit them."
+            )
+            exit(0)
+        else:
+            print(
+                "âŒ Expected content mismatch in"
+                " `./src/huggingface_hub/__init__.py`.\n   It is most likely that you"
+                " added a module/function to `_SUBMOD_ATTRS` and did not update the"
+                " 'static import'-part.\n   Please run `make style` or `python"
+                " utils/check_static_imports.py --update`."
+            )
+            exit(1)
+
+    print("âœ… All good! (static imports)")
+    exit(0)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--update",
+        action="store_true",
+        help="Whether to fix `./src/huggingface_hub/__init__.py` if a change is detected.",
+    )
+    args = parser.parse_args()
+
+    check_static_imports(update=args.update)
+
+----
+utils/push_repocard_examples.py
+# coding=utf-8
+# Copyright 2022-present, the HuggingFace Inc. team.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Generate and push an empty ModelCard and DatasetCard to the Hub as examples."""
+import argparse
+from pathlib import Path
+
+import jinja2
+
+from huggingface_hub import DatasetCard, ModelCard, hf_hub_download, upload_file, whoami
+from huggingface_hub.constants import REPOCARD_NAME
+
+
+ORG_NAME = "templates"
+MODEL_CARD_REPO_ID = "templates/model-card-example"
+DATASET_CARD_REPO_ID = "templates/dataset-card-example"
+
+
+def check_can_push():
+    """Check the user can push to the `templates/` folder with its credentials."""
+    try:
+        me = whoami()
+    except EnvironmentError:
+        print("You must be logged in to push repo card examples.")
+
+    if all(org["name"] != ORG_NAME for org in me.get("orgs", [])):
+        print(f"âŒ You must have access to organization '{ORG_NAME}' to push repo card examples.")
+        exit(1)
+
+
+def push_model_card_example(overwrite: bool) -> None:
+    """Generate an empty model card from template for documentation purposes.
+
+    Do not push if content has not changed. Script is triggered in CI on main branch.
+    Card is pushed to https://huggingface.co/templates/model-card-example.
+    """
+    # Not using ModelCard directly to preserve comments in metadata part
+    template = jinja2.Template(ModelCard.default_template_path.read_text())
+    content = template.render(
+        card_data="{}",
+        model_summary=(
+            "This modelcard aims to be a base template for new models. "
+            "It has been generated using [this raw template]"
+            "(https://github.com/huggingface/huggingface_hub/blob/main/src/huggingface_hub/templates/modelcard_template.md?plain=1)."
+        ),
+    )
+    if not overwrite:
+        existing_content = Path(hf_hub_download(MODEL_CARD_REPO_ID, REPOCARD_NAME, repo_type="model")).read_text()
+        if content == existing_content:
+            print("Model Card not pushed: did not change.")
+            return
+    print(f"Pushing empty Model Card to Hub: {MODEL_CARD_REPO_ID}")
+    upload_file(
+        path_or_fileobj=content.encode(),
+        path_in_repo=REPOCARD_NAME,
+        repo_id=MODEL_CARD_REPO_ID,
+        repo_type="model",
+    )
+
+
+def push_dataset_card_example(overwrite: bool) -> None:
+    """Generate an empty dataset card from template for documentation purposes.
+
+    Do not push if content has not changed. Script is triggered in CI on main branch.
+    Card is pushed to https://huggingface.co/datasets/templates/dataset-card-example.
+    """
+    # Not using DatasetCard directly to preserve comments in metadata part
+    template = jinja2.Template(DatasetCard.default_template_path.read_text())
+    content = template.render(
+        card_data="{}",
+        dataset_summary=(
+            "This dataset card aims to be a base template for new datasets. "
+            "It has been generated using [this raw template]"
+            "(https://github.com/huggingface/huggingface_hub/blob/main/src/huggingface_hub/templates/datasetcard_template.md?plain=1)."
+        ),
+    )
+    if not overwrite:
+        existing_content = Path(hf_hub_download(DATASET_CARD_REPO_ID, REPOCARD_NAME, repo_type="dataset")).read_text()
+        if content == existing_content:
+            print("Dataset Card not pushed: did not change.")
+            return
+    print(f"Pushing empty Dataset Card to Hub: {DATASET_CARD_REPO_ID}")
+    upload_file(
+        path_or_fileobj=content.encode(),
+        path_in_repo=REPOCARD_NAME,
+        repo_id=DATASET_CARD_REPO_ID,
+        repo_type="dataset",
+    )
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Whether to force updating examples. By default, push to hub only if card is updated.",
+    )
+    args = parser.parse_args()
+
+    check_can_push()
+    push_model_card_example(args.overwrite)
+    push_dataset_card_example(args.overwrite)
+
+----
+utils/check_contrib_list.py
+# coding=utf-8
+# Copyright 2022-present, the HuggingFace Inc. team.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Contains a tool to list contrib test suites automatically."""
+import argparse
+import re
+from pathlib import Path
+from typing import NoReturn
+
+
+ROOT_DIR = Path(__file__).parent.parent
+CONTRIB_PATH = ROOT_DIR / "contrib"
+MAKEFILE_PATH = ROOT_DIR / "Makefile"
+WORKFLOW_PATH = ROOT_DIR / ".github" / "workflows" / "contrib-tests.yml"
+
+MAKEFILE_REGEX = re.compile(r"^CONTRIB_LIBS := .*$", flags=re.MULTILINE)
+WORKFLOW_REGEX = re.compile(
+    r"""
+    # First: match "contrib: ["
+    (?P<before>^\s{8}contrib:\s\[\n)
+    # Match list of libs
+    (\s{10}\".*\",\n)*
+    # Finally: match trailing "]"
+    (?P<after>^\s{8}\])
+    """,
+    flags=re.MULTILINE | re.VERBOSE,
+)
+
+
+def check_contrib_list(update: bool) -> NoReturn:
+    """List `contrib` test suites.
+
+    Make sure `Makefile` and `.github/workflows/contrib-tests.yml` are consistent with
+    the list."""
+    # List contrib test suites
+    contrib_list = sorted(
+        path.name for path in CONTRIB_PATH.glob("*") if path.is_dir() and not path.name.startswith("_")
+    )
+
+    # Check Makefile is consistent with list
+    makefile_content = MAKEFILE_PATH.read_text()
+    makefile_expected_content = MAKEFILE_REGEX.sub(f"CONTRIB_LIBS := {' '.join(contrib_list)}", makefile_content)
+
+    # Check workflow is consistent with list
+    workflow_content = WORKFLOW_PATH.read_text()
+    _substitute = "\n".join(f'{" "*10}"{lib}",' for lib in contrib_list)
+    workflow_content_expected = WORKFLOW_REGEX.sub(rf"\g<before>{_substitute}\n\g<after>", workflow_content)
+
+    #
+    failed = False
+    if makefile_content != makefile_expected_content:
+        if update:
+            print(
+                "âœ… Contrib libs have been updated in `Makefile`."
+                "\n   Please make sure the changes are accurate and commit them."
+            )
+            MAKEFILE_PATH.write_text(makefile_expected_content)
+        else:
+            print(
+                "âŒ Expected content mismatch in `Makefile`.\n   It is most likely that"
+                " you added a contrib test and did not update the Makefile.\n   Please"
+                " run `make style` or `python utils/check_contrib_list.py --update`."
+            )
+            failed = True
+
+    if workflow_content != workflow_content_expected:
+        if update:
+            print(
+                f"âœ… Contrib libs have been updated in `{WORKFLOW_PATH}`."
+                "\n   Please make sure the changes are accurate and commit them."
+            )
+            WORKFLOW_PATH.write_text(workflow_content_expected)
+        else:
+            print(
+                f"âŒ Expected content mismatch in `{WORKFLOW_PATH}`.\n   It is most"
+                " likely that you added a contrib test and did not update the github"
+                " workflow file.\n   Please run `make style` or `python"
+                " utils/check_contrib_list.py --update`."
+            )
+            failed = True
+
+    if failed:
+        exit(1)
+    print("âœ… All good! (contrib list)")
+    exit(0)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--update",
+        action="store_true",
+        help="Whether to fix Makefile and github workflow if a new lib is detected.",
+    )
+    args = parser.parse_args()
+
+    check_contrib_list(update=args.update)
+
+----
+contrib/README.md
+# Contrib test suite
+
+The contrib folder contains simple end-to-end scripts to test integration of `huggingface_hub` in downstream libraries. The main goal is to proactively notice breaking changes and deprecation warnings.
+
+## Add tests for a new library
+
+To add another contrib lib, one must:
+1. Create a subfolder with the lib name. Example: `./contrib/transformers`
+2. Create a `requirements.txt` file specific to this lib. Example `./contrib/transformers/requirements.txt`
+3. Implements tests for this lib. Example: `./contrib/transformers/test_push_to_hub.py`
+4. Run `make style`. This will edit both `makefile` and `.github/workflows/contrib-tests.yml` to add the lib to list of libs to test. Make sure changes are accurate before committing.
+
+## Run contrib tests on CI
+
+Contrib tests can be [manually triggered in GitHub](https://github.com/huggingface/huggingface_hub/actions) with the `Contrib tests` workflow.
+
+Tests are not run in the default test suite (for each PR) as this would slow down development process. The goal is to notice breaking changes, not to avoid them. In particular, it is interesting to trigger it before a release to make sure it will not cause too much friction.
+
+## Run contrib tests locally
+
+Tests must be ran individually for each dependent library. Here is an example to run
+`timm` tests. Tests are separated to avoid conflicts between version dependencies.
+
+### Run all contrib tests
+
+Before running tests, a virtual env must be setup for each contrib library. To do so, run:
+
+```sh
+# Run setup in parallel to save time 
+make contrib_setup -j4
+```
+
+Then tests can be run
+
+```sh
+# Optional: -j4 to run in parallel. Output will be messy in that case.
+make contrib_test -j4
+```
+
+Optionally, it is possible to setup and run all tests in a single command. However this
+take more time as you don't need to setup the venv each time you run tests.
+
+```sh
+make contrib -j4
+```
+
+Finally, it is possible to delete all virtual envs to get a fresh start for contrib tests.
+After running this command, `contrib_setup` will have to re-download/re-install all dependencies.
+
+```
+make contrib_clear
+```
+
+### Run contrib tests for a single lib
+
+Instead of running tests for all contrib libraries, you can run a specific lib:
+
+```sh
+# Setup timm tests
+make contrib_setup_timm
+
+# Run timm tests
+make contrib_test_timm
+
+# (or) Setup and run timm tests at once
+make contrib_timm
+
+# Delete timm virtualenv if corrupted
+make contrib_clear_timm
+```
+
+----
+contrib/__init__.py
+
+----
+contrib/conftest.py
+import time
+import uuid
+from typing import Generator
+
+import pytest
+
+from huggingface_hub import HfFolder, delete_repo
+
+
+@pytest.fixture(scope="session")
+def token() -> str:
+    # Not critical, only usable on the sandboxed CI instance.
+    return "hf_94wBhPGp6KrrTH3KDchhKpRxZwd6dmHWLL"
+
+
+@pytest.fixture(scope="session")
+def user() -> str:
+    return "__DUMMY_TRANSFORMERS_USER__"
+
+
+@pytest.fixture(autouse=True, scope="session")
+def login_as_dummy_user(token: str) -> Generator:
+    """Login with dummy user token on machine
+
+    Once all tests are completed, set back previous token."""
+    # Remove registered token
+    old_token = HfFolder().get_token()
+    HfFolder().save_token(token)
+
+    yield  # Run all tests
+
+    # Set back token once all tests have passed
+    if old_token is not None:
+        HfFolder().save_token(old_token)
+
+
+@pytest.fixture
+def repo_name(request) -> None:
+    """
+    Return a readable pseudo-unique repository name for tests.
+
+    Example: "repo-2fe93f-16599646671840"
+    """
+    prefix = request.module.__name__  # example: `test_timm`
+    id = uuid.uuid4().hex[:6]
+    ts = int(time.time() * 10e3)
+    return f"repo-{prefix}-{id}-{ts}"
+
+
+@pytest.fixture
+def cleanup_repo(user: str, repo_name: str) -> None:
+    """Delete the repo at the end of the tests.
+
+    TODO: Adapt to handle `repo_type` as well
+    """
+    yield  # run test
+    delete_repo(repo_id=f"{user}/{repo_name}")
+
+----
+contrib/utils.py
+import contextlib
+from typing import Generator
+from unittest.mock import patch
+
+
+@contextlib.contextmanager
+def production_endpoint() -> Generator:
+    """Patch huggingface_hub to connect to production server in a context manager.
+
+    Ugly way to patch all constants at once.
+    TODO: refactor when https://github.com/huggingface/huggingface_hub/issues/1172 is fixed.
+
+    Example:
+    ```py
+    def test_push_to_hub():
+        # Pull from production Hub
+        with production_endpoint():
+            model = ...from_pretrained("modelname")
+
+        # Push to staging Hub
+        model.push_to_hub()
+    ```
+    """
+    PROD_ENDPOINT = "https://huggingface.co"
+    ENDPOINT_TARGETS = [
+        "huggingface_hub.constants",
+        "huggingface_hub._commit_api",
+        "huggingface_hub.hf_api",
+        "huggingface_hub.lfs",
+        "huggingface_hub.commands.user",
+        "huggingface_hub.utils._git_credential",
+    ]
+
+    PROD_URL_TEMPLATE = PROD_ENDPOINT + "/{repo_id}/resolve/{revision}/{filename}"
+    URL_TEMPLATE_TARGETS = [
+        "huggingface_hub.constants",
+        "huggingface_hub.file_download",
+    ]
+
+    from huggingface_hub.hf_api import api
+
+    patchers = (
+        [patch(target + ".ENDPOINT", PROD_ENDPOINT) for target in ENDPOINT_TARGETS]
+        + [patch(target + ".HUGGINGFACE_CO_URL_TEMPLATE", PROD_URL_TEMPLATE) for target in URL_TEMPLATE_TARGETS]
+        + [patch.object(api, "endpoint", PROD_URL_TEMPLATE)]
+    )
+
+    # Start all patches
+    for patcher in patchers:
+        patcher.start()
+
+    yield
+
+    # Stop all patches
+    for patcher in patchers:
+        patcher.stop()
+
+----
+contrib/sentence_transformers/requirements.txt
+git+https://github.com/UKPLab/sentence-transformers.git#egg=sentence-transformers
+----
+contrib/sentence_transformers/__init__.py
+
+----
+contrib/sentence_transformers/test_sentence_transformers.py
+import pytest
+from sentence_transformers import SentenceTransformer, util
+
+from ..utils import production_endpoint
+
+
+@pytest.fixture(scope="module")
+def multi_qa_model() -> SentenceTransformer:
+    with production_endpoint():
+        return SentenceTransformer("multi-qa-MiniLM-L6-cos-v1")
+
+
+def test_from_pretrained(multi_qa_model: SentenceTransformer) -> None:
+    # Example taken from https://www.sbert.net/docs/hugging_face.html#using-hugging-face-models.
+    query_embedding = multi_qa_model.encode("How big is London")
+    passage_embedding = multi_qa_model.encode(
+        [
+            "London has 9,787,426 inhabitants at the 2011 census",
+            "London is known for its financial district",
+        ]
+    )
+    print("Similarity:", util.dot_score(query_embedding, passage_embedding))
+
+
+@pytest.mark.xfail(reason="Production endpoint is hardcoded in sentence_transformers when pushing to Hub.")
+def test_push_to_hub(multi_qa_model: SentenceTransformer, repo_name: str, cleanup_repo: None) -> None:
+    multi_qa_model.save_to_hub(repo_name)
+
+----
+contrib/spacy/requirements.txt
+git+https://github.com/explosion/spacy-huggingface-hub.git#egg=spacy-huggingface-hub
+----
+contrib/spacy/__init__.py
+
+----
+contrib/spacy/test_spacy.py
+from spacy_huggingface_hub import push
+
+from huggingface_hub import delete_repo, hf_hub_download, model_info
+from huggingface_hub.utils import HfHubHTTPError
+
+from ..utils import production_endpoint
+
+
+def test_push_to_hub(user: str) -> None:
+    """Test equivalent of `python -m spacy huggingface-hub push`.
+
+    (0. Delete existing repo on the Hub (if any))
+    1. Download an example file from production
+    2. Push the model!
+    3. Check model pushed the Hub + as spacy library
+    (4. Cleanup)
+    """
+    model_id = f"{user}/en_core_web_sm"
+    _delete_repo(model_id)
+
+    # Download example file from HF Hub (see https://huggingface.co/spacy/en_core_web_sm)
+    with production_endpoint():
+        whl_path = hf_hub_download(
+            repo_id="spacy/en_core_web_sm",
+            filename="en_core_web_sm-any-py3-none-any.whl",
+        )
+
+    # Push spacy model to Hub
+    push(whl_path)
+
+    # Check model has been pushed properly
+    model_id = f"{user}/en_core_web_sm"
+    assert model_info(model_id).library_name == "spacy"
+
+    # Cleanup
+    _delete_repo(model_id)
+
+
+def _delete_repo(model_id: str) -> None:
+    try:
+        delete_repo(model_id)
+    except HfHubHTTPError:
+        pass
+
+----
+contrib/timm/requirements.txt
+# Timm
+git+https://github.com/rwightman/pytorch-image-models.git#egg=timm
+safetensors
+----
+contrib/timm/__init__.py
+
+----
+contrib/timm/test_timm.py
+import timm
+
+from ..utils import production_endpoint
+
+
+MODEL_ID = "timm/mobilenetv3_large_100.ra_in1k"
+
+
+@production_endpoint()
+def test_load_from_hub() -> None:
+    # Test load only config
+    _ = timm.models.load_model_config_from_hf(MODEL_ID)
+
+    # Load entire model from Hub
+    _ = timm.create_model("hf_hub:" + MODEL_ID, pretrained=True)
+
+
+def test_push_to_hub(repo_name: str, cleanup_repo: None) -> None:
+    model = timm.create_model("mobilenetv3_rw")
+    timm.models.push_to_hf_hub(model, repo_name)
+
+----
+src/huggingface_hub/_webhooks_payload.py
+# coding=utf-8
+# Copyright 2023-present, the HuggingFace Inc. team.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Contains data structures to parse the webhooks payload."""
+from typing import List, Optional
+
+from pydantic import BaseModel
+
+from .utils._typing import Literal
+
+
+# This is an adaptation of the ReportV3 interface implemented in moon-landing. V0, V1 and V2 have been ignored as they
+# are not in used anymore. To keep in sync when format is updated in
+# https://github.com/huggingface/moon-landing/blob/main/server/lib/HFWebhooks.ts (internal link).
+
+
+WebhookEvent_T = Literal[
+    "create",
+    "delete",
+    "move",
+    "update",
+]
+RepoChangeEvent_T = Literal[
+    "add",
+    "move",
+    "remove",
+    "update",
+]
+RepoType_T = Literal[
+    "dataset",
+    "model",
+    "space",
+]
+DiscussionStatus_T = Literal[
+    "closed",
+    "draft",
+    "open",
+    "merged",
+]
+SupportedWebhookVersion = Literal[3]
+
+
+class ObjectId(BaseModel):
+    id: str
+
+
+class WebhookPayloadUrl(BaseModel):
+    web: str
+    api: Optional[str]
+
+
+class WebhookPayloadMovedTo(BaseModel):
+    name: str
+    owner: ObjectId
+
+
+class WebhookPayloadWebhook(ObjectId):
+    version: SupportedWebhookVersion
+
+
+class WebhookPayloadEvent(BaseModel):
+    action: WebhookEvent_T
+    scope: str
+
+
+class WebhookPayloadDiscussionChanges(BaseModel):
+    base: str
+    mergeCommitId: Optional[str]
+
+
+class WebhookPayloadComment(ObjectId):
+    author: ObjectId
+    hidden: bool
+    content: Optional[str]
+    url: WebhookPayloadUrl
+
+
+class WebhookPayloadDiscussion(ObjectId):
+    num: int
+    author: ObjectId
+    url: WebhookPayloadUrl
+    title: str
+    isPullRequest: bool
+    status: DiscussionStatus_T
+    changes: Optional[WebhookPayloadDiscussionChanges]
+    pinned: Optional[bool]
+
+
+class WebhookPayloadRepo(ObjectId):
+    owner: ObjectId
+    head_sha: Optional[str]
+    name: str
+    private: bool
+    subdomain: Optional[str]
+    tags: Optional[List[str]]
+    type: Literal["dataset", "model", "space"]
+    url: WebhookPayloadUrl
+
+
+class WebhookPayload(BaseModel):
+    event: WebhookPayloadEvent
+    repo: WebhookPayloadRepo
+    discussion: Optional[WebhookPayloadDiscussion]
+    comment: Optional[WebhookPayloadComment]
+    webhook: WebhookPayloadWebhook
+    movedTo: Optional[WebhookPayloadMovedTo]
+
+----
+src/huggingface_hub/inference_api.py
+import io
+from typing import Any, Dict, List, Optional, Union
+
+from .constants import INFERENCE_ENDPOINT
+from .hf_api import HfApi
+from .utils import build_hf_headers, get_session, is_pillow_available, logging, validate_hf_hub_args
+
+
+logger = logging.get_logger(__name__)
+
+
+ALL_TASKS = [
+    # NLP
+    "text-classification",
+    "token-classification",
+    "table-question-answering",
+    "question-answering",
+    "zero-shot-classification",
+    "translation",
+    "summarization",
+    "conversational",
+    "feature-extraction",
+    "text-generation",
+    "text2text-generation",
+    "fill-mask",
+    "sentence-similarity",
+    # Audio
+    "text-to-speech",
+    "automatic-speech-recognition",
+    "audio-to-audio",
+    "audio-classification",
+    "voice-activity-detection",
+    # Computer vision
+    "image-classification",
+    "object-detection",
+    "image-segmentation",
+    "text-to-image",
+    "image-to-image",
+    # Others
+    "tabular-classification",
+    "tabular-regression",
+]
+
+
+class InferenceApi:
+    """Client to configure requests and make calls to the HuggingFace Inference API.
+
+    Example:
+
+    ```python
+    >>> from huggingface_hub.inference_api import InferenceApi
+
+    >>> # Mask-fill example
+    >>> inference = InferenceApi("bert-base-uncased")
+    >>> inference(inputs="The goal of life is [MASK].")
+    [{'sequence': 'the goal of life is life.', 'score': 0.10933292657136917, 'token': 2166, 'token_str': 'life'}]
+
+    >>> # Question Answering example
+    >>> inference = InferenceApi("deepset/roberta-base-squad2")
+    >>> inputs = {
+    ...     "question": "What's my name?",
+    ...     "context": "My name is Clara and I live in Berkeley.",
+    ... }
+    >>> inference(inputs)
+    {'score': 0.9326569437980652, 'start': 11, 'end': 16, 'answer': 'Clara'}
+
+    >>> # Zero-shot example
+    >>> inference = InferenceApi("typeform/distilbert-base-uncased-mnli")
+    >>> inputs = "Hi, I recently bought a device from your company but it is not working as advertised and I would like to get reimbursed!"
+    >>> params = {"candidate_labels": ["refund", "legal", "faq"]}
+    >>> inference(inputs, params)
+    {'sequence': 'Hi, I recently bought a device from your company but it is not working as advertised and I would like to get reimbursed!', 'labels': ['refund', 'faq', 'legal'], 'scores': [0.9378499388694763, 0.04914155602455139, 0.013008488342165947]}
+
+    >>> # Overriding configured task
+    >>> inference = InferenceApi("bert-base-uncased", task="feature-extraction")
+
+    >>> # Text-to-image
+    >>> inference = InferenceApi("stabilityai/stable-diffusion-2-1")
+    >>> inference("cat")
+    <PIL.PngImagePlugin.PngImageFile image (...)>
+
+    >>> # Return as raw response to parse the output yourself
+    >>> inference = InferenceApi("mio/amadeus")
+    >>> response = inference("hello world", raw_response=True)
+    >>> response.headers
+    {"Content-Type": "audio/flac", ...}
+    >>> response.content # raw bytes from server
+    b'(...)'
+    ```
+    """
+
+    @validate_hf_hub_args
+    # TODO: add deprecation starting from version v0.16.0 so that we can proactively adapt external scripts.
+    # @_deprecate_method(
+    #     version="0.18.0",
+    #     message=(
+    #         "`InferenceApi` client is deprecated in favor of the more feature-complete `InferenceClient`. Check out"
+    #         " this guide to learn how to convert your script to use it:"
+    #         " https://huggingface.co/docs/huggingface_hub/guides/inference#legacy-inferenceapi-client."
+    #     ),
+    # )
+    def __init__(
+        self,
+        repo_id: str,
+        task: Optional[str] = None,
+        token: Optional[str] = None,
+        gpu: bool = False,
+    ):
+        """Inits headers and API call information.
+
+        Args:
+            repo_id (``str``):
+                Id of repository (e.g. `user/bert-base-uncased`).
+            task (``str``, `optional`, defaults ``None``):
+                Whether to force a task instead of using task specified in the
+                repository.
+            token (`str`, `optional`):
+                The API token to use as HTTP bearer authorization. This is not
+                the authentication token. You can find the token in
+                https://huggingface.co/settings/token. Alternatively, you can
+                find both your organizations and personal API tokens using
+                `HfApi().whoami(token)`.
+            gpu (`bool`, `optional`, defaults `False`):
+                Whether to use GPU instead of CPU for inference(requires Startup
+                plan at least).
+        """
+        self.options = {"wait_for_model": True, "use_gpu": gpu}
+        self.headers = build_hf_headers(token=token)
+
+        # Configure task
+        model_info = HfApi(token=token).model_info(repo_id=repo_id)
+        if not model_info.pipeline_tag and not task:
+            raise ValueError(
+                "Task not specified in the repository. Please add it to the model card"
+                " using pipeline_tag"
+                " (https://huggingface.co/docs#how-is-a-models-type-of-inference-api-and-widget-determined)"
+            )
+
+        if task and task != model_info.pipeline_tag:
+            if task not in ALL_TASKS:
+                raise ValueError(f"Invalid task {task}. Make sure it's valid.")
+
+            logger.warning(
+                "You're using a different task than the one specified in the"
+                " repository. Be sure to know what you're doing :)"
+            )
+            self.task = task
+        else:
+            assert model_info.pipeline_tag is not None, "Pipeline tag cannot be None"
+            self.task = model_info.pipeline_tag
+
+        self.api_url = f"{INFERENCE_ENDPOINT}/pipeline/{self.task}/{repo_id}"
+
+    def __repr__(self):
+        # Do not add headers to repr to avoid leaking token.
+        return f"InferenceAPI(api_url='{self.api_url}', task='{self.task}', options={self.options})"
+
+    def __call__(
+        self,
+        inputs: Optional[Union[str, Dict, List[str], List[List[str]]]] = None,
+        params: Optional[Dict] = None,
+        data: Optional[bytes] = None,
+        raw_response: bool = False,
+    ) -> Any:
+        """Make a call to the Inference API.
+
+        Args:
+            inputs (`str` or `Dict` or `List[str]` or `List[List[str]]`, *optional*):
+                Inputs for the prediction.
+            params (`Dict`, *optional*):
+                Additional parameters for the models. Will be sent as `parameters` in the
+                payload.
+            data (`bytes`, *optional*):
+                Bytes content of the request. In this case, leave `inputs` and `params` empty.
+            raw_response (`bool`, defaults to `False`):
+                If `True`, the raw `Response` object is returned. You can parse its content
+                as preferred. By default, the content is parsed into a more practical format
+                (json dictionary or PIL Image for example).
+        """
+        # Build payload
+        payload: Dict[str, Any] = {
+            "options": self.options,
+        }
+        if inputs:
+            payload["inputs"] = inputs
+        if params:
+            payload["parameters"] = params
+
+        # Make API call
+        response = get_session().post(self.api_url, headers=self.headers, json=payload, data=data)
+
+        # Let the user handle the response
+        if raw_response:
+            return response
+
+        # By default, parse the response for the user.
+        content_type = response.headers.get("Content-Type") or ""
+        if content_type.startswith("image"):
+            if not is_pillow_available():
+                raise ImportError(
+                    f"Task '{self.task}' returned as image but Pillow is not installed."
+                    " Please install it (`pip install Pillow`) or pass"
+                    " `raw_response=True` to get the raw `Response` object and parse"
+                    " the image by yourself."
+                )
+
+            from PIL import Image
+
+            return Image.open(io.BytesIO(response.content))
+        elif content_type == "application/json":
+            return response.json()
+        else:
+            raise NotImplementedError(
+                f"{content_type} output type is not implemented yet. You can pass"
+                " `raw_response=True` to get the raw `Response` object and parse the"
+                " output by yourself."
+            )
+
+----
+src/huggingface_hub/_webhooks_server.py
+# coding=utf-8
+# Copyright 2023-present, the HuggingFace Inc. team.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Contains `WebhooksServer` and `webhook_endpoint` to create a webhook server easily."""
+import atexit
+import inspect
+import os
+from functools import wraps
+from typing import TYPE_CHECKING, Callable, Dict, Optional
+
+from .utils import experimental, is_gradio_available
+
+
+if TYPE_CHECKING:
+    import gradio as gr
+
+
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+
+
+_global_app: Optional["WebhooksServer"] = None
+_is_local = os.getenv("SYSTEM") != "spaces"
+
+
+@experimental
+class WebhooksServer:
+    """
+    The [`WebhooksServer`] class lets you create an instance of a Gradio app that can receive Huggingface webhooks.
+    These webhooks can be registered using the [`~WebhooksServer.add_webhook`] decorator. Webhook endpoints are added to
+    the app as a POST endpoint to the FastAPI router. Once all the webhooks are registered, the `run` method has to be
+    called to start the app.
+
+    It is recommended to accept [`WebhookPayload`] as the first argument of the webhook function. It is a Pydantic
+    model that contains all the information about the webhook event. The data will be parsed automatically for you.
+
+    Check out the [webhooks guide](../guides/webhooks_server) for a step-by-step tutorial on how to setup your
+    WebhooksServer and deploy it on a Space.
+
+    <Tip warning={true}>
+
+    `WebhooksServer` is experimental. Its API is subject to change in the future.
+
+    </Tip>
+
+    <Tip warning={true}>
+
+    You must have `gradio` installed to use `WebhooksServer` (`pip install --upgrade gradio`).
+
+    </Tip>
+
+    Args:
+        ui (`gradio.Blocks`, optional):
+            A Gradio UI instance to be used as the Space landing page. If `None`, a UI displaying instructions
+            about the configured webhooks is created.
+        webhook_secret (`str`, optional):
+            A secret key to verify incoming webhook requests. You can set this value to any secret you want as long as
+            you also configure it in your [webhooks settings panel](https://huggingface.co/settings/webhooks). You
+            can also set this value as the `WEBHOOK_SECRET` environment variable. If no secret is provided, the
+            webhook endpoints are opened without any security.
+
+    Example:
+
+        ```python
+        import gradio as gr
+        from huggingface_hub import WebhooksServer, WebhookPayload
+
+        with gr.Blocks() as ui:
+            ...
+
+        app = WebhooksServer(ui=ui, webhook_secret="my_secret_key")
+
+        @app.add_webhook("/say_hello")
+        async def hello(payload: WebhookPayload):
+            return {"message": "hello"}
+
+        app.run()
+        ```
+    """
+
+    def __new__(cls, *args, **kwargs) -> "WebhooksServer":
+        if not is_gradio_available():
+            raise ImportError(
+                "You must have `gradio` installed to use `WebhooksServer`. Please run `pip install --upgrade gradio`"
+                " first."
+            )
+        return super().__new__(cls)
+
+    def __init__(
+        self,
+        ui: Optional["gr.Blocks"] = None,
+        webhook_secret: Optional[str] = None,
+    ) -> None:
+        self._ui = ui
+
+        self.webhook_secret = webhook_secret or os.getenv("WEBHOOK_SECRET")
+        self.registered_webhooks: Dict[str, Callable] = {}
+        _warn_on_empty_secret(self.webhook_secret)
+
+    def add_webhook(self, path: Optional[str] = None) -> Callable:
+        """
+        Decorator to add a webhook to the [`WebhooksServer`] server.
+
+        Args:
+            path (`str`, optional):
+                The URL path to register the webhook function. If not provided, the function name will be used as the
+                path. In any case, all webhooks are registered under `/webhooks`.
+
+        Raises:
+            ValueError: If the provided path is already registered as a webhook.
+
+        Example:
+            ```python
+            from huggingface_hub import WebhooksServer, WebhookPayload
+
+            app = WebhooksServer()
+
+            @app.add_webhook
+            async def trigger_training(payload: WebhookPayload):
+                if payload.repo.type == "dataset" and payload.event.action == "update":
+                    # Trigger a training job if a dataset is updated
+                    ...
+
+            app.run()
+        ```
+        """
+        # Usage: directly as decorator. Example: `@app.add_webhook`
+        if callable(path):
+            # If path is a function, it means it was used as a decorator without arguments
+            return self.add_webhook()(path)
+
+        # Usage: provide a path. Example: `@app.add_webhook(...)`
+        @wraps(FastAPI.post)
+        def _inner_post(*args, **kwargs):
+            func = args[0]
+            abs_path = f"/webhooks/{(path or func.__name__).strip('/')}"
+            if abs_path in self.registered_webhooks:
+                raise ValueError(f"Webhook {abs_path} already exists.")
+            self.registered_webhooks[abs_path] = func
+
+        return _inner_post
+
+    def run(self) -> None:
+        """Starts the Gradio app with the FastAPI server and registers the webhooks."""
+        ui = self._ui or self._get_default_ui()
+
+        # Start Gradio App
+        #   - as non-blocking so that webhooks can be added afterwards
+        #   - as shared if launch locally (to debug webhooks)
+        self.fastapi_app, _, _ = ui.launch(prevent_thread_lock=True, share=_is_local)
+
+        # Register webhooks to FastAPI app
+        for path, func in self.registered_webhooks.items():
+            # Add secret check if required
+            if self.webhook_secret is not None:
+                func = _wrap_webhook_to_check_secret(func, webhook_secret=self.webhook_secret)
+
+            # Add route to FastAPI app
+            self.fastapi_app.post(path)(func)
+
+        # Print instructions and block main thread
+        url = (ui.share_url or ui.local_url).strip("/")
+        message = "\nWebhooks are correctly setup and ready to use:"
+        message += "\n" + "\n".join(f"  - POST {url}{webhook}" for webhook in self.registered_webhooks)
+        message += "\nGo to https://huggingface.co/settings/webhooks to setup your webhooks."
+        print(message)
+
+        ui.block_thread()
+
+    def _get_default_ui(self) -> "gr.Blocks":
+        """Default UI if not provided (lists webhooks and provides basic instructions)."""
+        import gradio as gr
+
+        with gr.Blocks() as ui:
+            gr.Markdown("# This is an app to process ðŸ¤— Webhooks")
+            gr.Markdown(
+                "Webhooks are a foundation for MLOps-related features. They allow you to listen for new changes on"
+                " specific repos or to all repos belonging to particular set of users/organizations (not just your"
+                " repos, but any repo). Check out this [guide](https://huggingface.co/docs/hub/webhooks) to get to"
+                " know more about webhooks on the Huggingface Hub."
+            )
+            gr.Markdown(
+                f"{len(self.registered_webhooks)} webhook(s) are registered:"
+                + "\n\n"
+                + "\n ".join(
+                    f"- [{webhook_path}]({_get_webhook_doc_url(webhook.__name__, webhook_path)})"
+                    for webhook_path, webhook in self.registered_webhooks.items()
+                )
+            )
+            gr.Markdown(
+                "Go to https://huggingface.co/settings/webhooks to setup your webhooks."
+                + "\nYou app is running locally. Please look at the logs to check the full URL you need to set."
+                if _is_local
+                else (
+                    "\nThis app is running on a Space. You can find the corresponding URL in the options menu"
+                    " (top-right) > 'Embed the Space'. The URL looks like 'https://{username}-{repo_name}.hf.space'."
+                )
+            )
+        return ui
+
+
+@experimental
+def webhook_endpoint(path: Optional[str] = None) -> Callable:
+    """Decorator to start a [`WebhooksServer`] and register the decorated function as a webhook endpoint.
+
+    This is a helper to get started quickly. If you need more flexibility (custom landing page or webhook secret),
+    you can use [`WebhooksServer`] directly. You can register multiple webhook endpoints (to the same server) by using
+    this decorator multiple times.
+
+    Check out the [webhooks guide](../guides/webhooks_server) for a step-by-step tutorial on how to setup your
+    server and deploy it on a Space.
+
+    <Tip warning={true}>
+
+    `webhook_endpoint` is experimental. Its API is subject to change in the future.
+
+    </Tip>
+
+    <Tip warning={true}>
+
+    You must have `gradio` installed to use `webhook_endpoint` (`pip install --upgrade gradio`).
+
+    </Tip>
+
+    Args:
+        path (`str`, optional):
+            The URL path to register the webhook function. If not provided, the function name will be used as the path.
+            In any case, all webhooks are registered under `/webhooks`.
+
+    Examples:
+        The default usage is to register a function as a webhook endpoint. The function name will be used as the path.
+        The server will be started automatically at exit (i.e. at the end of the script).
+
+        ```python
+        from huggingface_hub import webhook_endpoint, WebhookPayload
+
+        @webhook_endpoint
+        async def trigger_training(payload: WebhookPayload):
+            if payload.repo.type == "dataset" and payload.event.action == "update":
+                # Trigger a training job if a dataset is updated
+                ...
+
+        # Server is automatically started at the end of the script.
+        ```
+
+        Advanced usage: register a function as a webhook endpoint and start the server manually. This is useful if you
+        are running it in a notebook.
+
+        ```python
+        from huggingface_hub import webhook_endpoint, WebhookPayload
+
+        @webhook_endpoint
+        async def trigger_training(payload: WebhookPayload):
+            if payload.repo.type == "dataset" and payload.event.action == "update":
+                # Trigger a training job if a dataset is updated
+                ...
+
+        # Start the server manually
+        trigger_training.run()
+        ```
+    """
+    if callable(path):
+        # If path is a function, it means it was used as a decorator without arguments
+        return webhook_endpoint()(path)
+
+    @wraps(WebhooksServer.add_webhook)
+    def _inner(func: Callable) -> Callable:
+        app = _get_global_app()
+        app.add_webhook(path)(func)
+        if len(app.registered_webhooks) == 1:
+            # Register `app.run` to run at exit (only once)
+            atexit.register(app.run)
+
+        @wraps(app.run)
+        def _run_now():
+            # Run the app directly (without waiting atexit)
+            atexit.unregister(app.run)
+            app.run()
+
+        func.run = _run_now  # type: ignore
+        return func
+
+    return _inner
+
+
+def _get_global_app() -> WebhooksServer:
+    global _global_app
+    if _global_app is None:
+        _global_app = WebhooksServer()
+    return _global_app
+
+
+def _warn_on_empty_secret(webhook_secret: Optional[str]) -> None:
+    if webhook_secret is None:
+        print("Webhook secret is not defined. This means your webhook endpoints will be open to everyone.")
+        print(
+            "To add a secret, set `WEBHOOK_SECRET` as environment variable or pass it at initialization: "
+            "\n\t`app = WebhooksServer(webhook_secret='my_secret', ...)`"
+        )
+        print(
+            "For more details about webhook secrets, please refer to"
+            " https://huggingface.co/docs/hub/webhooks#webhook-secret."
+        )
+    else:
+        print("Webhook secret is correctly defined.")
+
+
+def _get_webhook_doc_url(webhook_name: str, webhook_path: str) -> str:
+    """Returns the anchor to a given webhook in the docs (experimental)"""
+    return "/docs#/default/" + webhook_name + webhook_path.replace("/", "_") + "_post"
+
+
+def _wrap_webhook_to_check_secret(func: Callable, webhook_secret: str) -> Callable:
+    """Wraps a webhook function to check the webhook secret before calling the function.
+
+    This is a hacky way to add the `request` parameter to the function signature. Since FastAPI based itself on route
+    parameters to inject the values to the function, we need to hack the function signature to retrieve the `Request`
+    object (and hence the headers). A far cleaner solution would be to use a middleware. However, since
+    `fastapi==0.90.1`, a middleware cannot be added once the app has started. And since the FastAPI app is started by
+    Gradio internals (and not by us), we cannot add a middleware.
+
+    This method is called only when a secret has been defined by the user. If a request is sent without the
+    "x-webhook-secret", the function will return a 401 error (unauthorized). If the header is sent but is incorrect,
+    the function will return a 403 error (forbidden).
+
+    Inspired by https://stackoverflow.com/a/33112180.
+    """
+    initial_sig = inspect.signature(func)
+
+    @wraps(func)
+    async def _protected_func(request: Request, **kwargs):
+        request_secret = request.headers.get("x-webhook-secret")
+        if request_secret is None:
+            return JSONResponse({"error": "x-webhook-secret header not set."}, status_code=401)
+        if request_secret != webhook_secret:
+            return JSONResponse({"error": "Invalid webhook secret."}, status_code=403)
+
+        # Inject `request` in kwargs if required
+        if "request" in initial_sig.parameters:
+            kwargs["request"] = request
+
+        # Handle both sync and async routes
+        if inspect.iscoroutinefunction(func):
+            return await func(**kwargs)
+        else:
+            return func(**kwargs)
+
+    # Update signature to include request
+    if "request" not in initial_sig.parameters:
+        _protected_func.__signature__ = initial_sig.replace(  # type: ignore
+            parameters=(
+                inspect.Parameter(name="request", kind=inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=Request),
+            )
+            + tuple(initial_sig.parameters.values())
+        )
+
+    # Return protected route
+    return _protected_func
+
+----
+src/huggingface_hub/lfs.py
+# coding=utf-8
+# Copyright 2019-present, the HuggingFace Inc. team.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Git LFS related type definitions and utilities"""
+import io
+import os
+import re
+import warnings
+from contextlib import AbstractContextManager
+from dataclasses import dataclass
+from math import ceil
+from os.path import getsize
+from pathlib import Path
+from typing import TYPE_CHECKING, BinaryIO, Dict, Iterable, List, Optional, Tuple
+
+from requests.auth import HTTPBasicAuth
+
+from huggingface_hub.constants import ENDPOINT, HF_HUB_ENABLE_HF_TRANSFER, REPO_TYPES_URL_PREFIXES
+from huggingface_hub.utils import get_session
+
+from .utils import get_token_to_send, hf_raise_for_status, http_backoff, logging, validate_hf_hub_args
+from .utils._typing import TypedDict
+from .utils.sha import sha256, sha_fileobj
+
+
+if TYPE_CHECKING:
+    from ._commit_api import CommitOperationAdd
+
+logger = logging.get_logger(__name__)
+
+OID_REGEX = re.compile(r"^[0-9a-f]{40}$")
+
+LFS_MULTIPART_UPLOAD_COMMAND = "lfs-multipart-upload"
+
+LFS_HEADERS = {
+    "Accept": "application/vnd.git-lfs+json",
+    "Content-Type": "application/vnd.git-lfs+json",
+}
+
+
+@dataclass
+class UploadInfo:
+    """
+    Dataclass holding required information to determine whether a blob
+    should be uploaded to the hub using the LFS protocol or the regular protocol
+
+    Args:
+        sha256 (`bytes`):
+            SHA256 hash of the blob
+        size (`int`):
+            Size in bytes of the blob
+        sample (`bytes`):
+            First 512 bytes of the blob
+    """
+
+    sha256: bytes
+    size: int
+    sample: bytes
+
+    @classmethod
+    def from_path(cls, path: str):
+        size = getsize(path)
+        with io.open(path, "rb") as file:
+            sample = file.peek(512)[:512]
+            sha = sha_fileobj(file)
+        return cls(size=size, sha256=sha, sample=sample)
+
+    @classmethod
+    def from_bytes(cls, data: bytes):
+        sha = sha256(data).digest()
+        return cls(size=len(data), sample=data[:512], sha256=sha)
+
+    @classmethod
+    def from_fileobj(cls, fileobj: BinaryIO):
+        sample = fileobj.read(512)
+        fileobj.seek(0, io.SEEK_SET)
+        sha = sha_fileobj(fileobj)
+        size = fileobj.tell()
+        fileobj.seek(0, io.SEEK_SET)
+        return cls(size=size, sha256=sha, sample=sample)
+
+
+@validate_hf_hub_args
+def post_lfs_batch_info(
+    upload_infos: Iterable[UploadInfo],
+    token: Optional[str],
+    repo_type: str,
+    repo_id: str,
+    endpoint: Optional[str] = None,
+) -> Tuple[List[dict], List[dict]]:
+    """
+    Requests the LFS batch endpoint to retrieve upload instructions
+
+    Learn more: https://github.com/git-lfs/git-lfs/blob/main/docs/api/batch.md
+
+    Args:
+        upload_infos (`Iterable` of `UploadInfo`):
+            `UploadInfo` for the files that are being uploaded, typically obtained
+            from `CommitOperationAdd.upload_info`
+        repo_type (`str`):
+            Type of the repo to upload to: `"model"`, `"dataset"` or `"space"`.
+        repo_id (`str`):
+            A namespace (user or an organization) and a repo name separated
+            by a `/`.
+        token (`str`, *optional*):
+            An authentication token ( See https://huggingface.co/settings/tokens )
+
+    Returns:
+        `LfsBatchInfo`: 2-tuple:
+            - First element is the list of upload instructions from the server
+            - Second element is an list of errors, if any
+
+    Raises:
+        `ValueError`: If an argument is invalid or the server response is malformed
+
+        `HTTPError`: If the server returned an error
+    """
+    endpoint = endpoint if endpoint is not None else ENDPOINT
+    url_prefix = ""
+    if repo_type in REPO_TYPES_URL_PREFIXES:
+        url_prefix = REPO_TYPES_URL_PREFIXES[repo_type]
+    batch_url = f"{endpoint}/{url_prefix}{repo_id}.git/info/lfs/objects/batch"
+    resp = get_session().post(
+        batch_url,
+        headers=LFS_HEADERS,
+        json={
+            "operation": "upload",
+            "transfers": ["basic", "multipart"],
+            "objects": [
+                {
+                    "oid": upload.sha256.hex(),
+                    "size": upload.size,
+                }
+                for upload in upload_infos
+            ],
+            "hash_algo": "sha256",
+        },
+        auth=HTTPBasicAuth(
+            "access_token",
+            get_token_to_send(token or True),  # type: ignore  # Token must be provided or retrieved
+        ),
+    )
+    hf_raise_for_status(resp)
+    batch_info = resp.json()
+
+    objects = batch_info.get("objects", None)
+    if not isinstance(objects, list):
+        raise ValueError("Malformed response from server")
+
+    return (
+        [_validate_batch_actions(obj) for obj in objects if "error" not in obj],
+        [_validate_batch_error(obj) for obj in objects if "error" in obj],
+    )
+
+
+class PayloadPartT(TypedDict):
+    partNumber: int
+    etag: str
+
+
+class CompletionPayloadT(TypedDict):
+    """Payload that will be sent to the Hub when uploading multi-part."""
+
+    oid: str
+    parts: List[PayloadPartT]
+
+
+def lfs_upload(operation: "CommitOperationAdd", lfs_batch_action: Dict, token: Optional[str]) -> None:
+    """
+    Handles uploading a given object to the Hub with the LFS protocol.
+
+    Can be a No-op if the content of the file is already present on the hub large file storage.
+
+    Args:
+        operation (`CommitOperationAdd`):
+            The add operation triggering this upload.
+        lfs_batch_action (`dict`):
+            Upload instructions from the LFS batch endpoint for this object. See [`~utils.lfs.post_lfs_batch_info`] for
+            more details.
+        token (`str`, *optional*):
+            A [user access token](https://hf.co/settings/tokens) to authenticate requests against the Hub
+
+    Raises:
+        - `ValueError` if `lfs_batch_action` is improperly formatted
+        - `HTTPError` if the upload resulted in an error
+    """
+    # 0. If LFS file is already present, skip upload
+    _validate_batch_actions(lfs_batch_action)
+    actions = lfs_batch_action.get("actions")
+    if actions is None:
+        # The file was already uploaded
+        logger.debug(f"Content of file {operation.path_in_repo} is already present upstream - skipping upload")
+        return
+
+    # 1. Validate server response (check required keys in dict)
+    upload_action = lfs_batch_action["actions"]["upload"]
+    _validate_lfs_action(upload_action)
+    verify_action = lfs_batch_action["actions"].get("verify")
+    if verify_action is not None:
+        _validate_lfs_action(verify_action)
+
+    # 2. Upload file (either single part or multi-part)
+    header = upload_action.get("header", {})
+    chunk_size = header.get("chunk_size")
+    if chunk_size is not None:
+        try:
+            chunk_size = int(chunk_size)
+        except (ValueError, TypeError):
+            raise ValueError(
+                f"Malformed response from LFS batch endpoint: `chunk_size` should be an integer. Got '{chunk_size}'."
+            )
+        _upload_multi_part(operation=operation, header=header, chunk_size=chunk_size, upload_url=upload_action["href"])
+    else:
+        _upload_single_part(operation=operation, upload_url=upload_action["href"])
+
+    # 3. Verify upload went well
+    if verify_action is not None:
+        _validate_lfs_action(verify_action)
+        verify_resp = get_session().post(
+            verify_action["href"],
+            auth=HTTPBasicAuth(username="USER", password=get_token_to_send(token or True)),  # type: ignore
+            json={"oid": operation.upload_info.sha256.hex(), "size": operation.upload_info.size},
+        )
+        hf_raise_for_status(verify_resp)
+    logger.debug(f"{operation.path_in_repo}: Upload successful")
+
+
+def _validate_lfs_action(lfs_action: dict):
+    """validates response from the LFS batch endpoint"""
+    if not (
+        isinstance(lfs_action.get("href"), str)
+        and (lfs_action.get("header") is None or isinstance(lfs_action.get("header"), dict))
+    ):
+        raise ValueError("lfs_action is improperly formatted")
+    return lfs_action
+
+
+def _validate_batch_actions(lfs_batch_actions: dict):
+    """validates response from the LFS batch endpoint"""
+    if not (isinstance(lfs_batch_actions.get("oid"), str) and isinstance(lfs_batch_actions.get("size"), int)):
+        raise ValueError("lfs_batch_actions is improperly formatted")
+
+    upload_action = lfs_batch_actions.get("actions", {}).get("upload")
+    verify_action = lfs_batch_actions.get("actions", {}).get("verify")
+    if upload_action is not None:
+        _validate_lfs_action(upload_action)
+    if verify_action is not None:
+        _validate_lfs_action(verify_action)
+    return lfs_batch_actions
+
+
+def _validate_batch_error(lfs_batch_error: dict):
+    """validates response from the LFS batch endpoint"""
+    if not (isinstance(lfs_batch_error.get("oid"), str) and isinstance(lfs_batch_error.get("size"), int)):
+        raise ValueError("lfs_batch_error is improperly formatted")
+    error_info = lfs_batch_error.get("error")
+    if not (
+        isinstance(error_info, dict)
+        and isinstance(error_info.get("message"), str)
+        and isinstance(error_info.get("code"), int)
+    ):
+        raise ValueError("lfs_batch_error is improperly formatted")
+    return lfs_batch_error
+
+
+def _upload_single_part(operation: "CommitOperationAdd", upload_url: str) -> None:
+    """
+    Uploads `fileobj` as a single PUT HTTP request (basic LFS transfer protocol)
+
+    Args:
+        upload_url (`str`):
+            The URL to PUT the file to.
+        fileobj:
+            The file-like object holding the data to upload.
+
+    Returns: `requests.Response`
+
+    Raises: `requests.HTTPError` if the upload resulted in an error
+    """
+    with operation.as_file(with_tqdm=True) as fileobj:
+        response = http_backoff("PUT", upload_url, data=fileobj)
+        hf_raise_for_status(response)
+
+
+def _upload_multi_part(operation: "CommitOperationAdd", header: Dict, chunk_size: int, upload_url: str) -> None:
+    """
+    Uploads file using HF multipart LFS transfer protocol.
+    """
+    # 1. Get upload URLs for each part
+    sorted_parts_urls = _get_sorted_parts_urls(header=header, upload_info=operation.upload_info, chunk_size=chunk_size)
+
+    # 2. Upload parts (either with hf_transfer or in pure Python)
+    use_hf_transfer = HF_HUB_ENABLE_HF_TRANSFER
+    if (
+        HF_HUB_ENABLE_HF_TRANSFER
+        and not isinstance(operation.path_or_fileobj, str)
+        and not isinstance(operation.path_or_fileobj, Path)
+    ):
+        warnings.warn(
+            "hf_transfer is enabled but does not support uploading from bytes or BinaryIO, falling back to regular"
+            " upload"
+        )
+        use_hf_transfer = False
+
+    response_headers = (
+        _upload_parts_hf_transfer(operation=operation, sorted_parts_urls=sorted_parts_urls, chunk_size=chunk_size)
+        if use_hf_transfer
+        else _upload_parts_iteratively(operation=operation, sorted_parts_urls=sorted_parts_urls, chunk_size=chunk_size)
+    )
+
+    # 3. Send completion request
+    completion_res = get_session().post(
+        upload_url,
+        json=_get_completion_payload(response_headers, operation.upload_info.sha256.hex()),
+        headers=LFS_HEADERS,
+    )
+    hf_raise_for_status(completion_res)
+
+
+def _get_sorted_parts_urls(header: Dict, upload_info: UploadInfo, chunk_size: int) -> List[str]:
+    sorted_part_upload_urls = [
+        upload_url
+        for _, upload_url in sorted(
+            [
+                (int(part_num, 10), upload_url)
+                for part_num, upload_url in header.items()
+                if part_num.isdigit() and len(part_num) > 0
+            ],
+            key=lambda t: t[0],
+        )
+    ]
+    num_parts = len(sorted_part_upload_urls)
+    if num_parts != ceil(upload_info.size / chunk_size):
+        raise ValueError("Invalid server response to upload large LFS file")
+    return sorted_part_upload_urls
+
+
+def _get_completion_payload(response_headers: List[Dict], oid: str) -> CompletionPayloadT:
+    parts: List[PayloadPartT] = []
+    for part_number, header in enumerate(response_headers):
+        etag = header.get("etag")
+        if etag is None or etag == "":
+            raise ValueError(f"Invalid etag (`{etag}`) returned for part {part_number + 1}")
+        parts.append(
+            {
+                "partNumber": part_number + 1,
+                "etag": etag,
+            }
+        )
+    return {"oid": oid, "parts": parts}
+
+
+def _upload_parts_iteratively(
+    operation: "CommitOperationAdd", sorted_parts_urls: List[str], chunk_size: int
+) -> List[Dict]:
+    headers = []
+    with operation.as_file(with_tqdm=True) as fileobj:
+        for part_idx, part_upload_url in enumerate(sorted_parts_urls):
+            with SliceFileObj(
+                fileobj,
+                seek_from=chunk_size * part_idx,
+                read_limit=chunk_size,
+            ) as fileobj_slice:
+                part_upload_res = http_backoff("PUT", part_upload_url, data=fileobj_slice)
+                hf_raise_for_status(part_upload_res)
+                headers.append(part_upload_res.headers)
+    return headers  # type: ignore
+
+
+def _upload_parts_hf_transfer(
+    operation: "CommitOperationAdd", sorted_parts_urls: List[str], chunk_size: int
+) -> List[Dict]:
+    # Upload file using an external Rust-based package. Upload is faster but support less features (no progress bars).
+    try:
+        from hf_transfer import multipart_upload
+    except ImportError:
+        raise ValueError(
+            "Fast uploading using 'hf_transfer' is enabled (HF_HUB_ENABLE_HF_TRANSFER=1) but 'hf_transfer' package is"
+            " not available in your environment. Try `pip install hf_transfer`."
+        )
+
+    try:
+        return multipart_upload(
+            file_path=operation.path_or_fileobj,
+            parts_urls=sorted_parts_urls,
+            chunk_size=chunk_size,
+            max_files=128,
+            parallel_failures=127,  # could be removed
+            max_retries=5,
+        )
+    except Exception as e:
+        raise RuntimeError(
+            "An error occurred while uploading using `hf_transfer`. Consider disabling HF_HUB_ENABLE_HF_TRANSFER for"
+            " better error handling."
+        ) from e
+
+
+class SliceFileObj(AbstractContextManager):
+    """
+    Utility context manager to read a *slice* of a seekable file-like object as a seekable, file-like object.
+
+    This is NOT thread safe
+
+    Inspired by stackoverflow.com/a/29838711/593036
+
+    Credits to @julien-c
+
+    Args:
+        fileobj (`BinaryIO`):
+            A file-like object to slice. MUST implement `tell()` and `seek()` (and `read()` of course).
+            `fileobj` will be reset to its original position when exiting the context manager.
+        seek_from (`int`):
+            The start of the slice (offset from position 0 in bytes).
+        read_limit (`int`):
+            The maximum number of bytes to read from the slice.
+
+    Attributes:
+        previous_position (`int`):
+            The previous position
+
+    Examples:
+
+    Reading 200 bytes with an offset of 128 bytes from a file (ie bytes 128 to 327):
+    ```python
+    >>> with open("path/to/file", "rb") as file:
+    ...     with SliceFileObj(file, seek_from=128, read_limit=200) as fslice:
+    ...         fslice.read(...)
+    ```
+
+    Reading a file in chunks of 512 bytes
+    ```python
+    >>> import os
+    >>> chunk_size = 512
+    >>> file_size = os.getsize("path/to/file")
+    >>> with open("path/to/file", "rb") as file:
+    ...     for chunk_idx in range(ceil(file_size / chunk_size)):
+    ...         with SliceFileObj(file, seek_from=chunk_idx * chunk_size, read_limit=chunk_size) as fslice:
+    ...             chunk = fslice.read(...)
+
+    ```
+    """
+
+    def __init__(self, fileobj: BinaryIO, seek_from: int, read_limit: int):
+        self.fileobj = fileobj
+        self.seek_from = seek_from
+        self.read_limit = read_limit
+
+    def __enter__(self):
+        self._previous_position = self.fileobj.tell()
+        end_of_stream = self.fileobj.seek(0, os.SEEK_END)
+        self._len = min(self.read_limit, end_of_stream - self.seek_from)
+        # ^^ The actual number of bytes that can be read from the slice
+        self.fileobj.seek(self.seek_from, io.SEEK_SET)
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.fileobj.seek(self._previous_position, io.SEEK_SET)
+
+    def read(self, n: int = -1):
+        pos = self.tell()
+        if pos >= self._len:
+            return b""
+        remaining_amount = self._len - pos
+        data = self.fileobj.read(remaining_amount if n < 0 else min(n, remaining_amount))
+        return data
+
+    def tell(self) -> int:
+        return self.fileobj.tell() - self.seek_from
+
+    def seek(self, offset: int, whence: int = os.SEEK_SET) -> int:
+        start = self.seek_from
+        end = start + self._len
+        if whence in (os.SEEK_SET, os.SEEK_END):
+            offset = start + offset if whence == os.SEEK_SET else end + offset
+            offset = max(start, min(offset, end))
+            whence = os.SEEK_SET
+        elif whence == os.SEEK_CUR:
+            cur_pos = self.fileobj.tell()
+            offset = max(start - cur_pos, min(offset, end - cur_pos))
+        else:
+            raise ValueError(f"whence value {whence} is not supported")
+        return self.fileobj.seek(offset, whence) - self.seek_from
+
+    def __iter__(self):
+        yield self.read(n=4 * 1024 * 1024)
+
+----
+src/huggingface_hub/repocard.py
+import os
+import re
+from pathlib import Path
+from typing import Any, Dict, Optional, Type, Union
+
+import requests
+import yaml
+
+from huggingface_hub.file_download import hf_hub_download
+from huggingface_hub.hf_api import upload_file
+from huggingface_hub.repocard_data import (
+    CardData,
+    DatasetCardData,
+    EvalResult,
+    ModelCardData,
+    SpaceCardData,
+    eval_results_to_model_index,
+    model_index_to_eval_results,
+)
+from huggingface_hub.utils import get_session, is_jinja_available, yaml_dump
+
+from .constants import REPOCARD_NAME
+from .utils import EntryNotFoundError, SoftTemporaryDirectory, validate_hf_hub_args
+from .utils._typing import Literal
+from .utils.logging import get_logger
+
+
+TEMPLATE_MODELCARD_PATH = Path(__file__).parent / "templates" / "modelcard_template.md"
+TEMPLATE_DATASETCARD_PATH = Path(__file__).parent / "templates" / "datasetcard_template.md"
+
+# exact same regex as in the Hub server. Please keep in sync.
+# See https://github.com/huggingface/moon-landing/blob/main/server/lib/ViewMarkdown.ts#L18
+REGEX_YAML_BLOCK = re.compile(r"^(\s*---[\r\n]+)([\S\s]*?)([\r\n]+---(\r\n|\n|$))")
+
+logger = get_logger(__name__)
+
+
+class RepoCard:
+    card_data_class = CardData
+    default_template_path = TEMPLATE_MODELCARD_PATH
+    repo_type = "model"
+
+    def __init__(self, content: str, ignore_metadata_errors: bool = False):
+        """Initialize a RepoCard from string content. The content should be a
+        Markdown file with a YAML block at the beginning and a Markdown body.
+
+        Args:
+            content (`str`): The content of the Markdown file.
+
+        Example:
+            ```python
+            >>> from huggingface_hub.repocard import RepoCard
+            >>> text = '''
+            ... ---
+            ... language: en
+            ... license: mit
+            ... ---
+            ...
+            ... # My repo
+            ... '''
+            >>> card = RepoCard(text)
+            >>> card.data.to_dict()
+            {'language': 'en', 'license': 'mit'}
+            >>> card.text
+            '\\n# My repo\\n'
+
+            ```
+        <Tip>
+        Raises the following error:
+
+            - [`ValueError`](https://docs.python.org/3/library/exceptions.html#ValueError)
+              when the content of the repo card metadata is not a dictionary.
+
+        </Tip>
+        """
+
+        # Set the content of the RepoCard, as well as underlying .data and .text attributes.
+        # See the `content` property setter for more details.
+        self.ignore_metadata_errors = ignore_metadata_errors
+        self.content = content
+
+    @property
+    def content(self):
+        """The content of the RepoCard, including the YAML block and the Markdown body."""
+        line_break = _detect_line_ending(self._content) or "\n"
+        return f"---{line_break}{self.data.to_yaml(line_break=line_break)}{line_break}---{line_break}{self.text}"
+
+    @content.setter
+    def content(self, content: str):
+        """Set the content of the RepoCard."""
+        self._content = content
+
+        match = REGEX_YAML_BLOCK.search(content)
+        if match:
+            # Metadata found in the YAML block
+            yaml_block = match.group(2)
+            self.text = content[match.end() :]
+            data_dict = yaml.safe_load(yaml_block)
+
+            # The YAML block's data should be a dictionary
+            if not isinstance(data_dict, dict):
+                raise ValueError("repo card metadata block should be a dict")
+        else:
+            # Model card without metadata... create empty metadata
+            logger.warning("Repo card metadata block was not found. Setting CardData to empty.")
+            data_dict = {}
+            self.text = content
+
+        self.data = self.card_data_class(**data_dict, ignore_metadata_errors=self.ignore_metadata_errors)
+
+    def __str__(self):
+        return self.content
+
+    def save(self, filepath: Union[Path, str]):
+        r"""Save a RepoCard to a file.
+
+        Args:
+            filepath (`Union[Path, str]`): Filepath to the markdown file to save.
+
+        Example:
+            ```python
+            >>> from huggingface_hub.repocard import RepoCard
+            >>> card = RepoCard("---\nlanguage: en\n---\n# This is a test repo card")
+            >>> card.save("/tmp/test.md")
+
+            ```
+        """
+        filepath = Path(filepath)
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        # Preserve newlines as in the existing file.
+        with open(filepath, mode="w", newline="", encoding="utf-8") as f:
+            f.write(str(self))
+
+    @classmethod
+    def load(
+        cls,
+        repo_id_or_path: Union[str, Path],
+        repo_type: Optional[str] = None,
+        token: Optional[str] = None,
+        ignore_metadata_errors: bool = False,
+    ):
+        """Initialize a RepoCard from a Hugging Face Hub repo's README.md or a local filepath.
+
+        Args:
+            repo_id_or_path (`Union[str, Path]`):
+                The repo ID associated with a Hugging Face Hub repo or a local filepath.
+            repo_type (`str`, *optional*):
+                The type of Hugging Face repo to push to. Defaults to None, which will use use "model". Other options
+                are "dataset" and "space". Not used when loading from a local filepath. If this is called from a child
+                class, the default value will be the child class's `repo_type`.
+            token (`str`, *optional*):
+                Authentication token, obtained with `huggingface_hub.HfApi.login` method. Will default to the stored token.
+            ignore_metadata_errors (`str`):
+                If True, errors while parsing the metadata section will be ignored. Some information might be lost during
+                the process. Use it at your own risk.
+
+        Returns:
+            [`huggingface_hub.repocard.RepoCard`]: The RepoCard (or subclass) initialized from the repo's
+                README.md file or filepath.
+
+        Example:
+            ```python
+            >>> from huggingface_hub.repocard import RepoCard
+            >>> card = RepoCard.load("nateraw/food")
+            >>> assert card.data.tags == ["generated_from_trainer", "image-classification", "pytorch"]
+
+            ```
+        """
+
+        if Path(repo_id_or_path).exists():
+            card_path = Path(repo_id_or_path)
+        elif isinstance(repo_id_or_path, str):
+            card_path = Path(
+                hf_hub_download(
+                    repo_id_or_path,
+                    REPOCARD_NAME,
+                    repo_type=repo_type or cls.repo_type,
+                    token=token,
+                )
+            )
+        else:
+            raise ValueError(f"Cannot load RepoCard: path not found on disk ({repo_id_or_path}).")
+
+        # Preserve newlines in the existing file.
+        with card_path.open(mode="r", newline="", encoding="utf-8") as f:
+            return cls(f.read(), ignore_metadata_errors=ignore_metadata_errors)
+
+    def validate(self, repo_type: Optional[str] = None):
+        """Validates card against Hugging Face Hub's card validation logic.
+        Using this function requires access to the internet, so it is only called
+        internally by [`huggingface_hub.repocard.RepoCard.push_to_hub`].
+
+        Args:
+            repo_type (`str`, *optional*, defaults to "model"):
+                The type of Hugging Face repo to push to. Options are "model", "dataset", and "space".
+                If this function is called from a child class, the default will be the child class's `repo_type`.
+
+        <Tip>
+        Raises the following errors:
+
+            - [`ValueError`](https://docs.python.org/3/library/exceptions.html#ValueError)
+              if the card fails validation checks.
+            - [`HTTPError`](https://2.python-requests.org/en/master/api/#requests.HTTPError)
+              if the request to the Hub API fails for any other reason.
+
+        </Tip>
+        """
+
+        # If repo type is provided, otherwise, use the repo type of the card.
+        repo_type = repo_type or self.repo_type
+
+        body = {
+            "repoType": repo_type,
+            "content": str(self),
+        }
+        headers = {"Accept": "text/plain"}
+
+        try:
+            r = get_session().post("https://huggingface.co/api/validate-yaml", body, headers=headers)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as exc:
+            if r.status_code == 400:
+                raise ValueError(r.text)
+            else:
+                raise exc
+
+    def push_to_hub(
+        self,
+        repo_id: str,
+        token: Optional[str] = None,
+        repo_type: Optional[str] = None,
+        commit_message: Optional[str] = None,
+        commit_description: Optional[str] = None,
+        revision: Optional[str] = None,
+        create_pr: Optional[bool] = None,
+        parent_commit: Optional[str] = None,
+    ):
+        """Push a RepoCard to a Hugging Face Hub repo.
+
+        Args:
+            repo_id (`str`):
+                The repo ID of the Hugging Face Hub repo to push to. Example: "nateraw/food".
+            token (`str`, *optional*):
+                Authentication token, obtained with `huggingface_hub.HfApi.login` method. Will default to
+                the stored token.
+            repo_type (`str`, *optional*, defaults to "model"):
+                The type of Hugging Face repo to push to. Options are "model", "dataset", and "space". If this
+                function is called by a child class, it will default to the child class's `repo_type`.
+            commit_message (`str`, *optional*):
+                The summary / title / first line of the generated commit.
+            commit_description (`str`, *optional*)
+                The description of the generated commit.
+            revision (`str`, *optional*):
+                The git revision to commit from. Defaults to the head of the `"main"` branch.
+            create_pr (`bool`, *optional*):
+                Whether or not to create a Pull Request with this commit. Defaults to `False`.
+            parent_commit (`str`, *optional*):
+                The OID / SHA of the parent commit, as a hexadecimal string. Shorthands (7 first characters) are also supported.
+                If specified and `create_pr` is `False`, the commit will fail if `revision` does not point to `parent_commit`.
+                If specified and `create_pr` is `True`, the pull request will be created from `parent_commit`.
+                Specifying `parent_commit` ensures the repo has not changed before committing the changes, and can be
+                especially useful if the repo is updated / committed to concurrently.
+        Returns:
+            `str`: URL of the commit which updated the card metadata.
+        """
+
+        # If repo type is provided, otherwise, use the repo type of the card.
+        repo_type = repo_type or self.repo_type
+
+        # Validate card before pushing to hub
+        self.validate(repo_type=repo_type)
+
+        with SoftTemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir) / REPOCARD_NAME
+            tmp_path.write_text(str(self))
+            url = upload_file(
+                path_or_fileobj=str(tmp_path),
+                path_in_repo=REPOCARD_NAME,
+                repo_id=repo_id,
+                token=token,
+                repo_type=repo_type,
+                commit_message=commit_message,
+                commit_description=commit_description,
+                create_pr=create_pr,
+                revision=revision,
+                parent_commit=parent_commit,
+            )
+        return url
+
+    @classmethod
+    def from_template(
+        cls,
+        card_data: CardData,
+        template_path: Optional[str] = None,
+        **template_kwargs,
+    ):
+        """Initialize a RepoCard from a template. By default, it uses the default template.
+
+        Templates are Jinja2 templates that can be customized by passing keyword arguments.
+
+        Args:
+            card_data (`huggingface_hub.CardData`):
+                A huggingface_hub.CardData instance containing the metadata you want to include in the YAML
+                header of the repo card on the Hugging Face Hub.
+            template_path (`str`, *optional*):
+                A path to a markdown file with optional Jinja template variables that can be filled
+                in with `template_kwargs`. Defaults to the default template.
+
+        Returns:
+            [`huggingface_hub.repocard.RepoCard`]: A RepoCard instance with the specified card data and content from the
+            template.
+        """
+        if is_jinja_available():
+            import jinja2
+        else:
+            raise ImportError(
+                "Using RepoCard.from_template requires Jinja2 to be installed. Please"
+                " install it with `pip install Jinja2`."
+            )
+
+        kwargs = card_data.to_dict().copy()
+        kwargs.update(template_kwargs)  # Template_kwargs have priority
+        template = jinja2.Template(Path(template_path or cls.default_template_path).read_text())
+        content = template.render(card_data=card_data.to_yaml(), **kwargs)
+        return cls(content)
+
+
+class ModelCard(RepoCard):
+    card_data_class = ModelCardData
+    default_template_path = TEMPLATE_MODELCARD_PATH
+    repo_type = "model"
+
+    @classmethod
+    def from_template(  # type: ignore # violates Liskov property but easier to use
+        cls,
+        card_data: ModelCardData,
+        template_path: Optional[str] = None,
+        **template_kwargs,
+    ):
+        """Initialize a ModelCard from a template. By default, it uses the default template, which can be found here:
+        https://github.com/huggingface/huggingface_hub/blob/main/src/huggingface_hub/templates/modelcard_template.md
+
+        Templates are Jinja2 templates that can be customized by passing keyword arguments.
+
+        Args:
+            card_data (`huggingface_hub.ModelCardData`):
+                A huggingface_hub.ModelCardData instance containing the metadata you want to include in the YAML
+                header of the model card on the Hugging Face Hub.
+            template_path (`str`, *optional*):
+                A path to a markdown file with optional Jinja template variables that can be filled
+                in with `template_kwargs`. Defaults to the default template.
+
+        Returns:
+            [`huggingface_hub.ModelCard`]: A ModelCard instance with the specified card data and content from the
+            template.
+
+        Example:
+            ```python
+            >>> from huggingface_hub import ModelCard, ModelCardData, EvalResult
+
+            >>> # Using the Default Template
+            >>> card_data = ModelCardData(
+            ...     language='en',
+            ...     license='mit',
+            ...     library_name='timm',
+            ...     tags=['image-classification', 'resnet'],
+            ...     datasets=['beans'],
+            ...     metrics=['accuracy'],
+            ... )
+            >>> card = ModelCard.from_template(
+            ...     card_data,
+            ...     model_description='This model does x + y...'
+            ... )
+
+            >>> # Including Evaluation Results
+            >>> card_data = ModelCardData(
+            ...     language='en',
+            ...     tags=['image-classification', 'resnet'],
+            ...     eval_results=[
+            ...         EvalResult(
+            ...             task_type='image-classification',
+            ...             dataset_type='beans',
+            ...             dataset_name='Beans',
+            ...             metric_type='accuracy',
+            ...             metric_value=0.9,
+            ...         ),
+            ...     ],
+            ...     model_name='my-cool-model',
+            ... )
+            >>> card = ModelCard.from_template(card_data)
+
+            >>> # Using a Custom Template
+            >>> card_data = ModelCardData(
+            ...     language='en',
+            ...     tags=['image-classification', 'resnet']
+            ... )
+            >>> card = ModelCard.from_template(
+            ...     card_data=card_data,
+            ...     template_path='./src/huggingface_hub/templates/modelcard_template.md',
+            ...     custom_template_var='custom value',  # will be replaced in template if it exists
+            ... )
+
+            ```
+        """
+        return super().from_template(card_data, template_path, **template_kwargs)
+
+
+class DatasetCard(RepoCard):
+    card_data_class = DatasetCardData
+    default_template_path = TEMPLATE_DATASETCARD_PATH
+    repo_type = "dataset"
+
+    @classmethod
+    def from_template(  # type: ignore # violates Liskov property but easier to use
+        cls,
+        card_data: DatasetCardData,
+        template_path: Optional[str] = None,
+        **template_kwargs,
+    ):
+        """Initialize a DatasetCard from a template. By default, it uses the default template, which can be found here:
+        https://github.com/huggingface/huggingface_hub/blob/main/src/huggingface_hub/templates/datasetcard_template.md
+
+        Templates are Jinja2 templates that can be customized by passing keyword arguments.
+
+        Args:
+            card_data (`huggingface_hub.DatasetCardData`):
+                A huggingface_hub.DatasetCardData instance containing the metadata you want to include in the YAML
+                header of the dataset card on the Hugging Face Hub.
+            template_path (`str`, *optional*):
+                A path to a markdown file with optional Jinja template variables that can be filled
+                in with `template_kwargs`. Defaults to the default template.
+
+        Returns:
+            [`huggingface_hub.DatasetCard`]: A DatasetCard instance with the specified card data and content from the
+            template.
+
+        Example:
+            ```python
+            >>> from huggingface_hub import DatasetCard, DatasetCardData
+
+            >>> # Using the Default Template
+            >>> card_data = DatasetCardData(
+            ...     language='en',
+            ...     license='mit',
+            ...     annotations_creators='crowdsourced',
+            ...     task_categories=['text-classification'],
+            ...     task_ids=['sentiment-classification', 'text-scoring'],
+            ...     multilinguality='monolingual',
+            ...     pretty_name='My Text Classification Dataset',
+            ... )
+            >>> card = DatasetCard.from_template(
+            ...     card_data,
+            ...     pretty_name=card_data.pretty_name,
+            ... )
+
+            >>> # Using a Custom Template
+            >>> card_data = DatasetCardData(
+            ...     language='en',
+            ...     license='mit',
+            ... )
+            >>> card = DatasetCard.from_template(
+            ...     card_data=card_data,
+            ...     template_path='./src/huggingface_hub/templates/datasetcard_template.md',
+            ...     custom_template_var='custom value',  # will be replaced in template if it exists
+            ... )
+
+            ```
+        """
+        return super().from_template(card_data, template_path, **template_kwargs)
+
+
+class SpaceCard(RepoCard):
+    card_data_class = SpaceCardData
+    default_template_path = TEMPLATE_MODELCARD_PATH
+    repo_type = "space"
+
+
+def _detect_line_ending(content: str) -> Literal["\r", "\n", "\r\n", None]:  # noqa: F722
+    """Detect the line ending of a string. Used by RepoCard to avoid making huge diff on newlines.
+
+    Uses same implementation as in Hub server, keep it in sync.
+
+    Returns:
+        str: The detected line ending of the string.
+    """
+    cr = content.count("\r")
+    lf = content.count("\n")
+    crlf = content.count("\r\n")
+    if cr + lf == 0:
+        return None
+    if crlf == cr and crlf == lf:
+        return "\r\n"
+    if cr > lf:
+        return "\r"
+    else:
+        return "\n"
+
+
+def metadata_load(local_path: Union[str, Path]) -> Optional[Dict]:
+    content = Path(local_path).read_text()
+    match = REGEX_YAML_BLOCK.search(content)
+    if match:
+        yaml_block = match.group(2)
+        data = yaml.safe_load(yaml_block)
+        if isinstance(data, dict):
+            return data
+        else:
+            raise ValueError("repo card metadata block should be a dict")
+    else:
+        return None
+
+
+def metadata_save(local_path: Union[str, Path], data: Dict) -> None:
+    """
+    Save the metadata dict in the upper YAML part Trying to preserve newlines as
+    in the existing file. Docs about open() with newline="" parameter:
+    https://docs.python.org/3/library/functions.html?highlight=open#open Does
+    not work with "^M" linebreaks, which are replaced by \n
+    """
+    line_break = "\n"
+    content = ""
+    # try to detect existing newline character
+    if os.path.exists(local_path):
+        with open(local_path, "r", newline="", encoding="utf8") as readme:
+            content = readme.read()
+            if isinstance(readme.newlines, tuple):
+                line_break = readme.newlines[0]
+            elif isinstance(readme.newlines, str):
+                line_break = readme.newlines
+
+    # creates a new file if it not
+    with open(local_path, "w", newline="", encoding="utf8") as readme:
+        data_yaml = yaml_dump(data, sort_keys=False, line_break=line_break)
+        # sort_keys: keep dict order
+        match = REGEX_YAML_BLOCK.search(content)
+        if match:
+            output = content[: match.start()] + f"---{line_break}{data_yaml}---{line_break}" + content[match.end() :]
+        else:
+            output = f"---{line_break}{data_yaml}---{line_break}{content}"
+
+        readme.write(output)
+        readme.close()
+
+
+def metadata_eval_result(
+    *,
+    model_pretty_name: str,
+    task_pretty_name: str,
+    task_id: str,
+    metrics_pretty_name: str,
+    metrics_id: str,
+    metrics_value: Any,
+    dataset_pretty_name: str,
+    dataset_id: str,
+    metrics_config: Optional[str] = None,
+    metrics_verified: bool = False,
+    dataset_config: Optional[str] = None,
+    dataset_split: Optional[str] = None,
+    dataset_revision: Optional[str] = None,
+    metrics_verification_token: Optional[str] = None,
+) -> Dict:
+    """
+    Creates a metadata dict with the result from a model evaluated on a dataset.
+
+    Args:
+        model_pretty_name (`str`):
+            The name of the model in natural language.
+        task_pretty_name (`str`):
+            The name of a task in natural language.
+        task_id (`str`):
+            Example: automatic-speech-recognition. A task id.
+        metrics_pretty_name (`str`):
+            A name for the metric in natural language. Example: Test WER.
+        metrics_id (`str`):
+            Example: wer. A metric id from https://hf.co/metrics.
+        metrics_value (`Any`):
+            The value from the metric. Example: 20.0 or "20.0 Â± 1.2".
+        dataset_pretty_name (`str`):
+            The name of the dataset in natural language.
+        dataset_id (`str`):
+            Example: common_voice. A dataset id from https://hf.co/datasets.
+        metrics_config (`str`, *optional*):
+            The name of the metric configuration used in `load_metric()`.
+            Example: bleurt-large-512 in `load_metric("bleurt", "bleurt-large-512")`.
+        metrics_verified (`bool`, *optional*, defaults to `False`):
+            Indicates whether the metrics originate from Hugging Face's [evaluation service](https://huggingface.co/spaces/autoevaluate/model-evaluator) or not. Automatically computed by Hugging Face, do not set.
+        dataset_config (`str`, *optional*):
+            Example: fr. The name of the dataset configuration used in `load_dataset()`.
+        dataset_split (`str`, *optional*):
+            Example: test. The name of the dataset split used in `load_dataset()`.
+        dataset_revision (`str`, *optional*):
+            Example: 5503434ddd753f426f4b38109466949a1217c2bb. The name of the dataset dataset revision
+            used in `load_dataset()`.
+        metrics_verification_token (`bool`, *optional*):
+            A JSON Web Token that is used to verify whether the metrics originate from Hugging Face's [evaluation service](https://huggingface.co/spaces/autoevaluate/model-evaluator) or not.
+
+    Returns:
+        `dict`: a metadata dict with the result from a model evaluated on a dataset.
+
+    Example:
+        ```python
+        >>> from huggingface_hub import metadata_eval_result
+        >>> results = metadata_eval_result(
+        ...         model_pretty_name="RoBERTa fine-tuned on ReactionGIF",
+        ...         task_pretty_name="Text Classification",
+        ...         task_id="text-classification",
+        ...         metrics_pretty_name="Accuracy",
+        ...         metrics_id="accuracy",
+        ...         metrics_value=0.2662102282047272,
+        ...         dataset_pretty_name="ReactionJPEG",
+        ...         dataset_id="julien-c/reactionjpeg",
+        ...         dataset_config="default",
+        ...         dataset_split="test",
+        ... )
+        >>> results == {
+        ...     'model-index': [
+        ...         {
+        ...             'name': 'RoBERTa fine-tuned on ReactionGIF',
+        ...             'results': [
+        ...                 {
+        ...                     'task': {
+        ...                         'type': 'text-classification',
+        ...                         'name': 'Text Classification'
+        ...                     },
+        ...                     'dataset': {
+        ...                         'name': 'ReactionJPEG',
+        ...                         'type': 'julien-c/reactionjpeg',
+        ...                         'config': 'default',
+        ...                         'split': 'test'
+        ...                     },
+        ...                     'metrics': [
+        ...                         {
+        ...                             'type': 'accuracy',
+        ...                             'value': 0.2662102282047272,
+        ...                             'name': 'Accuracy',
+        ...                             'verified': False
+        ...                         }
+        ...                     ]
+        ...                 }
+        ...             ]
+        ...         }
+        ...     ]
+        ... }
+        True
+
+        ```
+    """
+
+    return {
+        "model-index": eval_results_to_model_index(
+            model_name=model_pretty_name,
+            eval_results=[
+                EvalResult(
+                    task_name=task_pretty_name,
+                    task_type=task_id,
+                    metric_name=metrics_pretty_name,
+                    metric_type=metrics_id,
+                    metric_value=metrics_value,
+                    dataset_name=dataset_pretty_name,
+                    dataset_type=dataset_id,
+                    metric_config=metrics_config,
+                    verified=metrics_verified,
+                    verify_token=metrics_verification_token,
+                    dataset_config=dataset_config,
+                    dataset_split=dataset_split,
+                    dataset_revision=dataset_revision,
+                )
+            ],
+        )
+    }
+
+
+@validate_hf_hub_args
+def metadata_update(
+    repo_id: str,
+    metadata: Dict,
+    *,
+    repo_type: Optional[str] = None,
+    overwrite: bool = False,
+    token: Optional[str] = None,
+    commit_message: Optional[str] = None,
+    commit_description: Optional[str] = None,
+    revision: Optional[str] = None,
+    create_pr: bool = False,
+    parent_commit: Optional[str] = None,
+) -> str:
+    """
+    Updates the metadata in the README.md of a repository on the Hugging Face Hub.
+    If the README.md file doesn't exist yet, a new one is created with metadata and an
+    the default ModelCard or DatasetCard template. For `space` repo, an error is thrown
+    as a Space cannot exist without a `README.md` file.
+
+    Args:
+        repo_id (`str`):
+            The name of the repository.
+        metadata (`dict`):
+            A dictionary containing the metadata to be updated.
+        repo_type (`str`, *optional*):
+            Set to `"dataset"` or `"space"` if updating to a dataset or space,
+            `None` or `"model"` if updating to a model. Default is `None`.
+        overwrite (`bool`, *optional*, defaults to `False`):
+            If set to `True` an existing field can be overwritten, otherwise
+            attempting to overwrite an existing field will cause an error.
+        token (`str`, *optional*):
+            The Hugging Face authentication token.
+        commit_message (`str`, *optional*):
+            The summary / title / first line of the generated commit. Defaults to
+            `f"Update metadata with huggingface_hub"`
+        commit_description (`str` *optional*)
+            The description of the generated commit
+        revision (`str`, *optional*):
+            The git revision to commit from. Defaults to the head of the
+            `"main"` branch.
+        create_pr (`boolean`, *optional*):
+            Whether or not to create a Pull Request from `revision` with that commit.
+            Defaults to `False`.
+        parent_commit (`str`, *optional*):
+            The OID / SHA of the parent commit, as a hexadecimal string. Shorthands (7 first characters) are also supported.
+            If specified and `create_pr` is `False`, the commit will fail if `revision` does not point to `parent_commit`.
+            If specified and `create_pr` is `True`, the pull request will be created from `parent_commit`.
+            Specifying `parent_commit` ensures the repo has not changed before committing the changes, and can be
+            especially useful if the repo is updated / committed to concurrently.
+    Returns:
+        `str`: URL of the commit which updated the card metadata.
+
+    Example:
+        ```python
+        >>> from huggingface_hub import metadata_update
+        >>> metadata = {'model-index': [{'name': 'RoBERTa fine-tuned on ReactionGIF',
+        ...             'results': [{'datase
