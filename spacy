@@ -1,0 +1,2459 @@
+The following text is a Git repository with code. The structure of the text are sections that begin with ----, followed by a single line containing the file path and file name, followed by a variable amount of lines containing the file contents. The text representing the Git repository ends when the symbols --END-- are encounted. Any further text beyond --END-- are meant to be interpreted as instructions using the aforementioned Git repository as context.
+----
+.pre-commit-config.yaml
+repos:
+-   repo: https://github.com/ambv/black
+    rev: 22.3.0
+    hooks:
+    - id: black
+      language_version: python3.7
+      additional_dependencies: ['click==8.0.4']
+-   repo: https://github.com/pycqa/flake8
+    rev: 5.0.4
+    hooks:
+    - id: flake8
+      args:
+        - "--config=setup.cfg"
+
+----
+build-constraints.txt
+# build version constraints for use with wheelwright + multibuild
+numpy==1.15.0; python_version<='3.7' and platform_machine!='aarch64'
+numpy==1.19.2; python_version<='3.7' and platform_machine=='aarch64'
+numpy==1.17.3; python_version=='3.8' and platform_machine!='aarch64'
+numpy==1.19.2; python_version=='3.8' and platform_machine=='aarch64'
+numpy==1.19.3; python_version=='3.9'
+numpy==1.21.3; python_version=='3.10'
+numpy==1.23.2; python_version=='3.11'
+numpy; python_version>='3.12'
+
+----
+CITATION.cff
+cff-version: 1.2.0
+preferred-citation:
+  type: article
+  message: "If you use spaCy, please cite it as below."
+  authors:
+  - family-names: "Honnibal"
+    given-names: "Matthew"
+  - family-names: "Montani"
+    given-names: "Ines"
+  - family-names: "Van Landeghem"
+    given-names: "Sofie"
+  - family-names: "Boyd"
+    given-names: "Adriane"
+  title: "spaCy: Industrial-strength Natural Language Processing in Python"
+  doi: "10.5281/zenodo.1212303"
+  year: 2020
+
+----
+CONTRIBUTING.md
+<a href="https://explosion.ai"><img src="https://explosion.ai/assets/img/logo.svg" width="125" height="125" align="right" /></a>
+
+# Contribute to spaCy
+
+Thanks for your interest in contributing to spaCy 🎉 This page will give you a quick
+overview of how things are organized and most importantly, how to get involved.
+
+## Table of contents
+
+1. [Issues and bug reports](#issues-and-bug-reports)
+2. [Contributing to the code base](#contributing-to-the-code-base)
+3. [Code conventions](#code-conventions)
+4. [Adding tests](#adding-tests)
+5. [Updating the website](#updating-the-website)
+6. [Publishing extensions and plugins](#publishing-spacy-extensions-and-plugins)
+7. [Code of conduct](#code-of-conduct)
+
+## Issues and bug reports
+
+First, [do a quick search](https://github.com/issues?q=+is%3Aissue+user%3Aexplosion)
+to see if the issue has already been reported. If so, it's often better to just
+leave a comment on an existing issue, rather than creating a new one. Old issues
+also often include helpful tips and solutions to common problems. You should
+also check the [troubleshooting guide](https://spacy.io/usage/#troubleshooting)
+to see if your problem is already listed there.
+
+If you're looking for help with your code, consider posting a question on the
+[GitHub Discussions board](https://github.com/explosion/spaCy/discussions) or
+[Stack Overflow](http://stackoverflow.com/questions/tagged/spacy). Please
+understand that we won't be able to provide individual support via email. We
+also believe that help is much more valuable if it's **shared publicly**,
+so that more people can benefit from it.
+
+### Submitting issues
+
+When opening an issue, use a **descriptive title** and include your
+**environment** (operating system, Python version, spaCy version). Our
+[issue template](https://github.com/explosion/spaCy/issues/new) helps you
+remember the most important details to include. If you've discovered a bug, you
+can also submit a [regression test](#fixing-bugs) straight away. When you're
+opening an issue to report the bug, simply refer to your pull request in the
+issue body. A few more tips:
+
+- **Describing your issue:** Try to provide as many details as possible. What
+  exactly goes wrong? _How_ is it failing? Is there an error?
+  "XY doesn't work" usually isn't that helpful for tracking down problems. Always
+  remember to include the code you ran and if possible, extract only the relevant
+  parts and don't just dump your entire script. This will make it easier for us to
+  reproduce the error.
+
+- **Getting info about your spaCy installation and environment:** You can use the command line interface to print details and
+  even format them as Markdown to copy-paste into GitHub issues:
+  `python -m spacy info --markdown`.
+
+- **Checking the model compatibility:** If you're having problems with a
+  [statistical model](https://spacy.io/models), it may be because the
+  model is incompatible with your spaCy installation. In spaCy v2.0+, you can check
+  this on the command line by running `python -m spacy validate`.
+
+- **Sharing a model's output, like dependencies and entities:** spaCy
+  comes with [built-in visualizers](https://spacy.io/usage/visualizers) that
+  you can run from within your script or a Jupyter notebook. For some issues, it's
+  helpful to **include a screenshot** of the visualization. You can simply drag and
+  drop the image into GitHub's editor and it will be uploaded and included.
+
+- **Sharing long blocks of code or logs:** If you need to include long code,
+  logs or tracebacks, you can wrap them in `<details>` and `</details>`. This
+  [collapses the content](https://developer.mozilla.org/en/docs/Web/HTML/Element/details)
+  so it only becomes visible on click, making the issue easier to read and follow.
+
+### Issue labels
+
+[See this page](https://github.com/explosion/spaCy/labels) for an overview of
+the system we use to tag our issues and pull requests.
+
+## Contributing to the code base
+
+You don't have to be an NLP expert or Python pro to contribute, and we're happy
+to help you get started. If you're new to spaCy, a good place to start is the
+[spaCy 101 guide](https://spacy.io/usage/spacy-101) and the
+[`help wanted (easy)`](https://github.com/explosion/spaCy/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted+%28easy%29%22)
+label, which we use to tag bugs and feature requests that are easy and
+self-contained. If you've decided to take on one of these problems and you're
+making good progress, don't forget to add a quick comment to the issue. You can
+also use the issue to ask questions, or share your work in progress.
+
+### What belongs in spaCy?
+
+Every library has a different inclusion philosophy — a policy of what should be
+shipped in the core library, and what could be provided in other packages. Our
+philosophy is to prefer a smaller core library. We generally ask the following
+questions:
+
+- **What would this feature look like if implemented in a separate package?**
+  Some features would be very difficult to implement externally – for example,
+  changes to spaCy's built-in methods. In contrast, a library of word
+  alignment functions could easily live as a separate package that depended on
+  spaCy — there's little difference between writing `import word_aligner` and
+  `import spacy.word_aligner`. spaCy makes it easy to implement
+  [custom pipeline components](https://spacy.io/usage/processing-pipelines#custom-components),
+  and add your own attributes, properties and methods to the `Doc`, `Token` and
+  `Span`. If you're looking to implement a new spaCy feature, starting with a
+  custom component package is usually the best strategy. You won't have to worry
+  about spaCy's internals and you can test your module in an isolated
+  environment. And if it works well, we can always integrate it into the core
+  library later.
+
+- **Would the feature be easier to implement if it relied on "heavy" dependencies spaCy doesn't currently require?**
+  Python has a very rich ecosystem. Libraries like PyTorch, TensorFlow, scikit-learn, SciPy or Gensim
+  do lots of useful things — but we don't want to have them as default
+  dependencies. If the feature requires functionality in one of these libraries,
+  it's probably better to break it out into a different package.
+
+- **Is the feature orthogonal to the current spaCy functionality, or overlapping?**
+  spaCy strongly prefers to avoid having 6 different ways of doing the same thing.
+  As better techniques are developed, we prefer to drop support for "the old way".
+  However, it's rare that one approach _entirely_ dominates another. It's very
+  common that there's still a use-case for the "obsolete" approach. For instance,
+  [WordNet](https://wordnet.princeton.edu/) is still very useful — but word
+  vectors are better for most use-cases, and the two approaches to lexical
+  semantics do a lot of the same things. spaCy therefore only supports word
+  vectors, and support for WordNet is currently left for other packages.
+
+- **Do you need the feature to get basic things done?** We do want spaCy to be
+  at least somewhat self-contained. If we keep needing some feature in our
+  recipes, that does provide some argument for bringing it "in house".
+
+### Getting started
+
+To make changes to spaCy's code base, you need to fork then clone the GitHub repository
+and build spaCy from source. You'll need to make sure that you have a
+development environment consisting of a Python distribution including header
+files, a compiler, [pip](https://pip.pypa.io/en/latest/installing/),
+[virtualenv](https://virtualenv.pypa.io/en/stable/) and
+[git](https://git-scm.com) installed. The compiler is usually the trickiest part.
+
+If you've made changes to `.pyx` files, you need to **recompile spaCy** before you
+can test your changes by re-running `python setup.py build_ext --inplace`.
+Changes to `.py` files will be effective immediately.
+
+📖 **For more details and instructions, see the documentation on [compiling spaCy from source](https://spacy.io/usage/#source) and the [quickstart widget](https://spacy.io/usage/#section-quickstart) to get the right commands for your platform and Python version.**
+
+### Fixing bugs
+
+When fixing a bug, first create an
+[issue](https://github.com/explosion/spaCy/issues) if one does not already
+exist. The description text can be very short – we don't want to make this too
+bureaucratic.
+
+Next, add a test to the relevant file in the
+[`spacy/tests`](spacy/tests)folder. Then add a [pytest
+mark](https://docs.pytest.org/en/6.2.x/example/markers.html#working-with-custom-markers),
+`@pytest.mark.issue(NUMBER)`, to reference the issue number.
+
+```python
+# Assume you're fixing Issue #1234
+@pytest.mark.issue(1234)
+def test_issue1234():
+    ...
+```
+
+Test for the bug you're fixing, and make sure the test fails. Next, add and
+commit your test file. Finally, fix the bug, make sure your test passes and
+reference the issue number in your pull request description.
+
+📖 **For more information on how to add tests, check out the [tests README](spacy/tests/README.md).**
+
+## Code conventions
+
+Code should loosely follow [pep8](https://www.python.org/dev/peps/pep-0008/).
+spaCy uses [`black`](https://github.com/ambv/black) for code
+formatting and [`flake8`](http://flake8.pycqa.org/en/latest/) for linting its
+Python modules. If you've built spaCy from source, you'll already have both
+tools installed.
+
+As a general rule of thumb, we use f-strings for any formatting of strings.
+One exception are calls to Python's `logging` functionality.
+To avoid unnecessary string conversions in these cases, we use string formatting
+templates with `%s` and `%d` etc.
+
+**⚠  Note that formatting and linting is currently only possible for Python
+modules in `.py` files, not Cython modules in `.pyx` and `.pxd` files.**
+
+### Pre-Commit Hooks
+
+After cloning the repo, after installing the packages from `requirements.txt`, enter the repo folder and run `pre-commit install`.
+Each time a `git commit` is initiated, `black` and `flake8` will run automatically on the modified files only.
+
+In case of error, or when `black` modified a file, the modified file needs to be `git add` once again and a new
+`git commit` has to be issued.
+
+### Code formatting
+
+[`black`](https://github.com/ambv/black) is an opinionated Python code
+formatter, optimized to produce readable code and small diffs. You can run
+`black` from the command-line, or via your code editor. For example, if you're
+using [Visual Studio Code](https://code.visualstudio.com/), you can add the
+following to your `settings.json` to use `black` for formatting and auto-format
+your files on save:
+
+```json
+{
+  "python.formatting.provider": "black",
+  "[python]": {
+    "editor.formatOnSave": true
+  }
+}
+```
+
+[See here](https://github.com/ambv/black#editor-integration) for the full
+list of available editor integrations.
+
+#### Disabling formatting
+
+There are a few cases where auto-formatting doesn't improve readability – for
+example, in some of the language data files or in the tests that construct `Doc` objects from lists of words and other labels.
+Wrapping a block in `# fmt: off` and `# fmt: on` lets you disable formatting
+for that particular code. Here's an example:
+
+```python
+# fmt: off
+text = "I look forward to using Thingamajig.  I've been told it will make my life easier..."
+heads = [1, 1, 1, 1, 3, 4, 1, 6, 11, 11, 11, 11, 14, 14, 11, 16, 17, 14, 11]
+deps = ["nsubj", "ROOT", "advmod", "prep", "pcomp", "dobj", "punct", "",
+        "nsubjpass", "aux", "auxpass", "ROOT", "nsubj", "aux", "ccomp",
+        "poss", "nsubj", "ccomp", "punct"]
+# fmt: on
+```
+
+### Code linting
+
+[`flake8`](http://flake8.pycqa.org/en/latest/) is a tool for enforcing code
+style. It scans one or more files and outputs errors and warnings. This feedback
+can help you stick to general standards and conventions, and can be very useful
+for spotting potential mistakes and inconsistencies in your code. The most
+important things to watch out for are syntax errors and undefined names, but you
+also want to keep an eye on unused declared variables or repeated
+(i.e. overwritten) dictionary keys. If your code was formatted with `black`
+(see above), you shouldn't see any formatting-related warnings.
+
+The `flake8` section in [`setup.cfg`](setup.cfg) defines the configuration we use for this
+codebase. For example, we're not super strict about the line length, and we're
+excluding very large files like lemmatization and tokenizer exception tables.
+
+Ideally, running the following command from within the repo directory should
+not return any errors or warnings:
+
+```bash
+flake8 spacy
+```
+
+#### Disabling linting
+
+Sometimes, you explicitly want to write code that's not compatible with our
+rules. For example, a module's `__init__.py` might import a function so other
+modules can import it from there, but `flake8` will complain about an unused
+import. And although it's generally discouraged, there might be cases where it
+makes sense to use a bare `except`.
+
+To ignore a given line, you can add a comment like `# noqa: F401`, specifying
+the code of the error or warning we want to ignore. It's also possible to
+ignore several comma-separated codes at once, e.g. `# noqa: E731,E123`. Here
+are some examples:
+
+```python
+# The imported class isn't used in this file, but imported here, so it can be
+# imported *from* here by another module.
+from .submodule import SomeClass  # noqa: F401
+
+try:
+    do_something()
+except:  # noqa: E722
+    # This bare except is justified, for some specific reason
+    do_something_else()
+```
+
+### Python conventions
+
+All Python code must be written **compatible with Python 3.6+**. More detailed
+code conventions can be found in the [developer docs](https://github.com/explosion/spaCy/blob/master/extra/DEVELOPER_DOCS/Code%20Conventions.md).
+
+#### I/O and handling paths
+
+Code that interacts with the file-system should accept objects that follow the
+`pathlib.Path` API, without assuming that the object inherits from `pathlib.Path`.
+If the function is user-facing and takes a path as an argument, it should check
+whether the path is provided as a string. Strings should be converted to
+`pathlib.Path` objects. Serialization and deserialization functions should always
+accept **file-like objects**, as it makes the library IO-agnostic. Working on
+buffers makes the code more general, easier to test, and compatible with Python
+3's asynchronous IO.
+
+#### Composition vs. inheritance
+
+Although spaCy uses a lot of classes, **inheritance is viewed with some suspicion**
+— it's seen as a mechanism of last resort. You should discuss plans to extend
+the class hierarchy before implementing.
+
+#### Naming conventions
+
+We have a number of conventions around variable naming that are still being
+documented, and aren't 100% strict. A general policy is that instances of the
+class `Doc` should by default be called `doc`, `Token` &rarr; `token`, `Lexeme` &rarr; `lex`,
+`Vocab` &rarr; `vocab` and `Language` &rarr; `nlp`. You should avoid naming variables that are
+of other types these names. For instance, don't name a text string `doc` — you
+should usually call this `text`. Two general code style preferences further help
+with naming. First, **lean away from introducing temporary variables**, as these
+clutter your namespace. This is one reason why comprehension expressions are
+often preferred. Second, **keep your functions shortish**, so they can work in a
+smaller scope. Of course, this is a question of trade-offs.
+
+### Cython conventions
+
+spaCy's core data structures are implemented as [Cython](http://cython.org/) `cdef`
+classes. Memory is managed through the `cymem.cymem.Pool` class, which allows
+you to allocate memory which will be freed when the `Pool` object is garbage
+collected. This means you usually don't have to worry about freeing memory. You
+just have to decide which Python object owns the memory, and make it own the
+`Pool`. When that object goes out of scope, the memory will be freed. You do
+have to take care that no pointers outlive the object that owns them — but this
+is generally quite easy.
+
+All Cython modules should have the `# cython: infer_types=True` compiler
+directive at the top of the file. This makes the code much cleaner, as it avoids
+the need for many type declarations. If possible, you should prefer to declare
+your functions `nogil`, even if you don't especially care about multi-threading.
+The reason is that `nogil` functions help the Cython compiler reason about your
+code quite a lot — you're telling the compiler that no Python dynamics are
+possible. This lets many errors be raised, and ensures your function will run
+at C speed.
+
+Cython gives you many choices of sequences: you could have a Python list, a
+numpy array, a memory view, a C++ vector, or a pointer. Pointers are preferred,
+because they are fastest, have the most explicit semantics, and let the compiler
+check your code more strictly. C++ vectors are also great — but you should only
+use them internally in functions. It's less friendly to accept a vector as an
+argument, because that asks the user to do much more work.
+
+Here's how to get a pointer from a numpy array, memory view or vector:
+
+```cython
+cdef void get_pointers(np.ndarray[int, mode='c'] numpy_array, vector[int] cpp_vector, int[::1] memory_view) nogil:
+    pointer1 = <int*>numpy_array.data
+    pointer2 = cpp_vector.data()
+    pointer3 = &memory_view[0]
+```
+
+Both C arrays and C++ vectors reassure the compiler that no Python operations
+are possible on your variable. This is a big advantage: it lets the Cython
+compiler raise many more errors for you.
+
+When getting a pointer from a numpy array or memoryview, take care that the data
+is actually stored in C-contiguous order — otherwise you'll get a pointer to
+nonsense. The type-declarations in the code above should generate runtime errors
+if buffers with incorrect memory layouts are passed in.
+
+To iterate over the array, the following style is preferred:
+
+```cython
+cdef int c_total(const int* int_array, int length) nogil:
+    total = 0
+    for item in int_array[:length]:
+        total += item
+    return total
+```
+
+If this is confusing, consider that the compiler couldn't deal with
+`for item in int_array:` — there's no length attached to a raw pointer, so how
+could we figure out where to stop? The length is provided in the slice notation
+as a solution to this. Note that we don't have to declare the type of `item` in
+the code above — the compiler can easily infer it. This gives us tidy code that
+looks quite like Python, but is exactly as fast as C — because we've made sure
+the compilation to C is trivial.
+
+Your functions cannot be declared `nogil` if they need to create Python objects
+or call Python functions. This is perfectly okay — you shouldn't torture your
+code just to get `nogil` functions. However, if your function isn't `nogil`, you
+should compile your module with `cython -a --cplus my_module.pyx` and open the
+resulting `my_module.html` file in a browser. This will let you see how Cython
+is compiling your code. Calls into the Python run-time will be in bright yellow.
+This lets you easily see whether Cython is able to correctly type your code, or
+whether there are unexpected problems.
+
+Finally, if you're new to Cython, you should expect to find the first steps a
+bit frustrating. It's a very large language, since it's essentially a superset
+of Python and C++, with additional complexity and syntax from numpy. The
+[documentation](http://docs.cython.org/en/latest/) isn't great, and there are
+many "traps for new players". Working in Cython is very rewarding once you're
+over the initial learning curve. As with C and C++, the first way you write
+something in Cython will often be the performance-optimal approach. In contrast,
+Python optimization generally requires a lot of experimentation. Is it faster to
+have an `if item in my_dict` check, or to use `.get()`? What about `try`/`except`?
+Does this numpy operation create a copy? There's no way to guess the answers to
+these questions, and you'll usually be dissatisfied with your results — so
+there's no way to know when to stop this process. In the worst case, you'll make
+a mess that invites the next reader to try their luck too. This is like one of
+those [volcanic gas-traps](http://www.wemjournal.org/article/S1080-6032%2809%2970088-2/abstract),
+where the rescuers keep passing out from low oxygen, causing another rescuer to
+follow — only to succumb themselves. In short, just say no to optimizing your
+Python. If it's not fast enough the first time, just switch to Cython.
+
+### Resources to get you started
+
+- [PEP 8 Style Guide for Python Code](https://www.python.org/dev/peps/pep-0008/) (python.org)
+- [Official Cython documentation](http://docs.cython.org/en/latest/) (cython.org)
+- [Writing C in Cython](https://explosion.ai/blog/writing-c-in-cython) (explosion.ai)
+- [Multi-threading spaCy’s parser and named entity recognizer](https://explosion.ai/blog/multithreading-with-cython) (explosion.ai)
+
+## Adding tests
+
+spaCy uses the [pytest](http://doc.pytest.org/) framework for testing. For more
+info on this, see the [pytest documentation](http://docs.pytest.org/en/latest/contents.html).
+Tests for spaCy modules and classes live in their own directories of the same
+name. For example, tests for the `Tokenizer` can be found in
+[`/spacy/tests/tokenizer`](spacy/tests/tokenizer). To be interpreted and run,
+all test files and test functions need to be prefixed with `test_`.
+
+When adding tests, make sure to use descriptive names, keep the code short and
+concise and only test for one behavior at a time. Try to `parametrize` test
+cases wherever possible, use our pre-defined fixtures for spaCy components and
+avoid unnecessary imports. Extensive tests that take a long time should be marked with `@pytest.mark.slow`.
+
+📖 **For more guidelines and information on how to add tests, check out the [tests README](spacy/tests/README.md).**
+
+## Updating the website
+
+For instructions on how to build and run the [website](https://spacy.io) locally see **[Setup and installation](https://github.com/explosion/spaCy/blob/master/website/README.md#setup-and-installation-setup)** in the _website_ directory's README.
+
+The docs can always use another example or more detail, and they should always
+be up to date and not misleading. To quickly find the correct file to edit,
+simply click on the "Suggest edits" button at the bottom of a page.
+
+📖 **For more info and troubleshooting guides, check out the [website README](website).**
+
+## Publishing spaCy extensions and plugins
+
+We're very excited about all the new possibilities for **community extensions**
+and plugins in spaCy v3.0, and we can't wait to see what you build with it!
+
+- An extension or plugin should add substantial functionality, be
+  **well-documented** and **open-source**. It should be available for users to download
+  and install as a Python package – for example via [PyPi](http://pypi.python.org).
+
+- Extensions that write to `Doc`, `Token` or `Span` attributes should be wrapped
+  as [pipeline components](https://spacy.io/usage/processing-pipelines#custom-components)
+  that users can **add to their processing pipeline** using `nlp.add_pipe()`.
+
+- When publishing your extension on GitHub, **tag it** with the topics
+  [`spacy`](https://github.com/topics/spacy?o=desc&s=stars) and
+  [`spacy-extensions`](https://github.com/topics/spacy-extension?o=desc&s=stars)
+  to make it easier to find. Those are also the topics we're linking to from the
+  spaCy website. If you're sharing your project on Twitter, feel free to tag
+  [@spacy_io](https://twitter.com/spacy_io) so we can check it out.
+
+- Once your extension is published, you can open an issue on the
+  [issue tracker](https://github.com/explosion/spacy/issues) to suggest it for the
+  [resources directory](https://spacy.io/usage/resources#extensions) on the
+  website.
+
+📖 **For more tips and best practices, see the [checklist for developing spaCy extensions](https://spacy.io/usage/processing-pipelines#extensions).**
+
+## Code of conduct
+
+spaCy adheres to the
+[Contributor Covenant Code of Conduct](http://contributor-covenant.org/version/1/4/).
+By participating, you are expected to uphold this code.
+
+----
+Makefile
+SHELL := /bin/bash
+
+ifndef SPACY_EXTRAS
+override SPACY_EXTRAS = spacy-lookups-data==1.0.2 jieba spacy-pkuseg==0.0.28 sudachipy sudachidict_core pymorphy2
+endif
+
+ifndef PYVER
+override PYVER = 3.6
+endif
+
+VENV := ./env$(PYVER)
+
+version := $(shell "bin/get-version.sh")
+package := $(shell "bin/get-package.sh")
+
+ifndef SPACY_BIN
+override SPACY_BIN = $(package)-$(version).pex
+endif
+
+ifndef WHEELHOUSE
+override WHEELHOUSE = "./wheelhouse"
+endif
+
+
+dist/$(SPACY_BIN) : $(WHEELHOUSE)/spacy-$(PYVER)-$(version).stamp
+	$(VENV)/bin/pex \
+		-f $(WHEELHOUSE) \
+		--no-index \
+		--disable-cache \
+		-o $@ \
+		$(package)==$(version) \
+		$(SPACY_EXTRAS)
+	chmod a+rx $@
+	cp $@ dist/spacy.pex
+
+dist/pytest.pex : $(WHEELHOUSE)/pytest-*.whl
+	$(VENV)/bin/pex -f $(WHEELHOUSE) --no-index --disable-cache -m pytest -o $@ pytest pytest-timeout mock
+	chmod a+rx $@
+
+$(WHEELHOUSE)/spacy-$(PYVER)-$(version).stamp : $(VENV)/bin/pex setup.py spacy/*.py* spacy/*/*.py*
+	$(VENV)/bin/pip wheel . -w $(WHEELHOUSE)
+	$(VENV)/bin/pip wheel $(SPACY_EXTRAS) -w $(WHEELHOUSE)
+
+	touch $@
+
+$(WHEELHOUSE)/pytest-%.whl : $(VENV)/bin/pex
+	$(VENV)/bin/pip wheel pytest pytest-timeout mock -w $(WHEELHOUSE)
+
+$(VENV)/bin/pex :
+	python$(PYVER) -m venv $(VENV)
+	$(VENV)/bin/pip install -U pip setuptools pex wheel
+	$(VENV)/bin/pip install numpy
+
+.PHONY : clean test
+
+test : dist/spacy-$(version).pex dist/pytest.pex
+	( . $(VENV)/bin/activate ; \
+	PEX_PATH=dist/spacy-$(version).pex ./dist/pytest.pex --pyargs spacy -x ; )
+
+clean : setup.py
+	rm -rf dist/*
+	rm -rf $(WHEELHOUSE)/*
+	rm -rf $(VENV)
+	python setup.py clean --all
+
+----
+MANIFEST.in
+recursive-include spacy *.pyi *.pyx *.pxd *.txt *.cfg *.jinja *.toml *.hh
+include LICENSE
+include README.md
+include pyproject.toml
+include spacy/py.typed
+recursive-include spacy/cli *.yml
+recursive-include licenses *
+recursive-exclude spacy *.cpp
+
+----
+netlify.toml
+redirects = [
+    # Netlify
+    {from = "https://spacy.netlify.com/*", to="https://spacy.io/:splat", force = true },
+    # Subdomain for branches
+    {from = "https://nightly.spacy.io/*", to="https://spacy.io/:splat", force = true},
+    {from = "https://v2.spacy.io/*", to="https://v2-spacy-io.spacy.io/:splat", force = true, status = 200},
+    # Old subdomains
+    {from = "https://survey.spacy.io/*", to = "https://spacy.io", force = true},
+    {from = "http://survey.spacy.io/*", to = "https://spacy.io", force = true},
+    {from = "https://alpha.spacy.io/*", to = "https://spacy.io", force = true},
+    {from = "http://alpha.spacy.io/*", to = "https://spacy.io", force = true},
+    # Old demos
+    {from = "/demos/*", to = "https://explosion.ai/demos/:splat", force = true},
+    # Old blog
+    {from = "/blog/*", to = "https://explosion.ai/blog/:splat", force = true},
+    {from = "/feed", to = "https://explosion.ai/feed", force = true},
+    {from = "/feed.xml", to = "https://explosion.ai/feed", force = true},
+    # Old documentation pages (1.x)
+    {from = "/docs/usage/processing-text", to = "/usage/linguistic-features", force = true},
+    {from = "/docs/usage/deep-learning", to = "/usage/training", force = true},
+    {from = "/docs/usage/pos-tagging", to = "/usage/linguistic-features#pos-tagging", force = true},
+    {from = "/docs/usage/dependency-parse", to = "/usage/linguistic-features#dependency-parse", force = true},
+    {from = "/docs/usage/entity-recognition", to = "/usage/linguistic-features#named-entities", force = true},
+    {from = "/docs/usage/word-vectors-similarities", to = "/usage/vectors-similarity", force = true},
+    {from = "/docs/usage/customizing-tokenizer", to = "/usage/linguistic-features#tokenization", force = true},
+    {from = "/docs/usage/language-processing-pipeline", to = "/usage/processing-pipelines", force = true},
+    {from = "/docs/usage/customizing-pipeline", to = "/usage/processing-pipelines", force = true},
+    {from = "/docs/usage/training-ner", to = "/usage/training", force = true},
+    {from = "/docs/usage/tutorials", to = "/usage/examples", force = true},
+    {from = "/docs/usage/data-model", to = "/api", force = true},
+    {from = "/docs/usage/cli", to = "/api/cli", force = true},
+    {from = "/docs/usage/lightning-tour", to = "/usage/spacy-101#lightning-tour", force = true},
+    {from = "/docs/api/language-models", to = "/usage/models#languages", force = true},
+    {from = "/docs/api/spacy", to = "/docs/api/top-level", force = true},
+    {from = "/docs/api/displacy", to = "/api/top-level#displacy", force = true},
+    {from = "/docs/api/util", to = "/api/top-level#util", force = true},
+    {from = "/docs/api/features", to = "/models/#architecture", force = true},
+    {from = "/docs/api/philosophy", to = "/usage/spacy-101", force = true},
+    {from = "/docs/usage/showcase", to = "/universe", force = true},
+    {from = "/tutorials/load-new-word-vectors", to = "/usage/linguistic-features", force = true},
+    {from = "/tutorials", to = "/usage/examples", force = true},
+    # Old documentation pages (v2.x)
+    {from = "/usage/adding-languages", to = "/usage/linguistic-features", force = true},
+    {from = "/usage/vectors-similarity", to = "/usage/linguistic-features#vectors-similarity", force = true},
+    {from = "/api/goldparse", to = "/api/top-level", force = true},
+    {from = "/api/goldcorpus", to = "/api/corpus", force = true},
+    {from = "/api/annotation", to = "/api/data-formats", force = true},
+    {from = "/usage/examples", to = "/usage/projects", force = true},
+    # Rewrite all other docs pages to /
+    {from = "/docs/*", to = "/:splat"},
+    # Updated documentation pages
+    {from = "/usage/resources", to = "/universe", force = true},
+    {from = "/usage/lightning-tour", to = "/usage/spacy-101#lightning-tour", force = true},
+    {from = "/usage/linguistic-features#rule-based-matching", to = "/usage/rule-based-matching", force = true},
+    {from = "/models/comparison", to = "/models", force = true},
+    {from = "/api/#section-cython", to = "/api/cython", force = true},
+    {from = "/api/#cython", to = "/api/cython", force = true},
+    {from = "/api/sentencesegmenter", to="/api/sentencizer"},
+    {from = "/universe", to = "/universe/project/:id", query = {id = ":id"}, force = true},
+    {from = "/universe", to = "/universe/category/:category", query = {category = ":category"}, force = true},
+    # Renamed universe projects
+    {from = "/universe/project/spacy-pytorch-transformers", to = "/universe/project/spacy-transformers", force = true},
+    # Old model pages
+    {from = "/models/en-starters", to = "/models/en", force = true},
+]
+
+----
+pyproject.toml
+[build-system]
+requires = [
+    "setuptools",
+    "cython>=0.25,<3.0",
+    "cymem>=2.0.2,<2.1.0",
+    "preshed>=3.0.2,<3.1.0",
+    "murmurhash>=0.28.0,<1.1.0",
+    "thinc>=8.1.8,<8.2.0",
+    "numpy>=1.15.0",
+]
+build-backend = "setuptools.build_meta"
+
+----
+README.md
+<a href="https://explosion.ai"><img src="https://explosion.ai/assets/img/logo.svg" width="125" height="125" align="right" /></a>
+
+# spaCy: Industrial-strength NLP
+
+spaCy is a library for **advanced Natural Language Processing** in Python and
+Cython. It's built on the very latest research, and was designed from day one to
+be used in real products.
+
+spaCy comes with
+[pretrained pipelines](https://spacy.io/models) and
+currently supports tokenization and training for **70+ languages**. It features
+state-of-the-art speed and **neural network models** for tagging,
+parsing, **named entity recognition**, **text classification** and more,
+multi-task learning with pretrained **transformers** like BERT, as well as a
+production-ready [**training system**](https://spacy.io/usage/training) and easy
+model packaging, deployment and workflow management. spaCy is commercial
+open-source software, released under the [MIT license](https://github.com/explosion/spaCy/blob/master/LICENSE).
+
+💥 **We'd love to hear more about your experience with spaCy!**
+[Fill out our survey here.](https://form.typeform.com/to/aMel9q9f)
+
+💫 **Version 3.5 out now!**
+[Check out the release notes here.](https://github.com/explosion/spaCy/releases)
+
+[![Azure Pipelines](https://img.shields.io/azure-devops/build/explosion-ai/public/8/master.svg?logo=azure-pipelines&style=flat-square&label=build)](https://dev.azure.com/explosion-ai/public/_build?definitionId=8)
+[![Current Release Version](https://img.shields.io/github/release/explosion/spacy.svg?style=flat-square&logo=github)](https://github.com/explosion/spaCy/releases)
+[![pypi Version](https://img.shields.io/pypi/v/spacy.svg?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/spacy/)
+[![conda Version](https://img.shields.io/conda/vn/conda-forge/spacy.svg?style=flat-square&logo=conda-forge&logoColor=white)](https://anaconda.org/conda-forge/spacy)
+[![Python wheels](https://img.shields.io/badge/wheels-%E2%9C%93-4c1.svg?longCache=true&style=flat-square&logo=python&logoColor=white)](https://github.com/explosion/wheelwright/releases)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/ambv/black)
+<br />
+[![PyPi downloads](https://static.pepy.tech/personalized-badge/spacy?period=total&units=international_system&left_color=grey&right_color=orange&left_text=pip%20downloads)](https://pypi.org/project/spacy/)
+[![Conda downloads](https://img.shields.io/conda/dn/conda-forge/spacy?label=conda%20downloads)](https://anaconda.org/conda-forge/spacy)
+[![spaCy on Twitter](https://img.shields.io/twitter/follow/spacy_io.svg?style=social&label=Follow)](https://twitter.com/spacy_io)
+
+## 📖 Documentation
+
+| Documentation                 |                                                                        |
+| ----------------------------- | ---------------------------------------------------------------------- |
+|    **[spaCy 101]**           | New to spaCy? Here's everything you need to know!                      |
+| 📚 **[Usage Guides]**         | How to use spaCy and its features.                                     |
+| 🚀 **[New in v3.0]**          | New features, backwards incompatibilities and migration guide.         |
+|   **[Project Templates]**    | End-to-end workflows you can clone, modify and run.                    |
+| 🎛 **[API Reference]**         | The detailed reference for spaCy's API.                                |
+| 📦 **[Models]**               | Download trained pipelines for spaCy.                                  |
+| 🌌 **[Universe]**             | Plugins, extensions, demos and books from the spaCy ecosystem.         |
+| ⚙  **[spaCy VS Code Extension]** | Additional tooling and features for working with spaCy's config files. |
+| 👩   **[Online Course]** | Learn spaCy in this free and interactive online course. |
+| 📺 **[Videos]** | Our YouTube channel with video tutorials, talks and more. |
+| 🛠 **[Changelog]** | Changes and version history. |
+|   **[Contribute]** | How to contribute to the spaCy project and code base. |
+| <a href="https://explosion.ai/spacy-tailored-pipelines"><img src="https://user-images.githubusercontent.com/13643239/152853098-1c761611-ccb0-4ec6-9066-b234552831fe.png" width="125" alt="spaCy Tailored Pipelines"/></a> | Get a custom spaCy pipeline, tailor-made for your NLP problem by spaCy's core developers. Streamlined, production-ready, predictable and maintainable. Start by completing our 5-minute questionnaire to tell us what you need and we'll be in touch! **[Learn more &rarr;](https://explosion.ai/spacy-tailored-pipelines)** |
+| <a href="https://explosion.ai/spacy-tailored-analysis"><img src="https://user-images.githubusercontent.com/1019791/206151300-b00cd189-e503-4797-aa1e-1bb6344062c5.png" width="125" alt="spaCy Tailored Pipelines"/></a> | Bespoke advice for problem solving, strategy and analysis for applied NLP projects. Services include data strategy, code reviews, pipeline design and annotation coaching. Curious? Fill in our 5-minute questionnaire to tell us what you need and we'll be in touch! **[Learn more &rarr;](https://explosion.ai/spacy-tailored-analysis)** |
+
+[spacy 101]: https://spacy.io/usage/spacy-101
+[new in v3.0]: https://spacy.io/usage/v3
+[usage guides]: https://spacy.io/usage/
+[api reference]: https://spacy.io/api/
+[models]: https://spacy.io/models
+[universe]: https://spacy.io/universe
+[spaCy VS Code Extension]: https://github.com/explosion/spacy-vscode
+[videos]: https://www.youtube.com/c/ExplosionAI
+[online course]: https://course.spacy.io
+[project templates]: https://github.com/explosion/projects
+[changelog]: https://spacy.io/usage#changelog
+[contribute]: https://github.com/explosion/spaCy/blob/master/CONTRIBUTING.md
+
+## 💬 Where to ask questions
+
+The spaCy project is maintained by the [spaCy team](https://explosion.ai/about).
+Please understand that we won't be able to provide individual support via email.
+We also believe that help is much more valuable if it's shared publicly, so that
+more people can benefit from it.
+
+| Type                            | Platforms                               |
+| ------------------------------- | --------------------------------------- |
+| 🚨 **Bug Reports**              | [GitHub Issue Tracker]                  |
+|   **Feature Requests & Ideas** | [GitHub Discussions]                    |
+| 👩 💻 **Usage Questions**          | [GitHub Discussions] · [Stack Overflow] |
+| 🗯 **General Discussion**        | [GitHub Discussions]                    |
+
+[github issue tracker]: https://github.com/explosion/spaCy/issues
+[github discussions]: https://github.com/explosion/spaCy/discussions
+[stack overflow]: https://stackoverflow.com/questions/tagged/spacy
+
+## Features
+
+- Support for **70+ languages**
+- **Trained pipelines** for different languages and tasks
+- Multi-task learning with pretrained **transformers** like BERT
+- Support for pretrained **word vectors** and embeddings
+- State-of-the-art speed
+- Production-ready **training system**
+- Linguistically-motivated **tokenization**
+- Components for named **entity recognition**, part-of-speech-tagging, dependency parsing, sentence segmentation, **text classification**, lemmatization, morphological analysis, entity linking and more
+- Easily extensible with **custom components** and attributes
+- Support for custom models in **PyTorch**, **TensorFlow** and other frameworks
+- Built in **visualizers** for syntax and NER
+- Easy **model packaging**, deployment and workflow management
+- Robust, rigorously evaluated accuracy
+
+📖 **For more details, see the
+[facts, figures and benchmarks](https://spacy.io/usage/facts-figures).**
+
+##   Install spaCy
+
+For detailed installation instructions, see the
+[documentation](https://spacy.io/usage).
+
+- **Operating system**: macOS / OS X · Linux · Windows (Cygwin, MinGW, Visual
+  Studio)
+- **Python version**: Python 3.6+ (only 64 bit)
+- **Package managers**: [pip] · [conda] (via `conda-forge`)
+
+[pip]: https://pypi.org/project/spacy/
+[conda]: https://anaconda.org/conda-forge/spacy
+
+### pip
+
+Using pip, spaCy releases are available as source packages and binary wheels.
+Before you install spaCy and its dependencies, make sure that
+your `pip`, `setuptools` and `wheel` are up to date.
+
+```bash
+pip install -U pip setuptools wheel
+pip install spacy
+```
+
+To install additional data tables for lemmatization and normalization you can
+run `pip install spacy[lookups]` or install
+[`spacy-lookups-data`](https://github.com/explosion/spacy-lookups-data)
+separately. The lookups package is needed to create blank models with
+lemmatization data, and to lemmatize in languages that don't yet come with
+pretrained models and aren't powered by third-party libraries.
+
+When using pip it is generally recommended to install packages in a virtual
+environment to avoid modifying system state:
+
+```bash
+python -m venv .env
+source .env/bin/activate
+pip install -U pip setuptools wheel
+pip install spacy
+```
+
+### conda
+
+You can also install spaCy from `conda` via the `conda-forge` channel. For the
+feedstock including the build recipe and configuration, check out
+[this repository](https://github.com/conda-forge/spacy-feedstock).
+
+```bash
+conda install -c conda-forge spacy
+```
+
+### Updating spaCy
+
+Some updates to spaCy may require downloading new statistical models. If you're
+running spaCy v2.0 or higher, you can use the `validate` command to check if
+your installed models are compatible and if not, print details on how to update
+them:
+
+```bash
+pip install -U spacy
+python -m spacy validate
+```
+
+If you've trained your own models, keep in mind that your training and runtime
+inputs must match. After updating spaCy, we recommend **retraining your models**
+with the new version.
+
+📖 **For details on upgrading from spaCy 2.x to spaCy 3.x, see the
+[migration guide](https://spacy.io/usage/v3#migrating).**
+
+## 📦 Download model packages
+
+Trained pipelines for spaCy can be installed as **Python packages**. This
+means that they're a component of your application, just like any other module.
+Models can be installed using spaCy's [`download`](https://spacy.io/api/cli#download)
+command, or manually by pointing pip to a path or URL.
+
+| Documentation              |                                                                  |
+| -------------------------- | ---------------------------------------------------------------- |
+| **[Available Pipelines]**  | Detailed pipeline descriptions, accuracy figures and benchmarks. |
+| **[Models Documentation]** | Detailed usage and installation instructions.                    |
+| **[Training]**             | How to train your own pipelines on your data.                    |
+
+[available pipelines]: https://spacy.io/models
+[models documentation]: https://spacy.io/usage/models
+[training]: https://spacy.io/usage/training
+
+```bash
+# Download best-matching version of specific model for your spaCy installation
+python -m spacy download en_core_web_sm
+
+# pip install .tar.gz archive or .whl from path or URL
+pip install /Users/you/en_core_web_sm-3.0.0.tar.gz
+pip install /Users/you/en_core_web_sm-3.0.0-py3-none-any.whl
+pip install https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.0.0/en_core_web_sm-3.0.0.tar.gz
+```
+
+### Loading and using models
+
+To load a model, use [`spacy.load()`](https://spacy.io/api/top-level#spacy.load)
+with the model name or a path to the model data directory.
+
+```python
+import spacy
+nlp = spacy.load("en_core_web_sm")
+doc = nlp("This is a sentence.")
+```
+
+You can also `import` a model directly via its full name and then call its
+`load()` method with no arguments.
+
+```python
+import spacy
+import en_core_web_sm
+
+nlp = en_core_web_sm.load()
+doc = nlp("This is a sentence.")
+```
+
+📖 **For more info and examples, check out the
+[models documentation](https://spacy.io/docs/usage/models).**
+
+## ⚒ Compile from source
+
+The other way to install spaCy is to clone its
+[GitHub repository](https://github.com/explosion/spaCy) and build it from
+source. That is the common way if you want to make changes to the code base.
+You'll need to make sure that you have a development environment consisting of a
+Python distribution including header files, a compiler,
+[pip](https://pip.pypa.io/en/latest/installing/),
+[virtualenv](https://virtualenv.pypa.io/en/latest/) and
+[git](https://git-scm.com) installed. The compiler part is the trickiest. How to
+do that depends on your system.
+
+| Platform    |                                                                                                                                                                                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Ubuntu**  | Install system-level dependencies via `apt-get`: `sudo apt-get install build-essential python-dev git` .                                                                                                                                                            |
+| **Mac**     | Install a recent version of [XCode](https://developer.apple.com/xcode/), including the so-called "Command Line Tools". macOS and OS X ship with Python and git preinstalled.                                                                                        |
+| **Windows** | Install a version of the [Visual C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) or [Visual Studio Express](https://visualstudio.microsoft.com/vs/express/) that matches the version that was used to compile your Python interpreter. |
+
+For more details
+and instructions, see the documentation on
+[compiling spaCy from source](https://spacy.io/usage#source) and the
+[quickstart widget](https://spacy.io/usage#section-quickstart) to get the right
+commands for your platform and Python version.
+
+```bash
+git clone https://github.com/explosion/spaCy
+cd spaCy
+
+python -m venv .env
+source .env/bin/activate
+
+# make sure you are using the latest pip
+python -m pip install -U pip setuptools wheel
+
+pip install -r requirements.txt
+pip install --no-build-isolation --editable .
+```
+
+To install with extras:
+
+```bash
+pip install --no-build-isolation --editable .[lookups,cuda102]
+```
+
+## 🚦 Run tests
+
+spaCy comes with an [extensive test suite](spacy/tests). In order to run the
+tests, you'll usually want to clone the repository and build spaCy from source.
+This will also install the required development dependencies and test utilities
+defined in the [`requirements.txt`](requirements.txt).
+
+Alternatively, you can run `pytest` on the tests from within the installed
+`spacy` package. Don't forget to also install the test utilities via spaCy's
+[`requirements.txt`](requirements.txt):
+
+```bash
+pip install -r requirements.txt
+python -m pytest --pyargs spacy
+```
+
+----
+requirements.txt
+# Our libraries
+spacy-legacy>=3.0.11,<3.1.0
+spacy-loggers>=1.0.0,<2.0.0
+cymem>=2.0.2,<2.1.0
+preshed>=3.0.2,<3.1.0
+thinc>=8.1.8,<8.2.0
+ml_datasets>=0.2.0,<0.3.0
+murmurhash>=0.28.0,<1.1.0
+wasabi>=0.9.1,<1.2.0
+srsly>=2.4.3,<3.0.0
+catalogue>=2.0.6,<2.1.0
+typer>=0.3.0,<0.10.0
+pathy>=0.10.0
+smart-open>=5.2.1,<7.0.0
+# Third party dependencies
+numpy>=1.15.0
+requests>=2.13.0,<3.0.0
+tqdm>=4.38.0,<5.0.0
+pydantic>=1.7.4,!=1.8,!=1.8.1,<1.11.0
+jinja2
+langcodes>=3.2.0,<4.0.0
+# Official Python utilities
+setuptools
+packaging>=20.0
+typing_extensions>=3.7.4.1,<4.5.0; python_version < "3.8"
+# Development dependencies
+pre-commit>=2.13.0
+cython>=0.25,<3.0
+pytest>=5.2.0,!=7.1.0
+pytest-timeout>=1.3.0,<2.0.0
+mock>=2.0.0,<3.0.0
+flake8>=3.8.0,<6.0.0
+hypothesis>=3.27.0,<7.0.0
+mypy>=0.990,<1.1.0; platform_machine != "aarch64" and python_version >= "3.7"
+types-dataclasses>=0.1.3; python_version < "3.7"
+types-mock>=0.1.1
+types-setuptools>=57.0.0
+types-requests
+types-setuptools>=57.0.0
+black==22.3.0
+
+----
+setup.cfg
+[metadata]
+description = Industrial-strength Natural Language Processing (NLP) in Python
+url = https://spacy.io
+author = Explosion
+author_email = contact@explosion.ai
+license = MIT
+long_description = file: README.md
+long_description_content_type = text/markdown
+classifiers =
+    Development Status :: 5 - Production/Stable
+    Environment :: Console
+    Intended Audience :: Developers
+    Intended Audience :: Science/Research
+    License :: OSI Approved :: MIT License
+    Operating System :: POSIX :: Linux
+    Operating System :: MacOS :: MacOS X
+    Operating System :: Microsoft :: Windows
+    Programming Language :: Cython
+    Programming Language :: Python :: 3
+    Programming Language :: Python :: 3.6
+    Programming Language :: Python :: 3.7
+    Programming Language :: Python :: 3.8
+    Programming Language :: Python :: 3.9
+    Programming Language :: Python :: 3.10
+    Programming Language :: Python :: 3.11
+    Topic :: Scientific/Engineering
+project_urls =
+    Release notes = https://github.com/explosion/spaCy/releases
+    Source = https://github.com/explosion/spaCy
+
+[options]
+zip_safe = false
+include_package_data = true
+python_requires = >=3.6
+setup_requires =
+    cython>=0.25,<3.0
+    numpy>=1.15.0
+    # We also need our Cython packages here to compile against
+    cymem>=2.0.2,<2.1.0
+    preshed>=3.0.2,<3.1.0
+    murmurhash>=0.28.0,<1.1.0
+    thinc>=8.1.8,<8.2.0
+install_requires =
+    # Our libraries
+    spacy-legacy>=3.0.11,<3.1.0
+    spacy-loggers>=1.0.0,<2.0.0
+    murmurhash>=0.28.0,<1.1.0
+    cymem>=2.0.2,<2.1.0
+    preshed>=3.0.2,<3.1.0
+    thinc>=8.1.8,<8.2.0
+    wasabi>=0.9.1,<1.2.0
+    srsly>=2.4.3,<3.0.0
+    catalogue>=2.0.6,<2.1.0
+    # Third-party dependencies
+    typer>=0.3.0,<0.10.0
+    pathy>=0.10.0
+    smart-open>=5.2.1,<7.0.0
+    tqdm>=4.38.0,<5.0.0
+    numpy>=1.15.0
+    requests>=2.13.0,<3.0.0
+    pydantic>=1.7.4,!=1.8,!=1.8.1,<1.11.0
+    jinja2
+    # Official Python utilities
+    setuptools
+    packaging>=20.0
+    typing_extensions>=3.7.4.1,<4.5.0; python_version < "3.8"
+    langcodes>=3.2.0,<4.0.0
+
+[options.entry_points]
+console_scripts =
+    spacy = spacy.cli:setup_cli
+
+[options.extras_require]
+lookups =
+    spacy_lookups_data>=1.0.3,<1.1.0
+transformers =
+    spacy_transformers>=1.1.2,<1.3.0
+ray =
+    spacy_ray>=0.1.0,<1.0.0
+cuda =
+    cupy>=5.0.0b4,<13.0.0
+cuda80 =
+    cupy-cuda80>=5.0.0b4,<13.0.0
+cuda90 =
+    cupy-cuda90>=5.0.0b4,<13.0.0
+cuda91 =
+    cupy-cuda91>=5.0.0b4,<13.0.0
+cuda92 =
+    cupy-cuda92>=5.0.0b4,<13.0.0
+cuda100 =
+    cupy-cuda100>=5.0.0b4,<13.0.0
+cuda101 =
+    cupy-cuda101>=5.0.0b4,<13.0.0
+cuda102 =
+    cupy-cuda102>=5.0.0b4,<13.0.0
+cuda110 =
+    cupy-cuda110>=5.0.0b4,<13.0.0
+cuda111 =
+    cupy-cuda111>=5.0.0b4,<13.0.0
+cuda112 =
+    cupy-cuda112>=5.0.0b4,<13.0.0
+cuda113 =
+    cupy-cuda113>=5.0.0b4,<13.0.0
+cuda114 =
+    cupy-cuda114>=5.0.0b4,<13.0.0
+cuda115 =
+    cupy-cuda115>=5.0.0b4,<13.0.0
+cuda116 =
+    cupy-cuda116>=5.0.0b4,<13.0.0
+cuda117 =
+    cupy-cuda117>=5.0.0b4,<13.0.0
+cuda11x =
+    cupy-cuda11x>=11.0.0,<13.0.0
+cuda-autodetect =
+    cupy-wheel>=11.0.0,<13.0.0
+apple =
+    thinc-apple-ops>=0.1.0.dev0,<1.0.0
+# Language tokenizers with external dependencies
+ja =
+    sudachipy>=0.5.2,!=0.6.1
+    sudachidict_core>=20211220
+ko =
+    natto-py>=0.9.0
+th =
+    pythainlp>=2.0
+
+[bdist_wheel]
+universal = false
+
+[sdist]
+formats = gztar
+
+[flake8]
+ignore = E203, E266, E501, E731, W503, E741, F541
+max-line-length = 80
+select = B,C,E,F,W,T4,B9
+exclude =
+    .env,
+    .git,
+    __pycache__,
+    _tokenizer_exceptions_list.py,
+
+[tool:pytest]
+markers =
+    slow: mark a test as slow
+    issue: reference specific issue
+
+[mypy]
+ignore_missing_imports = True
+no_implicit_optional = True
+plugins = pydantic.mypy, thinc.mypy
+allow_redefinition = True
+
+----
+setup.py
+#!/usr/bin/env python
+from setuptools import Extension, setup, find_packages
+import sys
+import platform
+import numpy
+from distutils.command.build_ext import build_ext
+from distutils.sysconfig import get_python_inc
+from pathlib import Path
+import shutil
+from Cython.Build import cythonize
+from Cython.Compiler import Options
+import os
+import subprocess
+
+
+ROOT = Path(__file__).parent
+PACKAGE_ROOT = ROOT / "spacy"
+
+
+# Preserve `__doc__` on functions and classes
+# http://docs.cython.org/en/latest/src/userguide/source_files_and_compilation.html#compiler-options
+Options.docstrings = True
+
+PACKAGES = find_packages()
+MOD_NAMES = [
+    "spacy.training.alignment_array",
+    "spacy.training.example",
+    "spacy.parts_of_speech",
+    "spacy.strings",
+    "spacy.lexeme",
+    "spacy.vocab",
+    "spacy.attrs",
+    "spacy.kb.candidate",
+    "spacy.kb.kb",
+    "spacy.kb.kb_in_memory",
+    "spacy.ml.parser_model",
+    "spacy.morphology",
+    "spacy.pipeline.dep_parser",
+    "spacy.pipeline._edit_tree_internals.edit_trees",
+    "spacy.pipeline.morphologizer",
+    "spacy.pipeline.multitask",
+    "spacy.pipeline.ner",
+    "spacy.pipeline.pipe",
+    "spacy.pipeline.trainable_pipe",
+    "spacy.pipeline.sentencizer",
+    "spacy.pipeline.senter",
+    "spacy.pipeline.tagger",
+    "spacy.pipeline.transition_parser",
+    "spacy.pipeline._parser_internals.arc_eager",
+    "spacy.pipeline._parser_internals.ner",
+    "spacy.pipeline._parser_internals.nonproj",
+    "spacy.pipeline._parser_internals._state",
+    "spacy.pipeline._parser_internals.stateclass",
+    "spacy.pipeline._parser_internals.transition_system",
+    "spacy.pipeline._parser_internals._beam_utils",
+    "spacy.tokenizer",
+    "spacy.training.align",
+    "spacy.training.gold_io",
+    "spacy.tokens.doc",
+    "spacy.tokens.span",
+    "spacy.tokens.token",
+    "spacy.tokens.span_group",
+    "spacy.tokens.graph",
+    "spacy.tokens.morphanalysis",
+    "spacy.tokens._retokenize",
+    "spacy.matcher.matcher",
+    "spacy.matcher.phrasematcher",
+    "spacy.matcher.dependencymatcher",
+    "spacy.symbols",
+    "spacy.vectors",
+]
+COMPILE_OPTIONS = {
+    "msvc": ["/Ox", "/EHsc"],
+    "mingw32": ["-O2", "-Wno-strict-prototypes", "-Wno-unused-function"],
+    "other": ["-O2", "-Wno-strict-prototypes", "-Wno-unused-function"],
+}
+LINK_OPTIONS = {"msvc": ["-std=c++11"], "mingw32": ["-std=c++11"], "other": []}
+COMPILER_DIRECTIVES = {
+    "language_level": -3,
+    "embedsignature": True,
+    "annotation_typing": False,
+}
+# Files to copy into the package that are otherwise not included
+COPY_FILES = {
+    ROOT / "setup.cfg": PACKAGE_ROOT / "tests" / "package",
+    ROOT / "pyproject.toml": PACKAGE_ROOT / "tests" / "package",
+    ROOT / "requirements.txt": PACKAGE_ROOT / "tests" / "package",
+}
+
+
+def is_new_osx():
+    """Check whether we're on OSX >= 10.7"""
+    if sys.platform != "darwin":
+        return False
+    mac_ver = platform.mac_ver()[0]
+    if mac_ver.startswith("10"):
+        minor_version = int(mac_ver.split(".")[1])
+        if minor_version >= 7:
+            return True
+        else:
+            return False
+    return False
+
+
+if is_new_osx():
+    # On Mac, use libc++ because Apple deprecated use of
+    # libstdc
+    COMPILE_OPTIONS["other"].append("-stdlib=libc++")
+    LINK_OPTIONS["other"].append("-lc++")
+    # g++ (used by unix compiler on mac) links to libstdc++ as a default lib.
+    # See: https://stackoverflow.com/questions/1653047/avoid-linking-to-libstdc
+    LINK_OPTIONS["other"].append("-nodefaultlibs")
+
+
+# By subclassing build_extensions we have the actual compiler that will be used which is really known only after finalize_options
+# http://stackoverflow.com/questions/724664/python-distutils-how-to-get-a-compiler-that-is-going-to-be-used
+class build_ext_options:
+    def build_options(self):
+        for e in self.extensions:
+            e.extra_compile_args += COMPILE_OPTIONS.get(
+                self.compiler.compiler_type, COMPILE_OPTIONS["other"]
+            )
+        for e in self.extensions:
+            e.extra_link_args += LINK_OPTIONS.get(
+                self.compiler.compiler_type, LINK_OPTIONS["other"]
+            )
+
+
+class build_ext_subclass(build_ext, build_ext_options):
+    def build_extensions(self):
+        if self.parallel is None and os.environ.get("SPACY_NUM_BUILD_JOBS") is not None:
+            self.parallel = int(os.environ.get("SPACY_NUM_BUILD_JOBS"))
+        build_ext_options.build_options(self)
+        build_ext.build_extensions(self)
+
+
+# Include the git version in the build (adapted from NumPy)
+# Copyright (c) 2005-2020, NumPy Developers.
+# BSD 3-Clause license, see licenses/3rd_party_licenses.txt
+def write_git_info_py(filename="spacy/git_info.py"):
+    def _minimal_ext_cmd(cmd):
+        # construct minimal environment
+        env = {}
+        for k in ["SYSTEMROOT", "PATH", "HOME"]:
+            v = os.environ.get(k)
+            if v is not None:
+                env[k] = v
+        # LANGUAGE is used on win32
+        env["LANGUAGE"] = "C"
+        env["LANG"] = "C"
+        env["LC_ALL"] = "C"
+        out = subprocess.check_output(cmd, stderr=subprocess.STDOUT, env=env)
+        return out
+
+    git_version = "Unknown"
+    if Path(".git").exists():
+        try:
+            out = _minimal_ext_cmd(["git", "rev-parse", "--short", "HEAD"])
+            git_version = out.strip().decode("ascii")
+        except Exception:
+            pass
+    elif Path(filename).exists():
+        # must be a source distribution, use existing version file
+        try:
+            a = open(filename, "r")
+            lines = a.readlines()
+            git_version = lines[-1].split('"')[1]
+        except Exception:
+            pass
+        finally:
+            a.close()
+
+    text = """# THIS FILE IS GENERATED FROM SPACY SETUP.PY
+#
+GIT_VERSION = "%(git_version)s"
+"""
+    a = open(filename, "w")
+    try:
+        a.write(text % {"git_version": git_version})
+    finally:
+        a.close()
+
+
+def clean(path):
+    for path in path.glob("**/*"):
+        if path.is_file() and path.suffix in (".so", ".cpp", ".html"):
+            print(f"Deleting {path.name}")
+            path.unlink()
+
+
+def setup_package():
+    write_git_info_py()
+    if len(sys.argv) > 1 and sys.argv[1] == "clean":
+        return clean(PACKAGE_ROOT)
+
+    with (PACKAGE_ROOT / "about.py").open("r") as f:
+        about = {}
+        exec(f.read(), about)
+
+    for copy_file, target_dir in COPY_FILES.items():
+        if copy_file.exists():
+            shutil.copy(str(copy_file), str(target_dir))
+            print(f"Copied {copy_file} -> {target_dir}")
+
+    include_dirs = [
+        numpy.get_include(),
+        get_python_inc(plat_specific=True),
+    ]
+    ext_modules = []
+    ext_modules.append(
+        Extension(
+            "spacy.matcher.levenshtein",
+            [
+                "spacy/matcher/levenshtein.pyx",
+                "spacy/matcher/polyleven.c",
+            ],
+            language="c",
+            include_dirs=include_dirs,
+        )
+    )
+    for name in MOD_NAMES:
+        mod_path = name.replace(".", "/") + ".pyx"
+        ext = Extension(
+            name,
+            [mod_path],
+            language="c++",
+            include_dirs=include_dirs,
+            extra_compile_args=["-std=c++11"],
+        )
+        ext_modules.append(ext)
+    print("Cythonizing sources")
+    ext_modules = cythonize(ext_modules, compiler_directives=COMPILER_DIRECTIVES)
+
+    setup(
+        name="spacy",
+        packages=PACKAGES,
+        version=about["__version__"],
+        ext_modules=ext_modules,
+        cmdclass={"build_ext": build_ext_subclass},
+        package_data={"": ["*.pyx", "*.pxd", "*.pxi"]},
+    )
+
+
+if __name__ == "__main__":
+    setup_package()
+
+----
+examples\README.md
+<a href="https://explosion.ai"><img src="https://explosion.ai/assets/img/logo.svg" width="125" height="125" align="right" /></a>
+
+# spaCy examples
+
+For spaCy v3 we've converted many of the [v2 example
+scripts](https://github.com/explosion/spaCy/tree/v2.3.x/examples/) into
+end-to-end [spacy projects](https://spacy.io/usage/projects) workflows. The
+workflows include all the steps to go from data to packaged spaCy models.
+
+##   Pipeline component demos
+
+The simplest demos for training a single pipeline component are in the
+[`pipelines`](https://github.com/explosion/projects/blob/v3/pipelines) category
+including:
+
+- [`pipelines/ner_demo`](https://github.com/explosion/projects/blob/v3/pipelines/ner_demo):
+  Train a named entity recognizer
+- [`pipelines/textcat_demo`](https://github.com/explosion/projects/blob/v3/pipelines/textcat_demo):
+  Train a text classifier
+- [`pipelines/parser_intent_demo`](https://github.com/explosion/projects/blob/v3/pipelines/parser_intent_demo):
+  Train a dependency parser for custom semantics
+
+##   Tutorials
+
+The [`tutorials`](https://github.com/explosion/projects/blob/v3/tutorials)
+category includes examples that work through specific NLP use cases end-to-end:
+
+- [`tutorials/textcat_goemotions`](https://github.com/explosion/projects/blob/v3/tutorials/textcat_goemotions):
+  Train a text classifier to categorize emotions in Reddit posts
+- [`tutorials/nel_emerson`](https://github.com/explosion/projects/blob/v3/tutorials/nel_emerson):
+  Use an entity linker to disambiguate mentions of the same name
+
+Check out the [projects documentation](https://spacy.io/usage/projects) and
+browse through the [available
+projects](https://github.com/explosion/projects/)!
+
+## 🚀 Get started with a demo project
+
+The
+[`pipelines/ner_demo`](https://github.com/explosion/projects/blob/v3/pipelines/ner_demo)
+project converts the spaCy v2
+[`train_ner.py`](https://github.com/explosion/spaCy/blob/v2.3.x/examples/training/train_ner.py)
+demo script into a spaCy v3 project.
+
+1. Clone the project:
+
+   ```bash
+   python -m spacy project clone pipelines/ner_demo
+   ```
+
+2. Install requirements and download any data assets:
+
+   ```bash
+   cd ner_demo
+   python -m pip install -r requirements.txt
+   python -m spacy project assets
+   ```
+
+3. Run the default workflow to convert, train and evaluate:
+
+   ```bash
+   python -m spacy project run all
+   ```
+
+   Sample output:
+
+   ```none
+   ℹ Running workflow 'all'
+   
+   ================================== convert ==================================
+   Running command: /home/user/venv/bin/python scripts/convert.py en assets/train.json corpus/train.spacy
+   Running command: /home/user/venv/bin/python scripts/convert.py en assets/dev.json corpus/dev.spacy
+   
+   =============================== create-config ===============================
+   Running command: /home/user/venv/bin/python -m spacy init config --lang en --pipeline ner configs/config.cfg --force
+   ℹ Generated config template specific for your use case
+   - Language: en
+   - Pipeline: ner
+   - Optimize for: efficiency
+   - Hardware: CPU
+   - Transformer: None
+   ✔ Auto-filled config with all values
+   ✔ Saved config
+   configs/config.cfg
+   You can now add your data and train your pipeline:
+   python -m spacy train config.cfg --paths.train ./train.spacy --paths.dev ./dev.spacy
+   
+   =================================== train ===================================
+   Running command: /home/user/venv/bin/python -m spacy train configs/config.cfg --output training/ --paths.train corpus/train.spacy --paths.dev corpus/dev.spacy --training.eval_frequency 10 --training.max_steps 100 --gpu-id -1
+   ℹ Using CPU
+   
+   =========================== Initializing pipeline ===========================
+   [2021-03-11 19:34:59,101] [INFO] Set up nlp object from config
+   [2021-03-11 19:34:59,109] [INFO] Pipeline: ['tok2vec', 'ner']
+   [2021-03-11 19:34:59,113] [INFO] Created vocabulary
+   [2021-03-11 19:34:59,113] [INFO] Finished initializing nlp object
+   [2021-03-11 19:34:59,265] [INFO] Initialized pipeline components: ['tok2vec', 'ner']
+   ✔ Initialized pipeline
+   
+   ============================= Training pipeline =============================
+   ℹ Pipeline: ['tok2vec', 'ner']
+   ℹ Initial learn rate: 0.001
+   E    #       LOSS TOK2VEC  LOSS NER  ENTS_F  ENTS_P  ENTS_R  SCORE 
+   ---  ------  ------------  --------  ------  ------  ------  ------
+     0       0          0.00      7.90    0.00    0.00    0.00    0.00
+    10      10          0.11     71.07    0.00    0.00    0.00    0.00
+    20      20          0.65     22.44   50.00   50.00   50.00    0.50
+    30      30          0.22      6.38   80.00   66.67  100.00    0.80
+    40      40          0.00      0.00   80.00   66.67  100.00    0.80
+    50      50          0.00      0.00   80.00   66.67  100.00    0.80
+    60      60          0.00      0.00  100.00  100.00  100.00    1.00
+    70      70          0.00      0.00  100.00  100.00  100.00    1.00
+    80      80          0.00      0.00  100.00  100.00  100.00    1.00
+    90      90          0.00      0.00  100.00  100.00  100.00    1.00
+   100     100          0.00      0.00  100.00  100.00  100.00    1.00
+   ✔ Saved pipeline to output directory
+   training/model-last
+   ```
+
+4. Package the model:
+
+   ```bash
+   python -m spacy project run package
+   ```
+
+5. Visualize the model's output with [Streamlit](https://streamlit.io):
+
+   ```bash
+   python -m spacy project run visualize-model
+   ```
+
+----
+examples\training\README.md
+<a href="https://explosion.ai"><img src="https://explosion.ai/assets/img/logo.svg" width="125" height="125" align="right" /></a>
+
+# spaCy examples
+
+See [examples/README.md](../README.md)
+
+----
+extra\DEVELOPER_DOCS\Code Conventions.md
+# Code Conventions
+
+For a general overview of code conventions for contributors, see the [section in the contributing guide](https://github.com/explosion/spaCy/blob/master/CONTRIBUTING.md#code-conventions).
+
+1. [Code compatibility](#code-compatibility)
+2. [Auto-formatting](#auto-formatting)
+3. [Linting](#linting)
+4. [Documenting code](#documenting-code)
+5. [Type hints](#type-hints)
+6. [Structuring logic](#structuring-logic)
+7. [Naming](#naming)
+8. [Error handling](#error-handling)
+9. [Writing tests](#writing-tests)
+
+## Code compatibility
+
+spaCy supports **Python 3.6** and above, so all code should be written compatible with 3.6. This means that there are certain new syntax features that we won't be able to use until we drop support for older Python versions. Some newer features provide backports that we can conditionally install for older versions, although we only want to do this if it's absolutely necessary. If we need to use conditional imports based on the Python version or other custom compatibility-specific helpers, those should live in `compat.py`.
+
+## Auto-formatting
+
+spaCy uses `black` for auto-formatting (which is also available as a pre-commit hook). It's recommended to configure your editor to perform this automatically, either triggered manually or whenever you save a file. We also have a GitHub action that regularly formats the code base and submits a PR if changes are available. Note that auto-formatting is currently only available for `.py` (Python) files, not for `.pyx` (Cython).
+
+As a rule of thumb, if the auto-formatting produces output that looks messy, it can often indicate that there's a better way to structure the code to make it more concise.
+
+```diff
+- range_suggester = registry.misc.get("spacy.ngram_range_suggester.v1")(
+-     min_size=1, max_size=3
+- )
++ suggester_factory = registry.misc.get("spacy.ngram_range_suggester.v1")
++ range_suggester = suggester_factory(min_size=1, max_size=3)
+```
+
+In some specific cases, e.g. in the tests, it can make sense to disable auto-formatting for a specific block. You can do this by wrapping the code in `# fmt: off` and `# fmt: on`:
+
+```diff
++ # fmt: off
+text = "I look forward to using Thingamajig.  I've been told it will make my life easier..."
+deps = ["nsubj", "ROOT", "advmod", "prep", "pcomp", "dobj", "punct", "",
+        "nsubjpass", "aux", "auxpass", "ROOT", "nsubj", "aux", "ccomp",
+        "poss", "nsubj", "ccomp", "punct"]
++ # fmt: on
+```
+
+## Linting
+
+[`flake8`](http://flake8.pycqa.org/en/latest/) is a tool for enforcing code style. It scans one or more files and outputs errors and warnings. This feedback can help you stick to general standards and conventions, and can be very useful for spotting potential mistakes and inconsistencies in your code. Code you write should be compatible with our flake8 rules and not cause any warnings.
+
+```bash
+flake8 spacy
+```
+
+The most common problems surfaced by linting are:
+
+- **Trailing or missing whitespace.** This is related to formatting and should be fixed automatically by running `black`.
+- **Unused imports.** Those should be removed if the imports aren't actually used. If they're required, e.g. to expose them so they can be imported from the given module, you can add a comment and `# noqa: F401` exception (see details below).
+- **Unused variables.** This can often indicate bugs, e.g. a variable that's declared and not correctly passed on or returned. To prevent ambiguity here, your code shouldn't contain unused variables. If you're unpacking a list of tuples and end up with variables you don't need, you can call them `_` to indicate that they're unused.
+- **Redefinition of function.** This can also indicate bugs, e.g. a copy-pasted function that you forgot to rename and that now replaces the original function.
+- **Repeated dictionary keys.** This either indicates a bug or unnecessary duplication.
+- **Comparison with `True`, `False`, `None`**. This is mostly a stylistic thing: when checking whether a value is `True`, `False` or `None`, you should be using `is` instead of `==`. For example, `if value is None`.
+
+### Ignoring linter rules for special cases
+
+To ignore a given line, you can add a comment like `# noqa: F401`, specifying the code of the error or warning we want to ignore. It's also possible to ignore several comma-separated codes at once, e.g. `# noqa: E731,E123`. In general, you should always **specify the code(s)** you want to ignore – otherwise, you may end up missing actual problems.
+
+```python
+# The imported class isn't used in this file, but imported here, so it can be
+# imported *from* here by another module.
+from .submodule import SomeClass  # noqa: F401
+
+try:
+    do_something()
+except:  # noqa: E722
+    # This bare except is justified, for some specific reason
+    do_something_else()
+```
+
+## Documenting code
+
+All functions and methods you write should be documented with a docstring inline. The docstring can contain a simple summary, and an overview of the arguments and their (simplified) types. Modern editors will show this information to users when they call the function or method in their code.
+
+If it's part of the public API and there's a documentation section available, we usually add the link as `DOCS:` at the end. This allows us to keep the docstrings simple and concise, while also providing additional information and examples if necessary.
+
+```python
+def has_pipe(self, name: str) -> bool:
+    """Check if a component name is present in the pipeline. Equivalent to
+    `name in nlp.pipe_names`.
+
+    name (str): Name of the component.
+    RETURNS (bool): Whether a component of the name exists in the pipeline.
+
+    DOCS: https://spacy.io/api/language#has_pipe
+    """
+    ...
+```
+
+We specifically chose this approach of maintaining the docstrings and API reference separately, instead of auto-generating the API docs from the docstrings like other packages do. We want to be able to provide extensive explanations and examples in the documentation and use our own custom markup for it that would otherwise clog up the docstrings. We also want to be able to update the documentation independently of the code base. It's slightly more work, but it's absolutely worth it in terms of user and developer experience.
+
+### Inline code comments
+
+We don't expect you to add inline comments for everything you're doing – this should be obvious from reading the code. If it's not, the first thing to check is whether your code can be improved to make it more explicit. That said, if your code includes complex logic or aspects that may be unintuitive at first glance (or even included a subtle bug that you ended up fixing), you should leave a quick comment that provides more context.
+
+```diff
+token_index = indices[value]
++ # Index describes Token.i of last token but Span indices are inclusive
+span = doc[prev_token_index:token_index + 1]
+```
+
+```diff
++ # To create the components we need to use the final interpolated config
++ # so all values are available (if component configs use variables).
++ # Later we replace the component config with the raw config again.
+interpolated = filled.interpolate() if not filled.is_interpolated else filled
+```
+
+Don't be shy about including comments for tricky parts that _you_ found hard to implement or get right – those may come in handy for the next person working on this code, or even future you!
+
+If your change implements a fix to a specific issue, it can often be helpful to include the issue number in the comment, especially if it's a relatively straightforward adjustment:
+
+```diff
++ # Ensure object is a Span, not a Doc (#1234)
+if isinstance(obj, Doc):
+    obj = obj[obj.start:obj.end]
+```
+
+### Including TODOs
+
+It's fine to include code comments that indicate future TODOs, using the `TODO:` prefix. Modern editors typically format this in a different color, so it's easy to spot. TODOs don't necessarily have to be things that are absolutely critical to fix fight now – those should already be addressed in your pull request once it's ready for review. But they can include notes about potential future improvements.
+
+```diff
++ # TODO: this is currently pretty slow
+dir_checksum = hashlib.md5()
+for sub_file in sorted(fp for fp in path.rglob("*") if fp.is_file()):
+    dir_checksum.update(sub_file.read_bytes())
+```
+
+If any of the TODOs you've added are important and should be fixed soon, you should add a task for this on Explosion's internal Ora board or an issue on the public issue tracker to make sure we don't forget to address it.
+
+## Type hints
+
+We use Python type hints across the `.py` files wherever possible. This makes it easy to understand what a function expects and returns, and modern editors will be able to show this information to you when you call an annotated function. Type hints are not currently used in the `.pyx` (Cython) code, except for definitions of registered functions and component factories, where they're used for config validation. Ideally when developing, run `mypy spacy` on the code base to inspect any issues.
+
+If possible, you should always use the more descriptive type hints like `List[str]` or even `List[Any]` instead of only `list`. We also annotate arguments and return types of `Callable` – although, you can simplify this if the type otherwise gets too verbose (e.g. functions that return factories to create callbacks). Remember that `Callable` takes two values: a **list** of the argument type(s) in order, and the return values.
+
+```diff
+- def func(some_arg: dict) -> None:
++ def func(some_arg: Dict[str, Any]) -> None:
+    ...
+```
+
+```python
+def create_callback(some_arg: bool) -> Callable[[str, int], List[str]]:
+    def callback(arg1: str, arg2: int) -> List[str]:
+        ...
+
+    return callback
+```
+
+For typing variables, we prefer the explicit format.
+
+```diff
+- var = value    # type: Type
++ var: Type = value
+```
+
+For model architectures, Thinc also provides a collection of [custom types](https://thinc.ai/docs/api-types), including more specific types for arrays and model inputs/outputs. Even outside of static type checking, using these types will make the code a lot easier to read and follow, since it's always clear what array types are expected (and what might go wrong if the output is different from the expected type).
+
+```python
+def build_tagger_model(
+    tok2vec: Model[List[Doc], List[Floats2d]], nO: Optional[int] = None
+) -> Model[List[Doc], List[Floats2d]]:
+    ...
+```
+
+If you need to use a type hint that refers to something later declared in the same module, or the class that a method belongs to, you can use a string value instead:
+
+```python
+class SomeClass:
+    def from_bytes(self, data: bytes) -> "SomeClass":
+        ...
+```
+
+In some cases, you won't be able to import a class from a different module to use it as a type hint because it'd cause circular imports. For instance, `spacy/util.py` includes various helper functions that return an instance of `Language`, but we couldn't import it, because `spacy/language.py` imports `util` itself. In this case, we can provide `"Language"` as a string and make the import conditional on `typing.TYPE_CHECKING` so it only runs when the code is evaluated by a type checker:
+
+```python
+from typing TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .language import Language
+
+def load_model(name: str) -> "Language":
+    ...
+```
+
+Note that we typically put the `from typing` import statements on the first line(s) of the Python module.
+
+## Structuring logic
+
+### Positional and keyword arguments
+
+We generally try to avoid writing functions and methods with too many arguments, and use keyword-only arguments wherever possible. Python lets you define arguments as keyword-only by separating them with a `, *`. If you're writing functions with additional arguments that customize the behavior, you typically want to make those arguments keyword-only, so their names have to be provided explicitly.
+
+```diff
+- def do_something(name: str, validate: bool = False):
++ def do_something(name: str, *, validate: bool = False):
+    ...
+
+- do_something("some_name", True)
++ do_something("some_name", validate=True)
+```
+
+This makes the function calls easier to read, because it's immediately clear what the additional values mean. It also makes it easier to extend arguments or change their order later on, because you don't end up with any function calls that depend on a specific positional order.
+
+### Avoid mutable default arguments
+
+A common Python gotcha are [mutable default arguments](https://docs.python-guide.org/writing/gotchas/#mutable-default-arguments): if your argument defines a mutable default value like `[]` or `{}` and then goes and mutates it, the default value is created _once_ when the function is created and the same object is then mutated every time the function is called. This can be pretty unintuitive when you first encounter it. We therefore avoid writing logic that does this.
+
+If your arguments need to default to an empty list or dict, you can use the `SimpleFrozenList` and `SimpleFrozenDict` helpers provided by spaCy. They are simple frozen implementations that raise an error if they're being mutated to prevent bugs and logic that accidentally mutates default arguments.
+
+```diff
+- def to_bytes(self, *, exclude: List[str] = []):
++ def to_bytes(self, *, exclude: List[str] = SimpleFrozenList()):
+    ...
+```
+
+```diff
+def do_something(values: List[str] = SimpleFrozenList()):
+    if some_condition:
+-         values.append("foo")  # raises an error
++         values = [*values, "foo"]
+    return values
+```
+
+### Don't use `try`/`except` for control flow
+
+We strongly discourage using `try`/`except` blocks for anything that's not third-party error handling or error handling that we otherwise have little control over. There's typically always a way to anticipate the _actual_ problem and **check for it explicitly**, which makes the code easier to follow and understand, and prevents bugs:
+
+```diff
+- try:
+-     token = doc[i]
+- except IndexError:
+-     token = doc[-1]
+
++ if i < len(doc):
++     token = doc[i]
++ else:
++     token = doc[-1]
+```
+
+Even if you end up having to check for multiple conditions explicitly, this is still preferred over a catch-all `try`/`except`. It can be very helpful to think about the exact scenarios you need to cover, and what could go wrong at each step, which often leads to better code and fewer bugs. `try/except` blocks can also easily mask _other_ bugs and problems that raise the same errors you're catching, which is obviously bad.
+
+If you have to use `try`/`except`, make sure to only include what's **absolutely necessary** in the `try` block and define the exception(s) explicitly. Otherwise, you may end up masking very different exceptions caused by other bugs.
+
+```diff
+- try:
+-     value1 = get_some_value()
+-     value2 = get_some_other_value()
+-     score = external_library.compute_some_score(value1, value2)
+- except:
+-     score = 0.0
+
++ value1 = get_some_value()
++ value2 = get_some_other_value()
++ try:
++     score = external_library.compute_some_score(value1, value2)
++ except ValueError:
++     score = 0.0
+```
+
+### Avoid lambda functions
+
+`lambda` functions can be useful for defining simple anonymous functions in a single line, but they also introduce problems: for instance, they require [additional logic](https://stackoverflow.com/questions/25348532/can-python-pickle-lambda-functions) in order to be pickled and are pretty ugly to type-annotate. So we typically avoid them in the code base and only use them in the serialization handlers and within tests for simplicity. Instead of `lambda`s, check if your code can be refactored to not need them, or use helper functions instead.
+
+```diff
+- split_string: Callable[[str], List[str]] = lambda value: [v.strip() for v in value.split(",")]
+
++ def split_string(value: str) -> List[str]:
++     return [v.strip() for v in value.split(",")]
+```
+
+### Numeric comparisons
+
+For numeric comparisons, as a general rule we always use `<` and `>=` and avoid the usage of `<=` and `>`. This is to ensure we consistently
+apply inclusive lower bounds and exclusive upper bounds, helping to prevent off-by-one errors.
+
+One exception to this rule is the ternary case. With a chain like
+
+```python
+if value >= 0 and value < max:
+    ...
+```
+
+it's fine to rewrite this to the shorter form
+
+```python
+if 0 <= value < max:
+    ...
+```
+
+even though this requires the usage of the `<=` operator.
+
+### Iteration and comprehensions
+
+We generally avoid using built-in functions like `filter` or `map` in favor of list or generator comprehensions.
+
+```diff
+- filtered = filter(lambda x: x in ["foo", "bar"], values)
++ filtered = (x for x in values if x in ["foo", "bar"])
+- filtered = list(filter(lambda x: x in ["foo", "bar"], values))
++ filtered = [x for x in values if x in ["foo", "bar"]]
+
+- result = map(lambda x: { x: x in ["foo", "bar"]}, values)
++ result = ({x: x in ["foo", "bar"]} for x in values)
+- result = list(map(lambda x: { x: x in ["foo", "bar"]}, values))
++ result = [{x: x in ["foo", "bar"]} for x in values]
+```
+
+If your logic is more complex, it's often better to write a loop instead, even if it adds more lines of code in total. The result will be much easier to follow and understand.
+
+```diff
+- result = [{"key": key, "scores": {f"{i}": score for i, score in enumerate(scores)}} for key, scores in values]
+
++ result = []
++ for key, scores in values:
++     scores_dict = {f"{i}": score for i, score in enumerate(scores)}
++     result.append({"key": key, "scores": scores_dict})
+```
+
+### Composition vs. inheritance
+
+Although spaCy uses a lot of classes, **inheritance is viewed with some suspicion** — it's seen as a mechanism of last resort. You should discuss plans to extend the class hierarchy before implementing. Unless you're implementing a new data structure or pipeline component, you typically shouldn't have to use classes at all.
+
+### Don't use `print`
+
+The core library never `print`s anything. While we encourage using `print` statements for simple debugging (it's the most straightforward way of looking at what's happening), make sure to clean them up once you're ready to submit your pull request. If you want to output warnings or debugging information for users, use the respective dedicated mechanisms for this instead (see sections on warnings and logging for details).
+
+The only exceptions are the CLI functions, which pretty-print messages for the user, and methods that are explicitly intended for printing things, e.g. `Language.analyze_pipes` with `pretty=True` enabled. For this, we use our lightweight helper library [`wasabi`](https://github.com/ines/wasabi).
+
+## Naming
+
+Naming is hard and often a topic of long internal discussions. We don't expect you to come up with the perfect names for everything you write – finding the right names is often an iterative and collaborative process. That said, we do try to follow some basic conventions.
+
+Consistent with general Python conventions, we use `CamelCase` for class names including dataclasses, `snake_case` for methods, functions and variables, and `UPPER_SNAKE_CASE` for constants, typically defined at the top of a module. We also avoid using variable names that shadow the names of built-in functions, e.g. `input`, `help` or `list`.
+
+### Naming variables
+
+Variable names should always make it clear _what exactly_ the variable is and what it's used for. Instances of common classes should use the same consistent names. For example, you should avoid naming a text string (or anything else that's not a `Doc` object) `doc`. The most common class-to-variable mappings are:
+
+| Class      | Variable              | Example                                     |
+| ---------- | --------------------- | ------------------------------------------- |
+| `Language` | `nlp`                 | `nlp = spacy.blank("en")`                   |
+| `Doc`      | `doc`                 | `doc = nlp("Some text")`                    |
+| `Span`     | `span`, `ent`, `sent` | `span = doc[1:4]`, `ent = doc.ents[0]`      |
+| `Token`    | `token`               | `token = doc[0]`                            |
+| `Lexeme`   | `lexeme`, `lex`       | `lex = nlp.vocab["foo"]`                    |
+| `Vocab`    | `vocab`               | `vocab = Vocab()`                           |
+| `Example`  | `example`, `eg`       | `example = Example.from_dict(doc, gold)`    |
+| `Config`   | `config`, `cfg`       | `config = Config().from_disk("config.cfg")` |
+
+We try to avoid introducing too many temporary variables, as these clutter your namespace. It's okay to re-assign to an existing variable, but only if the value has the same type.
+
+```diff
+ents = get_a_list_of_entities()
+ents = [ent for ent in doc.ents if ent.label_ == "PERSON"]
+- ents = {(ent.start, ent.end): ent.label_ for ent in ents}
++ ent_mappings = {(ent.start, ent.end): ent.label_ for ent in ents}
+```
+
+### Naming methods and functions
+
+Try choosing short and descriptive names wherever possible and imperative verbs for methods that do something, e.g. `disable_pipes`, `add_patterns` or `get_vector`. Private methods and functions that are not intended to be part of the user-facing API should be prefixed with an underscore `_`. It's often helpful to look at the existing classes for inspiration.
+
+Objects that can be serialized, e.g. data structures and pipeline components, should implement the same consistent methods for serialization. Those usually include at least `to_disk`, `from_disk`, `to_bytes` and `from_bytes`. Some objects can also implement more specific methods like `{to/from}_dict` or `{to/from}_str`.
+
+## Error handling
+
+We always encourage writing helpful and detailed custom error messages for everything we can anticipate going wrong, and including as much detail as possible. spaCy provides a directory of error messages in `errors.py` with unique codes for each message. This allows us to keep the code base more concise and avoids long and nested blocks of texts throughout the code that disrupt the reading flow. The codes make it easy to find references to the same error in different places, and also helps identify problems reported by users (since we can just search for the error code).
+
+Errors can be referenced via their code, e.g. `Errors.E123`. Messages can also include placeholders for values, that can be populated by formatting the string with `.format()`.
+
+```python
+class Errors:
+    E123 = "Something went wrong"
+    E456 = "Unexpected value: {value}"
+```
+
+```diff
+if something_went_wrong:
+-    raise ValueError("Something went wrong!")
++    raise ValueError(Errors.E123)
+
+if not isinstance(value, int):
+-    raise ValueError(f"Unexpected value: {value}")
++    raise ValueError(Errors.E456.format(value=value))
+```
+
+As a general rule of thumb, all error messages raised within the **core library** should be added to `Errors`. The only place where we write errors and messages as strings is `spacy.cli`, since these functions typically pretty-print and generate a lot of output that'd otherwise be very difficult to separate from the actual logic.
+
+### Re-raising exceptions
+
+If we anticipate possible errors in third-party code that we don't control, or our own code in a very different context, we typically try to provide custom and more specific error messages if possible. If we need to re-raise an exception within a `try`/`except` block, we can re-raise a custom exception.
+
+[Re-raising `from`](https://docs.python.org/3/tutorial/errors.html#exception-chaining) the original caught exception lets us chain the exceptions, so the user sees both the original error, as well as the custom message with a note "The above exception was the direct cause of the following exception".
+
+```diff
+try:
+    run_third_party_code_that_might_fail()
+except ValueError as e:
++    raise ValueError(Errors.E123) from e
+```
+
+In some cases, it makes sense to suppress the original exception, e.g. if we know what it is and know that it's not particularly helpful. In that case, we can raise `from None`. This prevents clogging up the user's terminal with multiple and irrelevant chained exceptions.
+
+```diff
+try:
+    run_our_own_code_that_might_fail_confusingly()
+except ValueError:
++    raise ValueError(Errors.E123) from None
+```
+
+### Avoid using naked `assert`
+
+During development, it can sometimes be helpful to add `assert` statements throughout your code to make sure that the values you're working with are what you expect. However, as you clean up your code, those should either be removed or replaced by more explicit error handling:
+
+```diff
+- assert score >= 0.0
++ if score < 0.0:
++     raise ValueError(Errors.789.format(score=score))
+```
+
+Otherwise, the user will get to see a naked `AssertionError` with no further explanation, which is very unhelpful. Instead of adding an error message to `assert`, it's always better to `raise` more explicit errors for specific conditions. If you're checking for something that _has to be right_ and would otherwise be a bug in spaCy, you can express this in the error message:
+
+```python
+E161 = ("Found an internal inconsistency when predicting entity links. "
+        "This is likely a bug in spaCy, so feel free to open an issue: "
+        "https://github.com/explosion/spaCy/issues")
+```
+
+### Warnings
+
+Instead of raising an error, some parts of the code base can raise warnings to notify the user of a potential problem. This is done using Python's `warnings.warn` and the messages defined in `Warnings` in the `errors.py`. Whether or not warnings are shown can be controlled by the user, including custom filters for disabling specific warnings using a regular expression matching our internal codes, e.g. `W123`.
+
+```diff
+- print("Warning: No examples provided for validation")
++ warnings.warn(Warnings.W123)
+```
+
+When adding warnings, make sure you're not calling `warnings.warn` repeatedly, e.g. in a loop, which will clog up the terminal output. Instead, you can collect the potential problems first and then raise a single warning. If the problem is critical, consider raising an error instead.
+
+```diff
++ n_empty = 0
+for spans in lots_of_annotations:
+    if len(spans) == 0:
+-       warnings.warn(Warnings.456)
++       n_empty += 1
++ warnings.warn(Warnings.456.format(count=n_empty))
+```
+
+### Logging
+
+Log statements can be added via spaCy's `logger`, which uses Python's native `logging` module under the hood. We generally only use logging for debugging information that **the user may choose to see** in debugging mode or that's **relevant during training** but not at runtime.
+
+```diff
++ logger.info("Set up nlp object from config")
+config = nlp.config.interpolate()
+```
+
+`spacy train` and similar CLI commands will enable all log statements of level `INFO` by default (which is not the case at runtime). This allows outputting specific information within certain parts of the core library during training, without having it shown at runtime. `DEBUG`-level logs are only shown if the user enables `--verbose` logging during training. They can be used to provide more specific and potentially more verbose details, especially in areas that can indicate bugs or problems, or to surface more details about what spaCy does under the hood. You should only use logging statements if absolutely necessary and important.
+
+## Writing tests
+
+spaCy uses the [`pytest`](http://doc.pytest.org/) framework for testing. Tests for spaCy modules and classes live in their own directories of the same name and all test files should be prefixed with `test_`. Tests included in the core library only cover the code and do not depend on any trained pipelines. When implementing a new feature or fixing a bug, it's usually good to start by writing some tests that describe what _should_ happen. As you write your code, you can then keep running the relevant tests until all of them pass.
+
+### Test suite structure
+
+When adding tests, make sure to use descriptive names and only test for one behavior at a time. Tests should be grouped into modules dedicated to the same type of functionality and some test modules are organized as directories of test files related to the same larger area of the library, e.g. `matcher` or `tokenizer`.
+
+Regression tests are tests that refer to bugs reported in specific issues. They should live in the relevant module of the test suite, named according to the issue number (e.g., `test_issue1234.py`), and [marked](https://docs.pytest.org/en/6.2.x/example/markers.html#working-with-custom-markers) appropriately (e.g. `@pytest.mark.issue(1234)`). This system allows us to relate tests for specific bugs back to the original reported issue, which is especially useful if we introduce a regression and a previously passing regression tests suddenly fails again. When fixing a bug, it's often useful to create a regression test for it first.
+
+The test suite also provides [fixtures](https://github.com/explosion/spaCy/blob/master/spacy/tests/conftest.py) for different language tokenizers that can be used as function arguments of the same name and will be passed in automatically. Those should only be used for tests related to those specific languages. We also have [test utility functions](https://github.com/explosion/spaCy/blob/master/spacy/tests/util.py) for common operations, like creating a temporary file.
+
+### Testing Cython Code
+
+If you're developing Cython code (`.pyx` files), those extensions will need to be built before the test runner can test that code - otherwise it's going to run the tests with stale code from the last time the extension was built. You can build the extensions locally with `python setup.py build_ext -i`.
+
+### Constructing objects and state
+
+Test functions usually follow the same simple structure: they set up some state, perform the operation you want to test and `assert` conditions that you expect to be true, usually before and after the operation.
+
+Tests should focus on exactly what they're testing and avoid dependencies on other unrelated library functionality wherever possible. If all your test needs is a `Doc` object with certain annotations set, you should always construct it manually:
+
+```python
+def test_doc_creation_with_pos():
+    doc = Doc(Vocab(), words=["hello", "world"], pos=["NOUN", "VERB"])
+    assert doc[0].pos_ == "NOUN"
+    assert doc[1].pos_ == "VERB"
+```
+
+### Parametrizing tests
+
+If you need to run the same test function over different input examples, you usually want to parametrize the test cases instead of using a loop within your test. This lets you keep a better separation between test cases and test logic, and it'll result in more useful output because `pytest` will be able to tell you which exact test case failed.
+
+The `@pytest.mark.parametrize` decorator takes two arguments: a string defining one or more comma-separated arguments that should be passed to the test function and a list of corresponding test cases (or a list of tuples to provide multiple arguments).
+
+```python
+@pytest.mark.parametrize("words", [["hello", "world"], ["this", "is", "a", "test"]])
+def test_doc_length(words):
+    doc = Doc(Vocab(), words=words)
+    assert len(doc) == len(words)
+```
+
+```python
+@pytest.mark.parametrize("text,expected_len", [("hello world", 2), ("I can't!", 4)])
+def test_token_length(en_tokenizer, text, expected_len):  # en_tokenizer is a fixture
+    doc = en_tokenizer(text)
+    assert len(doc) == expected_len
+```
+
+You can also stack `@pytest.mark.parametrize` decorators, although this is not recommended unless it's absolutely needed or required for the test. When stacking decorators, keep in mind that this will run the test with all possible combinations of the respective parametrized values, which is often not what you want and can slow down the test suite.
+
+### Handling failing tests
+
+`xfail` means that a test **should pass but currently fails**, i.e. is expected to fail. You can mark a test as currently xfailing by adding the `@pytest.mark.xfail` decorator. This should only be used for tests that don't yet work, not for logic that cause errors we raise on purpose (see the section on testing errors for this). It's often very helpful to implement tests for edge cases that we don't yet cover and mark them as `xfail`. You can also provide a `reason` keyword argument to the decorator with an explanation of why the test currently fails.
+
+```diff
++ @pytest.mark.xfail(reason="Issue #225 - not yet implemented")
+def test_en_tokenizer_splits_em_dash_infix(en_tokenizer):
+    doc = en_tokenizer("Will this road take me to Puddleton?\u2014No.")
+    assert doc[8].text == "\u2014"
+```
+
+When you run the test suite, you may come across tests that are reported as `xpass`. This means that they're marked as `xfail` but didn't actually fail. This is worth looking into: sometimes, it can mean that we have since fixed a bug that caused the test to previously fail, so we can remove the decorator. In other cases, especially when it comes to machine learning model implementations, it can also indicate that the **test is flaky**: it sometimes passes and sometimes fails. This can be caused by a bug, or by constraints being too narrowly defined. If a test shows different behavior depending on whether its run in isolation or not, this can indicate that it reacts to global state set in a previous test, which is unideal and should be avoided.
+
+### Writing slow tests
+
+If a test is useful but potentially quite slow, you can mark it with the `@pytest.mark.slow` decorator. This is a special marker we introduced and tests decorated with it only run if you run the test suite with `--slow`, but not as part of the main CI process. Before introducing a slow test, double-check that there isn't another and more efficient way to test for the behavior. You should also consider adding a simpler test with maybe only a subset of the test cases that can always run, so we at least have some coverage.
+
+### Skipping tests
+
+The `@pytest.mark.skip` decorator lets you skip tests entirely. You only want to do this for failing tests that may be slow to run or cause memory errors or segfaults, which would otherwise terminate the entire process and wouldn't be caught by `xfail`. We also sometimes use the `skip` decorator for old and outdated regression tests that we want to keep around but that don't apply anymore. When using the `skip` decorator, make sure to provide the `reason` keyword argument with a quick explanation of why you chose to skip this test.
+
+### Testing errors and warnings
+
+`pytest` lets you check whether a given error is raised by using the `pytest.raises` contextmanager. This is very useful when implementing custom error handling, so make sure you're not only testing for the correct behavior but also for errors resulting from incorrect inputs. If you're testing errors, you should always check for `pytest.raises` explicitly and not use `xfail`.
+
+```python
+words = ["a", "b", "c", "d", "e"]
+ents = ["Q-PERSON", "I-PERSON", "O", "I-PERSON", "I-GPE"]
+with pytest.raises(ValueError):
+    Doc(Vocab(), words=words, ents=ents)
+```
+
+You can also use the `pytest.warns` contextmanager to check that a given warning type is raised. The first argument is the warning type or `None` (which will capture a list of warnings that you can `assert` is empty).
+
+```python
+def test_phrase_matcher_validation(en_vocab):
+    doc1 = Doc(en_vocab, words=["Test"], deps=["ROOT"])
+    doc2 = Doc(en_vocab, words=["Test"])
+    matcher = PhraseMatcher(en_vocab, validate=True)
+    with pytest.warns(UserWarning):
+        # Warn about unnecessarily parsed document
+        matcher.add("TEST1", [doc1])
+    with pytest.warns(None) as record:
+        matcher.add("TEST2", [docs])
+        assert not record.list
+```
+
+Keep in mind that your tests will fail if you're using the `pytest.warns` contextmanager with a given warning and the warning is _not_ shown. So you should only use it to check that spaCy handles and outputs warnings correctly. If your test outputs a warning that's expected but not relevant to what you're testing, you can use the `@pytest.mark.filterwarnings` decorator and ignore specific warnings starting with a given code:
+
+```python
+@pytest.mark.filterwarnings("ignore:\\[W036")
+def test_matcher_empty(en_vocab):
+    matcher = Matcher(en_vocab)
+    matcher(Doc(en_vocab, words=["test"]))
+```
+
+### Testing trained pipelines
+
+Our regular test suite does not depend on any of the trained pipelines, since their outputs can vary and aren't generally required to test the library functionality. We test pipelines separately using the tests included in the [`spacy-models`](https://github.com/explosion/spacy-models) repository, which run whenever we train a new suite of models. The tests here mostly focus on making sure that the packages can be loaded and that the predictions seam reasonable, and they include checks for common bugs we encountered previously. If your test does not primarily focus on verifying a model's predictions, it should be part of the core library tests and construct the required objects manually, instead of being added to the models tests.
+
+Keep in mind that specific predictions may change, and we can't test for all incorrect predictions reported by users. Different models make different mistakes, so even a model that's significantly more accurate overall may end up making wrong predictions that it previously didn't. However, some surprising incorrect predictions may indicate deeper bugs that we definitely want to investigate.
+
+----
+extra\DEVELOPER_DOCS\ExplosionBot.md
+# Explosion-bot
+
+Explosion-bot is a robot that can be invoked to help with running particular test commands.
+
+## Permissions
+
+Only maintainers have permissions to summon explosion-bot. Each of the open source repos that use explosion-bot has its own team(s) of maintainers, and only github users who are members of those teams can successfully run bot commands.
+
+## Running robot commands
+
+To summon the robot, write a github comment on the issue/PR you wish to test. The comment must be in the following format:
+
+```
+@explosion-bot please test_gpu
+```
+
+Some things to note:
+
+- The `@explosion-bot please` must be the beginning of the command - you cannot add anything in front of this or else the robot won't know how to parse it. Adding anything at the end aside from the test name will also confuse the robot, so keep it simple!
+- The command name (such as `test_gpu`) must be one of the tests that the bot knows how to run. The available commands are documented in the bot's [workflow config](https://github.com/explosion/spaCy/blob/master/.github/workflows/explosionbot.yml#L26) and must match exactly one of the commands listed there.
+- The robot can't do multiple things at once, so if you want it to run multiple tests, you'll have to summon it with one comment per test.
+
+### Examples
+
+- Execute spaCy slow GPU tests with a custom thinc branch from a spaCy PR:
+
+  ```
+  @explosion-bot please test_slow_gpu --thinc-branch <branch_name>
+  ```
+
+  `branch_name` can either be a named branch, e.g: `develop`, or an unmerged PR, e.g: `refs/pull/<pr_number>/head`.
+
+- Execute spaCy Transformers GPU tests from a spaCy PR:
+
+  ```
+  @explosion-bot please test_gpu --run-on spacy-transformers --run-on-branch master --spacy-branch current_pr
+  ```
+
+  This will launch the GPU pipeline for the `spacy-transformers` repo on its `master` branch, using the current spaCy PR's branch to build spaCy. The name of the repository passed to `--run-on` is case-sensitive, e.g: use `spaCy` instead of `spacy`.
+
+- General info about supported commands.
+
+  ```
+  @explosion-bot please info
+  ```
+
+- Help text for a specific command
+  ```
+  @explosion-bot please <command> --help
+  ```
+
+## Troubleshooting
+
+If the robot isn't responding to commands as expected, you can check its logs in the [Github Action](https://github.com/explosion/spaCy/actions/workflows/explosionbot.yml).
+
+For each command sent to the bot, there should be a run of the `explosion-bot` workflow. In the `Install and run explosion-bot` step, towards the ends of the logs you should see info about the configuration that the bot was run with, as well as any errors that the bot encountered.
+
+----
+extra\DEVELOPER_DOCS\Language.md
+# Language
+
+> Reference: `spacy/language.py`
+
+1. [Constructing the `nlp` object from a config](#1-constructing-the-nlp-object-from-a-config)
+   - [A. Overview of `Language.from_config`](#1a-overview)
+   - [B. Component factories](#1b-how-pipeline-component-factories-work-in-the-config)
+   - [C. Sourcing a component](#1c-sourcing-a-pipeline-component)
+   - [D. Tracking components as they're modified](#1d-tracking-components-as-theyre-modified)
+   - [E. spaCy's config utility function](#1e-spacys-config-utility-functions)
+2. [Initialization](#initialization)
+   - [A. Initialization for training](#2a-initialization-for-training): `init_nlp`
+   - [B. Initializing the `nlp` object](#2b-initializing-the-nlp-object): `Language.initialize`
+   - [C. Initializing the vocab](#2c-initializing-the-vocab): `init_vocab`
+
+## 1. Constructing the `nlp` object from a config
+
+### 1A. Overview
+
+Most of the functions referenced in the config are regular functions with arbitrary arguments registered via the function registry. However, the pipeline components are a bit special: they don't only receive arguments passed in via the config file, but also the current `nlp` object and the string `name` of the individual component instance (so a user can have multiple components created with the same factory, e.g. `ner_one` and `ner_two`). This name can then be used by the components to add to the losses and scores. This special requirement means that pipeline components can't just be resolved via the config the "normal" way: we need to retrieve the component functions manually and pass them their arguments, plus the `nlp` and `name`.
+
+The `Language.from_config` classmethod takes care of constructing the `nlp` object from a config. It's the single place where this happens and what `spacy.load` delegates to under the hood. Its main responsibilities are:
+
+- **Load and validate the config**, and optionally **auto-fill** all missing values that we either have defaults for in the config template or that registered function arguments define defaults for. This helps ensure backwards-compatibility, because we're able to add a new argument `foo: str = "bar"` to an existing function, without breaking configs that don't specity it.
+- **Execute relevant callbacks** for pipeline creation, e.g. optional functions called before and after creation of the `nlp` object and pipeline.
+- **Initialize language subclass and create tokenizer**. The `from_config` classmethod will always be called on a language subclass, e.g. `English`, not on `Language` directly. Initializing the subclass takes a callback to create the tokenizer.
+- **Set up the pipeline components**. Components can either refer to a component factory or a `source`, i.e. an existing pipeline that's loaded and that the component is then copied from. We also need to ensure that we update the information about which components are disabled.
+- **Manage listeners.** If sourced components "listen" to other components (`tok2vec`, `transformer`), we need to ensure that the references are valid. If the config specifies that listeners should be replaced by copies (e.g. to give the `ner` component its own `tok2vec` model instead of listening to the shared `tok2vec` component in the pipeline), we also need to take care of that.
+
+Note that we only resolve and load **selected sections** in `Language.from_config`, i.e. only the parts that are relevant at runtime, which is `[nlp]` and `[components]`. We don't want to be resolving anything related to training or initialization, since this would mean loading and constructing unnecessary functions, including functions that require information that isn't necessarily available at runtime, like `paths.train`.
+
+### 1B. How pipeline component factories work in the config
+
+As opposed to regular registered functions that refer to a registry and function name (e.g. `"@misc": "foo.v1"`), pipeline components follow a different format and refer to their component `factory` name. This corresponds to the name defined via the `@Language.component` or `@Language.factory` decorator. We need this decorator to define additional meta information for the components, like their default config and score weights.
+
+```ini
+[components.my_component]
+factory = "foo"
+some_arg = "bar"
+other_arg = ${paths.some_path}
+```
+
+This means that we need to create and resolve the `config["components"]` separately from the rest of the config. There are some important considerations and things we need to manage explicitly to avoid unexpected behavior:
+
+#### Variable interpolation
+
+When a config is resolved, references to variables are replaced, so that the functions receive the correct value instead of just the variable name. To interpolate a config, we need it in its entirety: we couldn't just interpolate a subsection that refers to variables defined in a different subsection. So we first interpolate the entire config.
+
+However, the `nlp.config` should include the original config with variables intact – otherwise, loading a pipeline and saving it to disk will destroy all logic implemented via variables and hard-code the values all over the place. This means that when we create the components, we need to keep two versions of the config: the interpolated config with the "real" values and the `raw_config` including the variable references.
+
+#### Factory registry
+
+Component factories are special and use the `@Language.factory` or `@Language.component` decorator to register themselves and their meta. When the decorator runs, it performs some basic validation, stores the meta information for the factory on the `Language` class (default config, scores etc.) and then adds the factory function to `registry.factories`. The `component` decorator can be used for registering simple functions that just take a `Doc` object and return it so in that case, we create the factory for the user automatically.
+
+There's one important detail to note about how factories are registered via entry points: A package that wants to expose spaCy components still needs to register them via the `@Language` decorators so we have the component meta information and can perform required checks. All we care about here is that the decorated function is **loaded and imported**. When it is, the `@Language` decorator takes care of everything, including actually registering the component factory.
+
+Normally, adding to the registry via an entry point will just add the function to the registry under the given name. But for `spacy_factories`, we don't actually want that: all we care about is that the function decorated with `@Language` is imported so the decorator runs. So we only exploit Python's entry point system to automatically import the function, and the `spacy_factories` entry point group actually adds to a **separate registry**, `registry._factories`, under the hood. Its only purpose is that the functions are imported. The decorator then runs, creates the factory if needed and adds it to the `registry.factories` registry.
+
+#### Language-specific factories
+
+spaCy supports registering factories on the `Language` base class, as well as language-specific subclasses like `English` or `German`. This allows providing different factories depending on the language, e.g. a different default lemmatizer. The `Language.get_factory_name` classmethod constructs the factory name as `{lang}.{name}` if a language is available (i.e. if it's a subclass) and falls back to `{name}` otherwise. So `@German.factory("foo")` will add a factory `de.foo` under the hood. If you add `nlp.add_pipe("foo")`, we first check if there's a factory for `{nlp.lang}.foo` and if not, we fall back to checking for a factory `foo`.
+
+#### Creating a pipeline component from a factory
+
+`Language.add_pipe` takes care of adding a pipeline component, given its factory name, its config. If no source pipeline to copy the component from is provided, it delegates to `Language.create_pipe`, which sets up the actual component function.
+
+- Validate the config and make sure that the factory was registered via the decorator and that we have meta for it.
+- Update the component config with any defaults specified by the component's `default_config`, if available. This is done by merging the values we receive into the defaults. It ensures that you can still add a component without having to specify its _entire_ config including more complex settings like `model`. If no `model` is defined, we use the default.
+- Check if we have a language-specific factory for the given `nlp.lang` and if not, fall back to the global factory.
+- Construct the component config, consisting of whatever arguments were provided, plus the current `nlp` object and `name`, which are default expected arguments of all factories. We also add a reference to the `@factories` registry, so we can resolve the config via the registry, like any other config. With the added `nlp` and `name`, it should now include all expected arguments of the given function.
+- Fill the config to make sure all unspecified defaults from the function arguments are added and update the `raw_config` (uninterpolated with variables intact) with that information, so the component config we store in `nlp.config` is up to date. We do this by adding the `raw_config` _into_ the filled config – otherwise, the references to variables would be overwritten.
+- Resolve the config and create all functions it refers to (e.g. `model`). This gives us the actual component function that we can insert into the pipeline.
+
+### 1C. Sourcing a pipeline component
+
+```ini
+[components.ner]
+source = "en_core_web_sm"
+```
+
+spaCy also allows ["sourcing" a component](https://spacy.io/usage/processing-pipelines#sourced-components), which will copy it over from an existing pipeline. In this case, `Language.add_pipe` will delegate to `Language.create_pipe_from_source`. In order to copy a component effectively and validate it, the source pipeline first needs to be loaded. This is done in `Language.from_config`, so a source pipeline only has to be loaded once if multiple components source from it. Sourcing a component will perform the following checks and modifications:
+
+- For each sourced pipeline component loaded in `Language.from_config`, a hash of the vectors data from the source pipeline is stored in the pipeline meta so we're able to check whether the vectors match and warn if not (since different vectors that are used as features in components can lead to degraded performance). Because the vectors are not loaded at the point when components are sourced, the check is postponed to `init_vocab` as part of `Language.initialize`.
+- If the sourced pipeline component is loaded through `Language.add_pipe(source=)`, the vectors are already loaded and can be compared directly. The check compares the shape and keys first and finally falls back to comparing the actual byte representation of the vectors (which is slower).
+- Ensure that the component is available in the pipeline.
+- Interpolate the entire config of the source pipeline so all variables are replaced and the component's config that's copied over doesn't include references to variables that are not available in the destination config.
+- Add the source `vocab.strings` to the destination's `vocab.strings` so we don't end up with unavailable strings in the final pipeline (which would also include labels used by the sourced component).
+
+Note that there may be other incompatibilities that we're currently not checking for and that could cause a sourced component to not work in the destination pipeline. We're interested in adding more checks here but there'll always be a small number of edge cases we'll never be able to catch, including a sourced component depending on other pipeline state that's not available in the destination pipeline.
+
+### 1D. Tracking components as they're modified
+
+The `Language` class implements methods for removing, replacing or renaming pipeline components. Whenever we make these changes, we need to update the information stored on the `Language` object to ensure that it matches the current state of the pipeline. If a user just writes to `nlp.config` manually, we obviously can't ensure that the config matches the reality – but since we offer modification via the pipe methods, it's expected that spaCy keeps the config in sync under the hood. Otherwise, saving a modified pipeline to disk and loading it back wouldn't work. The internal attributes we need to keep in sync here are:
+
+| Attribute                | Type                         | Description                                                                                                                                                     |
+| ------------------------ | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Language._components`   | `List[Tuple[str, Callable]]` | All pipeline components as `(name, func)` tuples. This is used as the source of truth for `Language.pipeline`, `Language.pipe_names` and `Language.components`. |
+| `Language._pipe_meta`    | `Dict[str, FactoryMeta]`     | The meta information of a component's factory, keyed by component name. This can include multiple components referring to the same factory meta.                |
+| `Language._pipe_configs` | `Dict[str, Config]`          | The component's config, keyed by component name.                                                                                                                |
+| `Language._disabled`     | `Set[str]`                   | Names of components that are currently disabled.                                                                                                                |
+| `Language._config`       | `Config`                     | The underlying config. This is only internals and will be used as the basis for constructing the config in the `Language.config` property.                      |
+
+In addition to the actual component settings in `[components]`, the config also allows specifying component-specific arguments via the `[initialize.components]` block, which are passed to the component's `initialize` method during initialization if it's available. So we also need to keep this in sync in the underlying config.
+
+### 1E. spaCy's config utility functions
+
+When working with configs in spaCy, make sure to use the utility functions provided by spaCy if available, instead of calling the respective `Config` methods. The utilities take care of providing spaCy-specific error messages and ensure a consistent order of config sections by setting the `section_order` argument. This ensures that exported configs always have the same consistent format.
+
+- `util.load_config`: load a config from a file
+- `util.load_config_from_str`: load a confirm from a string representation
+- `util.copy_config`: deepcopy a config
+
+## 2. Initialization
+
+Initialization is a separate step of the [config lifecycle](https://spacy.io/usage/training#config-lifecycle) that's not performed at runtime. It's implemented via the `training.initialize.init_nlp` helper and calls into `Language.initialize` method, which sets up the pipeline and component models before training. The `initialize` method takes a callback that returns a sample of examples, which is used to initialize the component models, add all required labels and perform shape inference if applicable.
+
+Components can also define custom initialization setting via the `[initialize.components]` block, e.g. if they require external data like lookup tables to be loaded in. All config settings defined here will be passed to the component's `initialize` method, if it implements one. Components are expected to handle their own serialization after they're initialized so that any data or settings they require are saved with the pipeline and will be available from disk when the pipeline is loaded back at runtime.
+
+### 2A. Initialization for training
+
+The `init_nlp` function is called before training and returns an initialized `nlp` object that can be updated with the examples. It only needs the config and does the following:
+
+- Load and validate the config. In order to validate certain settings like the `seed`, we also interpolate the config to get the final value (because in theory, a user could provide this via a variable).
+- Set up the GPU allocation, if required.
+- Create the `nlp` object from the raw, uninterpolated config, which delegates to `Language.from_config`. Since this method may modify and auto-fill the config and pipeline component settings, we then use the interpolated version of `nlp.config` going forward, to ensure that what we're training with is up to date.
+- Resolve the `[training]` block of the config and perform validation, e.g. to check that the corpora are available.
+- Determine the components that should be frozen (not updated during training) or resumed (sourced components from a different pipeline that should be updated from the examples and not reset and re-initialized). To resume training, we can call the `nlp.resume_training` method.
+- Initialize the `nlp` object via `nlp.initialize` and pass it a `get_examples` callback that returns the training corpus (used for shape inference, setting up labels etc.). If the training corpus is streamed, we only provide a small sample of the data, which can potentially be infinite. `nlp.initialize` will delegate to the components as well and pass the data sample forward.
+- Check the listeners and warn about components dependencies, e.g. if a frozen component listens to a component that is retrained, or vice versa (which can degrade results).
+
+### 2B. Initializing the `nlp` object
+
+The `Language.initialize` method does the following:
+
+- **Resolve the config** defined in the `[initialize]` block separately (since everything else is already available in the loaded `nlp` object), based on the fully interpolated config.
+- **Execute callbacks**, i.e. `before_init` and `after_init`, if they're defined.
+- **Initialize the vocab**, including vocab data, lookup tables and vectors.
+- **Initialize the tokenizer** if it implements an `initialize` method. This is not the case for the default tokenizers, but it allows custom tokenizers to depend on external data resources that are loaded in on initialization.
+- **Initialize all pipeline components** if they implement an `initialize` method and pass them the `get_examples` callback, the current `nlp` object as well as well additional initialization config settings provided in the component-specific block.
+- **Initialize pretraining** if a `[pretraining]` block is available in the config. This allows loading pretrained tok2vec weights in `spacy pretrain`.
+- **Register listeners** if token-to-vector embedding layers of a component model "listen" to a previous component (`tok2vec`, `transformer`) in the pipeline.
+- **Create an optimizer** on the `Language` class, either by adding the optimizer passed as `sgd` to `initialize`, or by creating the optimizer defined in the config's training settings.
+
+### 2C. Initializing the vocab
+
+Vocab initialization is handled in the `training.initialize.init_vocab` helper. It takes the relevant loaded functions and values from the config and takes care of the following:
+
+- Add lookup tables defined in the config initialization, e.g. custom lemmatization tables. Those will be added to `nlp.vocab.lookups` from where they can be accessed by components.
+- Add JSONL-formatted [vocabulary data](https://spacy.io/api/data-formats#vocab-jsonl) to pre-populate the lexical attributes.
+- Load vectors into the pipeline. Vectors are defined as a name or path to a saved `nlp` object containing the vectors, e.g. `en_vectors_web_lg`. It's loaded and the vectors are ported over, while ensuring that all source strings are available in the destination strings. We also warn if there's a mismatch between sourced vectors, since this can lead to problems.
+
+----
+extra\DEVELOPER_DOCS\Listeners.md
+# Listeners
+
+1. [Overview](#1-overview)
+2. [Initialization](#2-initialization)
+   - [A. Linking listeners to the embedding component](#2a-linking-listeners-to-the-embedding-component)
+   - [B. Shape inference](#2b-shape-inference)
+3. [Internal communication](#3-internal-communication)
+   - [A. During prediction](#3a-during-prediction)
+   - [B. During training](#3b-during-training)
+   - [C. Frozen components](#3c-frozen-components)
+4. [Replacing listener with standalone](#4-replacing-listener-with-standalone)
+
+## 1. Overview
+
+Trainable spaCy components typically use some sort of `tok2vec` layer as part of the `model` definition.
+This `tok2vec` layer produces embeddings and is either a standard `Tok2Vec` layer, or a Transformer-based one.
+Both versions can be used either inline/standalone, which means that they are defined and used
+by only one specific component (e.g. NER), or
+[shared](https://spacy.io/usage/embeddings-transformers#embedding-layers),
+in which case the embedding functionality becomes a separate component that can
+feed embeddings to multiple components downstream, using a listener-pattern.
+
+| Type          | Usage      | Model Architecture                                                                                 |
+| ------------- | ---------- | -------------------------------------------------------------------------------------------------- |
+| `Tok2Vec`     | standalone | [`spacy.Tok2Vec`](https://spacy.io/api/architectures#Tok2Vec)                                      |
+| `Tok2Vec`     | listener   | [`spacy.Tok2VecListener`](https://spacy.io/api/architectures#Tok2VecListener)                      |
+| `Transformer` | standalone | [`spacy-transformers.Tok2VecTransformer`](https://spacy.io/api/architectures#Tok2VecTransformer)   |
+| `Transformer` | listener   | [`spacy-transformers.TransformerListener`](https://spacy.io/api/architectures#TransformerListener) |
+
+Here we discuss the listener pattern and its implementation in code in more detail.
+
+## 2. Initialization
+
+### 2A. Linking listeners to the embedding component
+
+To allow sharing a `tok2vec` layer, a separate `tok2vec` component needs to be defined in the config:
+
+```
+[components.tok2vec]
+factory = "tok2vec"
+
+[components.tok2vec.model]
+@architectures = "spacy.Tok2Vec.v2"
+```
+
+A listener can then be set up by making sure the correct `upstream` name is defined, referring to the
+name of the `tok2vec` component (which equals the factory name by default), or `*` as a wildcard:
+
+```
+[components.ner.model.tok2vec]
+@architectures = "spacy.Tok2VecListener.v1"
+upstream = "tok2vec"
+```
+
+When an [`nlp`](https://github.com/explosion/spaCy/blob/master/extra/DEVELOPER_DOCS/Language.md) object is
+initialized or deserialized, it will make sure to link each `tok2vec` component to its listeners. This is
+implemented in the method `nlp._link_components()` which loops over each
+component in the pipeline and calls `find_listeners()` on a component if it's defined.
+The [`tok2vec` component](https://github.com/explosion/spaCy/blob/master/spacy/pipeline/tok2vec.py)'s implementation
+of this `find_listener()` method will specifically identify sublayers of a model definition that are of type
+`Tok2VecListener` with a matching upstream name and will then add that listener to the internal `self.listener_map`.
+
+If it's a Transformer-based pipeline, a
+[`transformer` component](https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/pipeline_component.py)
+has a similar implementation but its `find_listener()` function will specifically look for `TransformerListener` 
+sublayers of downstream components.
+
+### 2B. Shape inference
+
+Typically, the output dimension `nO` of a listener's model equals the `nO` (or `width`) of the upstream embedding layer.
+For a standard `Tok2Vec`-based component, this is typically known up-front and defined as such in the config:
+
+```
+[components.ner.model.tok2vec]
+@architectures = "spacy.Tok2VecListener.v1"
+width = ${components.tok2vec.model.encode.width}
+```
+
+A `transformer` component however only knows its `nO` dimension after the HuggingFace transformer
+is set with the function `model.attrs["set_transformer"]`,
+[implemented](https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/layers/transformer_model.py)
+by `set_pytorch_transformer`.
+This is why, upon linking of the transformer listeners, the `transformer` component also makes sure to set
+the listener's output dimension correctly.
+
+This shape inference mechanism also needs to happen with resumed/frozen components, which means that for some CLI
+commands (`assemble` and `train`), we need to call `nlp._link_components` even before initializing the `nlp`
+object. To cover all use-cases and avoid negative side effects, the code base ensures that performing the
+linking twice is not harmful.
+
+## 3. Internal communication
+
+The internal communication between a listener and its downstream components is organized by sending and
+receiving information across the components - either directly or implicitly.
+The details are different depending on whether the pipeline is currently training, or predicting.
+Either way, the `tok2vec` or `transformer` component always needs to run before the listener.
+
+### 3A. During prediction
+
+When the `Tok2Vec` pipeline component is called, its `predict()` method is executed to produce the results,
+which are then stored by `set_annotations()` in the `doc.tensor` field of the document(s).
+Similarly, the `Transformer` component stores the produced embeddings
+in `doc._.trf_data`. Next, the `forward` pass of a
+[`Tok2VecListener`](https://github.com/explosion/spaCy/blob/master/spacy/pipeline/tok2vec.py)
+or a
+[`TransformerListener`](https://github.com/explosion/spacy-transformers/blob/master/spacy_transformers/layers/listener.py)
+accesses these fields on the `Doc` directly. Both listener implementations have a fallback mechanism for when these
+properties were not set on the `Doc`: in that case an all-zero tensor is produced and returned.
+We need this fallback mechanism to enable shape inference methods in Thinc, but the code
+is slightly risky and at times might h
